@@ -1,0 +1,26 @@
+{
+  "name": "es-utils",
+  "version": "1.0.0",
+  "description": "Various utilities for working in the ECMAScript/TypeScript codebase with less friction",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx tsc",
+    "type-check": "npx tsc --noEmit --strict",
+    "release": "node release.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ScheiBig/es-utils.git"
+  },
+  "author": "Marcin Jeznach",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/ScheiBig/es-utils/issues"
+  },
+  "homepage": "https://github.com/ScheiBig/es-utils#readme",
+  "devDependencies": {
+    "@types/node": "^22.15.29",
+    "typescript": "^5.8.3"
+  }
+}
