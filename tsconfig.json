@@ -1,20 +1,46 @@
 {
 	"compilerOptions": {
-		"target": "ES2022",
-		"module": "ESNext",
-		"moduleResolution": "node",
-		"rootDir": "src",
-		"outDir": "dist",
+		"strict": true,
+		"exactOptionalPropertyTypes": true,
+		"moduleDetection": "force",
+		"composite": true,
+		"downlevelIteration": true,
+		"resolveJsonModule": true,
+		"esModuleInterop": false,
 		"declaration": true,
+		"skipLibCheck": true,
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"moduleResolution": "NodeNext",
+		"lib": [
+			"ES2022",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"types": [
+			"node",
+		],
+		"isolatedModules": true,
 		"sourceMap": true,
-		"noErrorTruncation": true,
-		"paths": {
-			"@/*": [
-				"src/*"
-			]
-		}
-	},
-	"include": [
-		"src"
-	]
+		"declarationMap": true,
+		"noImplicitReturns": false,
+		"noUnusedLocals": true,
+		"noUnusedParameters": false,
+		"noFallthroughCasesInSwitch": true,
+		"noEmitOnError": false,
+		"noErrorTruncation": false,
+		"allowJs": false,
+		"checkJs": false,
+		"forceConsistentCasingInFileNames": true,
+		"noImplicitAny": true,
+		"noImplicitThis": true,
+		"noUncheckedIndexedAccess": false,
+		"strictNullChecks": true,
+		"baseUrl": ".",
+		"target": "ES2024",
+		"module": "NodeNext",
+		"incremental": true,
+		"removeComments": false,
+		"outDir": "./dist",
+	}
 }
