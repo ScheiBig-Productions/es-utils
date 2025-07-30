@@ -17,3 +17,4 @@ export { Log, type LogEntry, type LogLevel } from "./log.js"
 
 export type { Mutable, MethodKeys } from "./types.js"
 
+export { Temporal, Intl } from "@js-temporal/polyfill"

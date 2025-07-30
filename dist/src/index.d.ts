@@ -13,4 +13,5 @@ export { Mime } from "./mime.js";
 export { sc } from "./status-codes.js";
 export { Log, type LogEntry, type LogLevel } from "./log.js";
 export type { Mutable, MethodKeys } from "./types.js";
+export { Temporal, Intl } from "@js-temporal/polyfill";
 //# sourceMappingURL=index.d.ts.map
