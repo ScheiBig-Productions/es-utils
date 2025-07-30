@@ -52,7 +52,7 @@ declare global {
          * Creates a factory that allows for calling specific `Request`s in repeatable,
          * configurable way.
          *
-         * It allows for parameterizing 3 basic configurations: URL slug, URL query,
+         * It allows for parameterize 3 basic configurations: URL slug, URL query,
          * and init config.
          *
          * Each call will create new `Response` (call fetch underneath), but success is not
