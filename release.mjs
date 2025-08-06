@@ -13,8 +13,7 @@ if (!versionArg || !message) {
 let newVersion = execSync(`npm version ${versionArg} --no-git-tag-version`).toString().trim()
 // --- Create Git Tag ---
 execSync(`git commit -am "release ${newVersion}: ${message}"`)
-execSync(`git tag ${newVersion}`)
-execSync("git push && git push --tags")
+execSync(`git tag ${newVersion} ${message}`)
 
 // --- Update `CHANGELOG.md` ---
 const changelogPath = "CHANGELOG.md"
