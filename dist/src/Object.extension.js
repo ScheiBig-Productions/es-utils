@@ -32,7 +32,7 @@ Object.else ??= {
         // First overload
         if (typeof fallback === "function") {
             const orElse = fallback;
-            return val ?? orElse();
+            return val ?? orElse(val === undefined ? "undef" : "null");
         }
         // Guard against invalid fallback object
         if (typeof fallback !== "object" || fallback === null) {

@@ -66,8 +66,8 @@ Array.prototype.ascBy ??= function ascBy(selector, config) {
     }
     const col = new Intl.Collator(config?.locale, config);
     return this.toSorted((a, b) => {
-        const f = selector(b);
-        const s = selector(a);
+        const f = selector(a);
+        const s = selector(b);
         if (typeof f === "string" && typeof s === "string") {
             return col.compare(f, s);
         }
@@ -83,15 +83,15 @@ Array.prototype.descBy ??= function descBy(selector, config) {
     }
     const col = new Intl.Collator(config?.locale, config);
     return this.toSorted((a, b) => {
-        const f = selector(b);
-        const s = selector(a);
+        const f = selector(a);
+        const s = selector(b);
         if (typeof f === "string" && typeof s === "string") {
             return -col.compare(f, s);
         }
         if (f instanceof Date && s instanceof Date) {
             return -Math.sign(f.valueOf() - s.valueOf());
         }
-        return f > s ? -1 : f < s ? 1 : 0;
+        return f < s ? 1 : f > s ? -1 : 0;
     });
 };
 Array.prototype.splitBy ??= function splitBy(limit, weight) {
@@ -112,10 +112,11 @@ Array.prototype.splitBy ??= function splitBy(limit, weight) {
     return [removed, rest];
 };
 Array.prototype.padEnd ??= function padEnd(targetLength, fillValue) {
-    if (this.length < targetLength) {
-        this.push(...Array.from({ length: targetLength - this.length }, () => fillValue));
+    const that = [...this];
+    if (that.length < targetLength) {
+        that.push(...Array.from({ length: targetLength - that.length }, () => fillValue));
     }
-    return this;
+    return that;
 };
 Array.prototype.repeat ??= function repeat(count) {
     if (count < 0) {
@@ -135,9 +136,13 @@ Array.prototype.shuffle ??= function shuffle(seed) {
     return this;
 };
 Array.prototype.groupBy ??= function groupBy(keySelector, returnType = "Object") {
-    return returnType === "Object"
-        ? Object.groupBy(this, keySelector)
-        : Map.groupBy(this, keySelector);
+    if (returnType === "Object") {
+        return Object.groupBy(this, keySelector);
+    }
+    if (returnType === "Map") {
+        return Map.groupBy(this, keySelector);
+    }
+    throw TypeError(`Unknown grouping provider: ${String(returnType)}.`);
 };
 Array.range ??= function range(startOrEnd, maybeEnd, maybeStep = 1) {
     const [start, end, step] = maybeEnd === undefined

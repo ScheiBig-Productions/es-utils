@@ -28,7 +28,7 @@ declare global {
          * // vs
          * delete map.idx["baz"]
          */
-        readonly idx: Record<K, V>;
+        readonly $: Record<K, V>;
     }
     interface IndexedMapConstructor {
         /**

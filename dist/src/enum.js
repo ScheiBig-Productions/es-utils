@@ -41,7 +41,7 @@ export var Enum;
      * //    ^? => { Audi: "Audi", Peugeot: "Peugeot", Lexus: "Toyota" }
      * ```
      */
-    Enum.create = function (...rawValues) {
+    Enum.create = function create(...rawValues) {
         const entries = rawValues.map((v) => typeof v === "string" ? [v, v] : v);
         const enumObj = Object.fromEntries(entries);
         Object.defineProperty(enumObj, Symbol_enumValues, {
@@ -62,6 +62,6 @@ export var Enum;
      * const supportedCars = Enum.values(Cars)
      * //    ^? => ("Audi" | "Peugeot" | "Toyota")[]
      */
-    Enum.values = function (enumObj) { return enumObj[Symbol_enumValues]; };
+    Enum.values = function values(enumObj) { return enumObj[Symbol_enumValues]; };
 })(Enum || (Enum = {}));
 //# sourceMappingURL=enum.js.map

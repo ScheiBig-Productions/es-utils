@@ -1,4 +1,4 @@
-export {};
+import type { PromiseFactory } from "./promise-factory.js";
 type URLParams = Record<string, string | number | boolean | Date | Array<string> | Array<number> | Array<boolean> | Array<Date>> | undefined;
 type UnknownConfig = {
     slug?: unknown;
@@ -66,7 +66,8 @@ declare global {
          * @returns Function that accepts anticipated configuration and returns the same type
          * as calling `fetch` with resolved configuration would.
          */
-        var factory: <T extends InputConfig = object>(url: URLLike | ((p: URLConfig<T>) => URLLike), init?: RequestInit | ((p: InitConfig<T>) => RequestInit)) => (config: ResolveConfig<T>) => Promise<Response>;
+        var factory: <T extends InputConfig = object>(url: URLLike | ((p: URLConfig<T>) => URLLike), init?: RequestInit | ((p: InitConfig<T>) => RequestInit)) => PromiseFactory<Response, [config: ResolveConfig<T>]>;
     }
 }
+export {};
 //# sourceMappingURL=fetch.extension.d.ts.map

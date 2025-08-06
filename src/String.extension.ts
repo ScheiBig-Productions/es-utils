@@ -105,3 +105,46 @@ String.prototype.pack ??= function pack(this: string) {
 		.filter((l) => l)
 		.join(" ")
 }
+
+type DecoratorConfig = { prefix: string }
+	| { suffix: string }
+	| { prefix: string, suffix: string }
+
+
+declare global {
+	interface StringConstructor {
+
+		/**
+		 * Creates decorator template function, that place prefix and/or suffix next
+		 * to provided string.
+		 *
+		 * Returned function can also be used as wrapper function,
+		 * if templating is not necessary.
+		 *
+		 * @param config - Configuration of prefix/suffix
+		 * @param result - Requested function type
+		 * @return Decorating template function
+		 */
+		/* eslint-disable-next-line @typescript-eslint/method-signature-style --
+		 * Higher-order lambda messes-up the intellisense for parameters.
+		 */
+		decorator(config: DecoratorConfig): (
+			(strings: TemplateStringsArray | string, ...values: Array<unknown>) => string
+		),
+	}
+}
+
+/* eslint-disable-next-line @typescript-eslint/unbound-method --
+ * Static extension.
+ */
+String.decorator ??= function decorator(config: DecoratorConfig) {
+	const prefix = "prefix" in config ? config.prefix : ""
+	const suffix = "suffix" in config ? config.suffix : ""
+
+	return (strings: TemplateStringsArray | string, ...values: Array<unknown>) => prefix + (
+		typeof strings === "string"
+			? strings
+			: String.raw(strings, ...values)
+	) + suffix
+
+}

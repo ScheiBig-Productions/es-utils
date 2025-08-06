@@ -1,7 +1,7 @@
 /**
  * HTTP response codes.
  */
-export declare namespace sc {
+export declare namespace SC {
     /**
      * Codes that indicate successful processing of request.
      */
@@ -36,6 +36,9 @@ export declare namespace sc {
          */
         const noContent = 204;
     }
+    /**
+     * Codes used to redirect request to different address.
+     */
     export namespace Redirect {
         /**
          * Permanent redirect indicating that the requested resource has been moved
@@ -187,18 +190,52 @@ export declare namespace sc {
     }
     type ExtractValues<T> = T[keyof T];
     type ContentStatusCode = Exclude<ExtractValues<typeof Success>, 204> | ExtractValues<typeof Error> | ExtractValues<typeof Exception>;
+    /**
+     * Represents a status-bearing message, typically used for signaling outcomes.
+     * Instances are immutable and provide utility methods for introspection.
+     */
     export interface Message {
+        /** The message string describing the status. */
         readonly msg: string;
+        /** A status code indicating the type of content status. */
         readonly code: ContentStatusCode;
+        /** Returns a tuple representation of the message. */
         tuple: () => readonly [msg: string, code: ContentStatusCode];
+        /** Indicates whether the message represents a successful status. */
         isSuccess: () => boolean;
+        /** Indicates whether the message represents an error status. */
         isError: () => boolean;
+        /** Indicates whether the message represents an exceptional status. */
         isException: () => boolean;
     }
+    /**
+     * Factory and constructor for creating `Message` instances.
+     * Can be invoked directly or via `new`.
+     *
+     * It might be useful to throw `Message` inside promise, as escape signal from inner handler;
+     * such throw can be anticipated via `Message.expect` promise wrapper.
+     */
     interface MessageConstructor {
+        /**
+         * Constructs a new `Message` instance.
+         * @param msg - The message string.
+         * @param code - The content status code.
+         * @returns A new `Message` object.
+         */
         new (msg: string, code: ContentStatusCode): Message;
+        /**
+         * Constructs a new `Message` instance.
+         * @param msg - The message string.
+         * @param code - The content status code.
+         * @returns A new `Message` object.
+         */
         (msg: string, code: ContentStatusCode): Message;
-        /** Expects that Message can be thrown inside of specified Promise. */
+        /**
+         * Awaits a promise and returns either its resolved value or a `Message` if it throws.
+         * Useful for wrapping async operations with typed error signaling.
+         * @param inside - A promise to monitor.
+         * @returns A promise resolving to the original value or a `Message` if an error occurs.
+         */
         expect: <T>(inside: Promise<T>) => Promise<T | Message>;
     }
     /**
@@ -206,13 +243,36 @@ export declare namespace sc {
      */
     export const Message: MessageConstructor;
     type RedirectStatusCode = ExtractValues<typeof Redirect>;
-    interface Location {
+    /**
+     * Represents a redirect location with an associated status code.
+     * Used for signaling navigation or redirection intent.
+     */
+    export interface Location {
+        /** The target location or URL. */
         readonly to: string;
+        /** A status code indicating the type of redirect. */
         readonly code: RedirectStatusCode;
+        /** Returns a tuple representation of the location. */
         tuple: () => readonly [to: string, code: RedirectStatusCode];
     }
+    /**
+     * Factory and constructor for creating `Location` instances.
+     * Can be invoked directly or via `new`.
+     */
     interface LocationConstructor {
+        /**
+         * Constructs a new `Location` instance.
+         * @param msg - The target location string.
+         * @param code - Optional redirect status code. Defaults to a standard redirect.
+         * @returns A new `Location` object.
+         */
         new (msg: string, code?: RedirectStatusCode): Location;
+        /**
+         * Constructs a new `Location` instance.
+         * @param msg - The target location string.
+         * @param code - Optional redirect status code. Defaults to a standard redirect.
+         * @returns A new `Location` object.
+         */
         (msg: string, code?: RedirectStatusCode): Location;
     }
     /**

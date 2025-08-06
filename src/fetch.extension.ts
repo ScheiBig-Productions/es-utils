@@ -4,12 +4,13 @@
 * Although the method may appear always present in type definitions,
 * the actual environment might lack it (e.g. ES2022 targets).
 */
-
 /* eslint-disable @typescript-eslint/no-invalid-void-type --
  * This intentionally enables creating generic function which might or might not
  * have a parameter.
  */
-export { }
+
+import type { PromiseFactory } from "./promise-factory.js"
+
 
 type URLParams = Record<string,
 	string | number | boolean | Date
@@ -91,7 +92,7 @@ declare global {
 		>(
 			url: URLLike | ((p: URLConfig<T>) => URLLike),
 			init?: RequestInit | ((p: InitConfig<T>) => RequestInit),
-		) => (config: ResolveConfig<T>) => Promise<Response>
+		) => PromiseFactory<Response, [config: ResolveConfig<T>]>
 	}
 }
 
@@ -101,8 +102,7 @@ fetch.factory ??= function factory<
 	url: URLLike | ((p: URLConfig<T>) => URLLike),
 	init?: RequestInit | ((p: InitConfig<T>) => RequestInit),
 ) {
-
-	return async function fetchFactoryCreation(config: ResolveConfig<T>) {
+	return Promise.factory(async (config: ResolveConfig<T>) => {
 		const resolvedUrl = typeof url === "function"
 			? url(config as unknown as URLConfig<T>)
 			: url
@@ -114,5 +114,5 @@ fetch.factory ??= function factory<
 				: init
 
 		return await fetch(resolvedUrl, resolvedInit)
-	}
+	})
 }

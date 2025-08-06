@@ -1,3 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-condition --
+* Conditional assignment for `Array.prototype` props (`??=`) is intentional and context-aware:
+* it acts as a runtime polyfill or extension, only defining the method if it doesn't already exist.
+* Although the method may appear always present in type definitions,
+* the actual environment might lack it (e.g. ES2022 targets).
+*/
+import { ContractViolationError } from "./contract-violation-error.js";
 // eslint-disable-next-line complexity -- doing heavy checking to allow this
 const isDev = (() => {
     const global = globalThis;
@@ -26,11 +33,11 @@ const isDev = (() => {
 })();
 Error.never ??= function never(msg, ...context) {
     const { error } = console;
+    /* eslint-disable-next-line @typescript-eslint/no-unsafe-argument --
+     * Any values permitted by design - this mimics `console.error` signature.
+     */
     if (msg) {
-        error(msg);
-    }
-    for (const ctx of context) {
-        error(ctx);
+        error(msg, ...context);
     }
     /* eslint-disable-next-line no-debugger --
      * Explicitly using only in dev-mode.
@@ -38,7 +45,7 @@ Error.never ??= function never(msg, ...context) {
     if (isDev) {
         debugger;
     }
-    throw new Error(`Assertion failed; this should not occur!${msg ? ` (${msg instanceof Error ? msg.message : msg})` : ""}`, { cause: msg });
+    throw ContractViolationError(msg);
 };
 Error.isError ??= function isError(value) {
     const first = Object.prototype.toString.call(value) === "[object Error]"
@@ -49,8 +56,7 @@ Error.isError ??= function isError(value) {
     if (globalThis.process) {
         return (
         /* eslint-disable-next-line
-         @typescript-eslint/no-require-imports,
-         @typescript-eslint/no-unsafe-call --
+         @typescript-eslint/no-require-imports --
          * Synchronous import in NodeJS context
          */
         require("util/types"))?.isNativeError?.(value);
@@ -69,5 +75,4 @@ Error.errorLike ??= function errorLike(value) {
     const hasStack = !("stack" in value) || typeof value.stack === "string";
     return hasName && hasMessage && hasStack;
 };
-export {};
 //# sourceMappingURL=Error.extension.js.map

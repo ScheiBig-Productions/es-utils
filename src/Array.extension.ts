@@ -10,37 +10,6 @@ type IntlCollatorProps = {
 	locale?: string,
 } & Intl.CollatorOptions
 
-interface GroupByFn {
-
-	/**
-	 * Groups array elements by a specified key or function.
-	 * Uses `Object.groupBy` internally.
-	 *
-	 * @param keySelector - Function extracting a key for grouping elements.
-	 * @param returnType - "Object" (optional) - describes resulting type.
-	 * @returns An object or map with keys mapped to arrays of corresponding elements.
-	 */
-	<T, K extends keyof T | ((string | number) & {})>(
-		this: Array<T>,
-		keySelector: (item: T, index: number) => K,
-		returnType?: "Object",
-	): Partial<Record<K, Array<T>>>,
-
-	/**
-	 * Groups array elements by a specified key or function.
-	 * Uses `Map.groupBy` internally.
-	 *
-	 * @param keySelector - Function extracting a key for grouping elements.
-	 * @param returnType - "Map" - describes resulting type.
-	 * @returns An object or map with keys mapped to arrays of corresponding elements.
-	 */
-	<T, K extends keyof T | ((string | number) & {})>(
-		this: Array<T>,
-		keySelector: (item: T, index: number) => K,
-		returnType: "Map",
-	): Map<K, Array<T>>,
-}
-
 interface MinByFn {
 
 	/**
@@ -227,6 +196,37 @@ interface DescByFn {
 	): T | undefined,
 }
 
+interface GroupByFn {
+
+	/**
+	 * Groups array elements by a specified key or function.
+	 * Uses `Object.groupBy` internally.
+	 *
+	 * @param keySelector - Function extracting a key for grouping elements.
+	 * @param returnType - "Object" (optional) - describes resulting type.
+	 * @returns An object with keys mapped to arrays of corresponding elements.
+	 */
+	<T, K extends keyof T | ((string | number) & {})>(
+		this: Array<T>,
+		keySelector: (item: T, index: number) => K,
+		returnType?: "Object",
+	): Partial<Record<K, Array<T>>>,
+
+	/**
+	 * Groups array elements by a specified key or function.
+	 * Uses `Map.groupBy` internally.
+	 *
+	 * @param keySelector - Function extracting a key for grouping elements.
+	 * @param returnType - "Map" - describes resulting type.
+	 * @returns A map with keys mapped to arrays of corresponding elements.
+	 */
+	<T, K extends keyof T | ((string | number) & {})>(
+		this: Array<T>,
+		keySelector: (item: T, index: number) => K,
+		returnType: "Map",
+	): Map<K, Array<T>>,
+}
+
 declare global {
 	interface Array<T> {
 
@@ -248,7 +248,7 @@ declare global {
 		removeBy: (
 			this: Array<T>,
 			predicate: (value: T, index: number, array: Array<T>) => boolean,
-		) => Array<T>,
+		) => this,
 
 		/**
 		 * Returns a new shuffled version of the array.
@@ -262,12 +262,40 @@ declare global {
 			seed?: string
 		) => Array<T>,
 
+		/**
+		 * Finds the minimum element based on a provided selector function.
+		 * Returns `undefined` if the array is empty.
+		 *
+		 * @param selector - Function returning a value for comparison.
+		 * @returns The element with the lowest value according to `selector`,
+		 * or `undefined` if this array is empty.
+		 */
 		minBy: MinByFn,
 
+		/**
+		 * Finds the maximum element based on a provided selector function.
+		 * Returns `undefined` if the array is empty.
+		 *
+		 * @param selector - Function returning a value for comparison.
+		 * @returns The element with the highest value according to `selector`,
+		 * or `undefined` if this array is empty.
+		 */
 		maxBy: MaxByFn,
 
+		/**
+		 * Sorts the array in ascending order based on a given selector function.
+		 *
+		 * @param selector - Function returning a value for comparison.
+		 * @returns A new array sorted in ascending order.
+		 */
 		ascBy: AscByFn,
 
+		/**
+		 * Sorts the array in descending order based on a given selector function.
+		 *
+		 * @param selector - Function returning a value for comparison.
+		 * @returns A new array sorted in descending order.
+		 */
 		descBy: DescByFn,
 
 		/**
@@ -321,6 +349,14 @@ declare global {
 			seed?: string,
 		) => this,
 
+		/**
+		 * Groups array elements by a specified key or function.
+		 * Uses `Object.groupBy` or `Map.groupBy` internally.
+		 *
+		 * @param keySelector - Function extracting a key for grouping elements.
+		 * @param returnType - "Object" or "Map" - describes resulting type. Object by default.
+		 * @returns An object or map with keys mapped to arrays of corresponding elements.
+		 */
 		groupBy: GroupByFn,
 	}
 }
@@ -424,8 +460,8 @@ Array.prototype.ascBy ??= function ascBy<T>(
 	const col = new Intl.Collator(config?.locale, config)
 
 	return this.toSorted((a, b) => {
-		const f = selector(b)
-		const s = selector(a)
+		const f = selector(a)
+		const s = selector(b)
 
 		if (typeof f === "string" && typeof s === "string") {
 			return col.compare(f, s)
@@ -449,8 +485,8 @@ Array.prototype.descBy ??= function descBy<T>(
 	const col = new Intl.Collator(config?.locale, config)
 
 	return this.toSorted((a, b) => {
-		const f = selector(b)
-		const s = selector(a)
+		const f = selector(a)
+		const s = selector(b)
 
 		if (typeof f === "string" && typeof s === "string") {
 			return -col.compare(f, s)
@@ -460,7 +496,7 @@ Array.prototype.descBy ??= function descBy<T>(
 			return -Math.sign(f.valueOf() - s.valueOf())
 		}
 
-		return f > s ? -1 : f < s ? 1 : 0
+		return f < s ? 1 : f > s ? -1 : 0
 	})
 }
 
@@ -493,10 +529,11 @@ Array.prototype.padEnd ??= function padEnd<T>(
 	targetLength: number,
 	fillValue: T,
 ) {
-	if (this.length < targetLength) {
-		this.push(...Array.from({ length: targetLength - this.length }, () => fillValue))
+	const that = [ ...this ]
+	if (that.length < targetLength) {
+		that.push(...Array.from({ length: targetLength - that.length }, () => fillValue))
 	}
-	return this
+	return that
 }
 
 Array.prototype.repeat ??= function repeat<T>(
@@ -528,9 +565,9 @@ Array.prototype.groupBy ??= function groupBy<T, K extends keyof T | ((string | n
 	keySelector: (item: T, index: number) => K,
 	returnType: "Object" | "Map" = "Object",
 ) {
-	return returnType === "Object"
-		? Object.groupBy(this, keySelector)
-		: Map.groupBy(this, keySelector)
+	if (returnType === "Object") { return Object.groupBy(this, keySelector) }
+	if (returnType === "Map") { return Map.groupBy(this, keySelector) }
+	throw TypeError(`Unknown grouping provider: ${String(returnType)}.`)
 } as GroupByFn
 
 interface RangeFn {

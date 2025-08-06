@@ -11,7 +11,7 @@ import type { Mutable } from "./types.js"
 /**
  * HTTP response codes.
  */
-export namespace sc {
+export namespace SC {
 
 	/**
 	 * Codes that indicate successful processing of request.
@@ -52,6 +52,9 @@ export namespace sc {
 		export const noContent = 204
 	}
 
+	/**
+	 * Codes used to redirect request to different address.
+	 */
 	export namespace Redirect {
 
 		/**
@@ -106,7 +109,6 @@ export namespace sc {
 	 *
 	 * Responses should contain explanation to why request was rejected.
 	 */
-
 	export namespace Error {
 
 		/**
@@ -229,19 +231,62 @@ export namespace sc {
 		| ExtractValues<typeof Error>
 		| ExtractValues<typeof Exception>
 
+	/**
+	 * Represents a status-bearing message, typically used for signaling outcomes.
+	 * Instances are immutable and provide utility methods for introspection.
+	 */
 	export interface Message {
+
+		/** The message string describing the status. */
 		readonly msg: string,
+
+		/** A status code indicating the type of content status. */
 		readonly code: ContentStatusCode,
+
+		/** Returns a tuple representation of the message. */
 		tuple: () => readonly [msg: string, code: ContentStatusCode],
+
+		/** Indicates whether the message represents a successful status. */
 		isSuccess: () => boolean,
+
+		/** Indicates whether the message represents an error status. */
 		isError: () => boolean,
+
+		/** Indicates whether the message represents an exceptional status. */
 		isException: () => boolean,
 	}
+
+	/**
+	 * Factory and constructor for creating `Message` instances.
+	 * Can be invoked directly or via `new`.
+	 *
+	 * It might be useful to throw `Message` inside promise, as escape signal from inner handler;
+	 * such throw can be anticipated via `Message.expect` promise wrapper.
+	 */
 	interface MessageConstructor {
+
+		/**
+		 * Constructs a new `Message` instance.
+		 * @param msg - The message string.
+		 * @param code - The content status code.
+		 * @returns A new `Message` object.
+		 */
 		new(msg: string, code: ContentStatusCode): Message,
+
+		/**
+		 * Constructs a new `Message` instance.
+		 * @param msg - The message string.
+		 * @param code - The content status code.
+		 * @returns A new `Message` object.
+		 */
 		(msg: string, code: ContentStatusCode): Message,
 
-		/** Expects that Message can be thrown inside of specified Promise. */
+		/**
+		 * Awaits a promise and returns either its resolved value or a `Message` if it throws.
+		 * Useful for wrapping async operations with typed error signaling.
+		 * @param inside - A promise to monitor.
+		 * @returns A promise resolving to the original value or a `Message` if an error occurs.
+		 */
 		expect: <T>(inside: Promise<T>) => Promise<T | Message>,
 	}
 
@@ -249,36 +294,37 @@ export namespace sc {
 	 * Wrapper over textual message, that is to be passed to Response.
 	 */
 	export const Message = function Message(
-		this: Message | object,
+		this: Message | undefined,
 		msg: string,
 		code: ContentStatusCode,
 	): Message {
-		if (!(this instanceof sc.Message)) {
-			return new sc.Message(msg, code)
-		}
-
-		const self = this as Mutable<Message>
+		const self = (this instanceof SC.Message
+			? this
+			: Object.create(SC.Message.prototype as object)
+		) as Mutable<SC.Message>
 
 		self.msg = msg
 		self.code = code
 
-		this.tuple = function tuple(): readonly [msg: string, code: ContentStatusCode] {
-			return [ this.msg, this.code ] as const
+		self.tuple = function tuple(): readonly [msg: string, code: ContentStatusCode] {
+			return [ self.msg, self.code ] as const
 		}
 
-		this.isSuccess = function isSuccess(): boolean {
-			return Math.floor(this.code / 100) === 2
+		self.isSuccess = function isSuccess(): boolean {
+			return Math.floor(self.code / 100) === 2
 		}
 
-		this.isError = function isError(): boolean {
-			return Math.floor(this.code / 100) === 4
+		self.isError = function isError(): boolean {
+			return Math.floor(self.code / 100) === 4
 		}
 
-		this.isException = function isException(): boolean {
-			return Math.floor(this.code / 100) === 5
+		self.isException = function isException(): boolean {
+			return Math.floor(self.code / 100) === 5
 		}
 
-		return this
+		Object.freeze(self)
+
+		return self
 	} as MessageConstructor
 
 	Message.expect = async (inside) => await inside.catch((e: unknown) => {
@@ -287,13 +333,43 @@ export namespace sc {
 	})
 
 	type RedirectStatusCode = ExtractValues<typeof Redirect>
-	interface Location {
+
+	/**
+	 * Represents a redirect location with an associated status code.
+	 * Used for signaling navigation or redirection intent.
+	 */
+	export interface Location {
+
+		/** The target location or URL. */
 		readonly to: string,
+
+		/** A status code indicating the type of redirect. */
 		readonly code: RedirectStatusCode,
+
+		/** Returns a tuple representation of the location. */
 		tuple: () => readonly [to: string, code: RedirectStatusCode],
 	}
+
+	/**
+	 * Factory and constructor for creating `Location` instances.
+	 * Can be invoked directly or via `new`.
+	 */
 	interface LocationConstructor {
+
+		/**
+		 * Constructs a new `Location` instance.
+		 * @param msg - The target location string.
+		 * @param code - Optional redirect status code. Defaults to a standard redirect.
+		 * @returns A new `Location` object.
+		 */
 		new(msg: string, code?: RedirectStatusCode): Location,
+
+		/**
+		 * Constructs a new `Location` instance.
+		 * @param msg - The target location string.
+		 * @param code - Optional redirect status code. Defaults to a standard redirect.
+		 * @returns A new `Location` object.
+		 */
 		(msg: string, code?: RedirectStatusCode): Location,
 	}
 
@@ -305,18 +381,20 @@ export namespace sc {
 		to: string,
 		code: RedirectStatusCode = Redirect.found,
 	): Location {
-		if (!(this instanceof sc.Location)) {
-			return new sc.Location(to, code)
-		}
+		const self = (this instanceof SC.Location
+			? this
+			: Object.create(SC.Location.prototype as object)
+		) as Mutable<SC.Location>
 
-		const self = this as Mutable<Location>
 		self.to = to
 		self.code = code
 
-		this.tuple = function tuple(): readonly [to: string, code: RedirectStatusCode] {
-			return [ this.to, this.code ] as const
+		self.tuple = function tuple(): readonly [to: string, code: RedirectStatusCode] {
+			return [ self.to, self.code ] as const
 		}
 
-		return this
+		Object.freeze(self)
+
+		return self
 	} as LocationConstructor
 }

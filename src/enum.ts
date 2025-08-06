@@ -66,7 +66,7 @@ export namespace Enum {
 	 * //    ^? => { Audi: "Audi", Peugeot: "Peugeot", Lexus: "Toyota" }
 	 * ```
 	 */
-	export const create = function <const T extends Entries>(...rawValues: T): ObjectEnum<T> {
+	export const create = function create<const T extends Entries>(...rawValues: T): ObjectEnum<T> {
 		const entries = rawValues.map((v) => typeof v === "string" ? [ v, v ] : v)
 		const enumObj = Object.fromEntries(entries) as ObjectEnum<T>
 		Object.defineProperty(enumObj, Symbol_enumValues, {
@@ -106,7 +106,7 @@ export namespace Enum {
 	 * const supportedCars = Enum.values(Cars)
 	 * //    ^? => ("Audi" | "Peugeot" | "Toyota")[]
 	 */
-	export const values = function <const T extends Entries>(
+	export const values = function values<const T extends Entries>(
 		enumObj: ObjectEnum<T>,
 	): ReadonlyArray<ExtractValues<T>[number]> { return enumObj[Symbol_enumValues] }
 }

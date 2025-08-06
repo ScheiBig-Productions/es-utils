@@ -9,7 +9,7 @@ interface ElseFn {
      * returning a replacement value.
      * @returns `val` if defined; otherwise result of `fallback()`.
      */
-    <T, R>(val: T | null | undefined, fallback: () => R): T | R;
+    <T, R>(val: T | null | undefined, fallback: (why: "null" | "undef") => R): T | R;
     /**
      * Returns the provided value if it's not `null`, otherwise returns
      * the result of the fallback.
@@ -64,6 +64,8 @@ declare global {
          * Returns the same object, but with specified keys marked optional.
          * Runtime equivalent of `Partial<Pick<T, K>> & Omit<T, K>`.
          *
+         * Does not modify returned `obj` in any way.
+         *
          * @param obj - Source object.
          * @param keys - Keys to mark optional.
          * @returns The object with relaxed type constraints on provided keys.
@@ -87,6 +89,13 @@ declare global {
          * @throws TypeError if value is nullish.
          */
         require: <T>(value: T | null | undefined) => T;
+        /**
+         * Returns the provided value if it is defined, otherwise returns
+         * the result of the fallback.
+         *
+         * @param val - Value to inspect for `null`.
+         * @returns `val` if defined; result of fallback result in given other case.
+         */
         else: ElseFn;
     }
 }

@@ -1,13 +1,18 @@
-export {};
 declare global {
     interface ErrorConstructor {
         /**
-         * Asserts a condition that should never occur.
+         * Trips on contract violation.
+         *
+         * This call, as name suggests, should never be performed - it should be short-circuited
+         * by truthy value or condition, that by contract should always be present.
+         *
          * Logs context and throws error.
          *
          * @param msg - Optional message or error instance.
+         * It is strongly recommended that message is provided for logging purpose.
          * @param context - Additional debug info.
-         * @throws A descriptive error with attached context.
+         * @throws {ContractViolationError}
+         * @see {@link ContractViolationError}
          */
         never: (msg?: string | Error, ...context: Array<any>) => never;
         /**
@@ -23,8 +28,10 @@ declare global {
          */
         isError: (value: unknown) => value is InstanceType<typeof Error | typeof DOMException>;
         /**
-         * Determines whether a given value is "error-like" — meaning it structurally
-         * resembles an Error object (has `name`, `message`, and optionally `stack`).
+         * Determines whether a given value is "error-like" - meaning it structurally
+         * resembles an Error object (has `name`, `message`, and optionally `stack` and `cause`;
+         * all of proper types).
+         *
          * Useful for detecting errors from libraries that avoid subclassing Error.
          *
          * @param value - The value to test.
@@ -37,4 +44,5 @@ declare global {
         errorLike: (value: unknown) => value is Error;
     }
 }
+export {};
 //# sourceMappingURL=Error.extension.d.ts.map

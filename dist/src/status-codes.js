@@ -4,8 +4,8 @@
 /**
  * HTTP response codes.
  */
-export var sc;
-(function (sc) {
+export var SC;
+(function (SC) {
     /**
      * Codes that indicate successful processing of request.
      */
@@ -40,7 +40,10 @@ export var sc;
          * in optimistic way or keeps full state.
          */
         Success.noContent = 204;
-    })(Success = sc.Success || (sc.Success = {}));
+    })(Success = SC.Success || (SC.Success = {}));
+    /**
+     * Codes used to redirect request to different address.
+     */
     let Redirect;
     (function (Redirect) {
         /**
@@ -83,7 +86,7 @@ export var sc;
          * Useful for transitioning APIs while ensuring method consistency.
          */
         Redirect.permanent = 308;
-    })(Redirect = sc.Redirect || (sc.Redirect = {}));
+    })(Redirect = SC.Redirect || (SC.Redirect = {}));
     /**
      * Client error codes, which indicate problem with request.
      *
@@ -170,7 +173,7 @@ export var sc;
          * for requests or resource usage, often in API rate and/or quota limiting scenarios.
          */
         Error.tooManyRequests = 429;
-    })(Error = sc.Error || (sc.Error = {}));
+    })(Error = SC.Error || (SC.Error = {}));
     /**
      * Server error codes, which indicate error while processing request / creating response.
      *
@@ -192,33 +195,33 @@ export var sc;
          * response from upstream.
          */
         Exception.badGateway = 502;
-    })(Exception = sc.Exception || (sc.Exception = {}));
+    })(Exception = SC.Exception || (SC.Exception = {}));
     /**
      * Wrapper over textual message, that is to be passed to Response.
      */
-    sc.Message = function Message(msg, code) {
-        if (!(this instanceof sc.Message)) {
-            return new sc.Message(msg, code);
-        }
-        const self = this;
+    SC.Message = function Message(msg, code) {
+        const self = (this instanceof SC.Message
+            ? this
+            : Object.create(SC.Message.prototype));
         self.msg = msg;
         self.code = code;
-        this.tuple = function tuple() {
-            return [this.msg, this.code];
+        self.tuple = function tuple() {
+            return [self.msg, self.code];
         };
-        this.isSuccess = function isSuccess() {
-            return Math.floor(this.code / 100) === 2;
+        self.isSuccess = function isSuccess() {
+            return Math.floor(self.code / 100) === 2;
         };
-        this.isError = function isError() {
-            return Math.floor(this.code / 100) === 4;
+        self.isError = function isError() {
+            return Math.floor(self.code / 100) === 4;
         };
-        this.isException = function isException() {
-            return Math.floor(this.code / 100) === 5;
+        self.isException = function isException() {
+            return Math.floor(self.code / 100) === 5;
         };
-        return this;
+        Object.freeze(self);
+        return self;
     };
-    sc.Message.expect = async (inside) => await inside.catch((e) => {
-        if (e instanceof sc.Message) {
+    SC.Message.expect = async (inside) => await inside.catch((e) => {
+        if (e instanceof SC.Message) {
             return e;
         }
         throw e;
@@ -226,17 +229,17 @@ export var sc;
     /**
      * Wrapper over redirect happening as Response.
      */
-    sc.Location = function Location(to, code = Redirect.found) {
-        if (!(this instanceof sc.Location)) {
-            return new sc.Location(to, code);
-        }
-        const self = this;
+    SC.Location = function Location(to, code = Redirect.found) {
+        const self = (this instanceof SC.Location
+            ? this
+            : Object.create(SC.Location.prototype));
         self.to = to;
         self.code = code;
-        this.tuple = function tuple() {
-            return [this.to, this.code];
+        self.tuple = function tuple() {
+            return [self.to, self.code];
         };
-        return this;
+        Object.freeze(self);
+        return self;
     };
-})(sc || (sc = {}));
+})(SC || (SC = {}));
 //# sourceMappingURL=status-codes.js.map

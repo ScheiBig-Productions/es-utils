@@ -2,26 +2,6 @@ export {};
 type IntlCollatorProps = {
     locale?: string;
 } & Intl.CollatorOptions;
-interface GroupByFn {
-    /**
-     * Groups array elements by a specified key or function.
-     * Uses `Object.groupBy` internally.
-     *
-     * @param keySelector - Function extracting a key for grouping elements.
-     * @param returnType - "Object" (optional) - describes resulting type.
-     * @returns An object or map with keys mapped to arrays of corresponding elements.
-     */
-    <T, K extends keyof T | ((string | number) & {})>(this: Array<T>, keySelector: (item: T, index: number) => K, returnType?: "Object"): Partial<Record<K, Array<T>>>;
-    /**
-     * Groups array elements by a specified key or function.
-     * Uses `Map.groupBy` internally.
-     *
-     * @param keySelector - Function extracting a key for grouping elements.
-     * @param returnType - "Map" - describes resulting type.
-     * @returns An object or map with keys mapped to arrays of corresponding elements.
-     */
-    <T, K extends keyof T | ((string | number) & {})>(this: Array<T>, keySelector: (item: T, index: number) => K, returnType: "Map"): Map<K, Array<T>>;
-}
 interface MinByFn {
     /**
      * Finds the minimum element based on a provided selector function.
@@ -152,6 +132,26 @@ interface DescByFn {
      */
     <T>(this: Array<T>, selector: (value: T) => string, config?: IntlCollatorProps): T | undefined;
 }
+interface GroupByFn {
+    /**
+     * Groups array elements by a specified key or function.
+     * Uses `Object.groupBy` internally.
+     *
+     * @param keySelector - Function extracting a key for grouping elements.
+     * @param returnType - "Object" (optional) - describes resulting type.
+     * @returns An object with keys mapped to arrays of corresponding elements.
+     */
+    <T, K extends keyof T | ((string | number) & {})>(this: Array<T>, keySelector: (item: T, index: number) => K, returnType?: "Object"): Partial<Record<K, Array<T>>>;
+    /**
+     * Groups array elements by a specified key or function.
+     * Uses `Map.groupBy` internally.
+     *
+     * @param keySelector - Function extracting a key for grouping elements.
+     * @param returnType - "Map" - describes resulting type.
+     * @returns A map with keys mapped to arrays of corresponding elements.
+     */
+    <T, K extends keyof T | ((string | number) & {})>(this: Array<T>, keySelector: (item: T, index: number) => K, returnType: "Map"): Map<K, Array<T>>;
+}
 declare global {
     interface Array<T> {
         /**
@@ -168,7 +168,7 @@ declare global {
          * @param predicate - Function determining which elements to remove.
          * @returns The modified array with elements removed.
          */
-        removeBy: (this: Array<T>, predicate: (value: T, index: number, array: Array<T>) => boolean) => Array<T>;
+        removeBy: (this: Array<T>, predicate: (value: T, index: number, array: Array<T>) => boolean) => this;
         /**
          * Returns a new shuffled version of the array.
          * Uses an optional seed for deterministic shuffling.
@@ -177,9 +177,37 @@ declare global {
          * @returns A new shuffled array.
          */
         toShuffled: (this: Array<T>, seed?: string) => Array<T>;
+        /**
+         * Finds the minimum element based on a provided selector function.
+         * Returns `undefined` if the array is empty.
+         *
+         * @param selector - Function returning a value for comparison.
+         * @returns The element with the lowest value according to `selector`,
+         * or `undefined` if this array is empty.
+         */
         minBy: MinByFn;
+        /**
+         * Finds the maximum element based on a provided selector function.
+         * Returns `undefined` if the array is empty.
+         *
+         * @param selector - Function returning a value for comparison.
+         * @returns The element with the highest value according to `selector`,
+         * or `undefined` if this array is empty.
+         */
         maxBy: MaxByFn;
+        /**
+         * Sorts the array in ascending order based on a given selector function.
+         *
+         * @param selector - Function returning a value for comparison.
+         * @returns A new array sorted in ascending order.
+         */
         ascBy: AscByFn;
+        /**
+         * Sorts the array in descending order based on a given selector function.
+         *
+         * @param selector - Function returning a value for comparison.
+         * @returns A new array sorted in descending order.
+         */
         descBy: DescByFn;
         /**
          * Splits the array into two sub-arrays based on a weight function and a limit threshold.
@@ -214,6 +242,14 @@ declare global {
          * @returns The modified array.
          */
         shuffle: (this: Array<T>, seed?: string) => this;
+        /**
+         * Groups array elements by a specified key or function.
+         * Uses `Object.groupBy` or `Map.groupBy` internally.
+         *
+         * @param keySelector - Function extracting a key for grouping elements.
+         * @param returnType - "Object" or "Map" - describes resulting type. Object by default.
+         * @returns An object or map with keys mapped to arrays of corresponding elements.
+         */
         groupBy: GroupByFn;
     }
 }

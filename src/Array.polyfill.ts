@@ -44,7 +44,7 @@ declare global {
 		 *
 		 * @returns A new array with the order of elements reversed.
 		 */
-		toReversed: (this: Array<T>,) => Array<T>,
+		toReversed: (this: Array<T>) => Array<T>,
 
 		/**
 		 * Returns a sorted copy of the array using optional comparator.

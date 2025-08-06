@@ -44,7 +44,7 @@ declare global {
 		 * // vs
 		 * delete map.idx["baz"]
 		 */
-		readonly idx: Record<K, V>,
+		readonly $: Record<K, V>,
 	}
 
 	interface IndexedMapConstructor {
@@ -89,12 +89,12 @@ Map.groupBy ??= function groupBy<T, K>(
 ; (
 	Map as Mutable<MapConstructor>
 ).Indexed ??= class IndexedMap<K extends string | symbol, V> extends Map<K, V> {
-	readonly idx: Record<K, V>
+	readonly $: Record<K, V>
 
 	constructor(entries?: ReadonlyArray<readonly [K, V]> | null) {
 		super(entries ?? [])
 
-		this.idx = new Proxy(
+		this.$ = new Proxy(
 			Object.defineProperty({} as Record<K, V>, Symbol.toStringTag, {
 				value: "Map Proxy",
 				enumerable: false,

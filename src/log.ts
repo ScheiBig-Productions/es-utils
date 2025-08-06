@@ -1,5 +1,14 @@
+/* eslint-disable no-shadow --
+ * Namespace export shadows internals.
+ */
+/* eslint-disable @typescript-eslint/unbound-method --
+ * Returning static-like functions that cannot be proved to be that.
+ */
+/* eslint-disable @typescript-eslint/no-unnecessary-condition --
+ * Checks are made in order to work under different runtimes.
+ */
 /* eslint-disable @typescript-eslint/naming-convention --
- * Using enum-like naming
+ * Using enum-like naming,
  */
 
 const {
@@ -65,7 +74,7 @@ const logLevels = [
 	"Error", "Warning", "Notice",
 	"Info", "Debug", "Verbose",
 ] as const
-export type LogLevel = typeof logLevels[number]
+type LogLevel = typeof logLevels[number]
 
 const logLevel: Record<LogLevel, number> = {
 	Failure: 0,
@@ -105,7 +114,7 @@ const logShortColors: Record<LogLevel, number> = {
 
 type LoggerFunc = (tag: string | null, message: string, time?: Date) => Date
 
-export type LogEntry = {
+type LogEntry = {
 
 	/** Level of message. */
 	lvl: LogLevel,
@@ -130,7 +139,7 @@ type RegisterFunc = (
 	listener: (entry: LogEntry) => void,
 ) => void
 
-const colorize = (code: LogLevel | number, msg: string): string => {
+const colorize = function Log_colorize(code: LogLevel | number, msg: string): string {
 	if (colorDisabled) {
 		return msg
 	}
@@ -147,156 +156,6 @@ const emit = function emit(entry: LogEntry) {
 	 * This produces unexpected errors.
 	 */
 	handlers[entry.lvl].forEach((func) => void func(entry))
-}
-
-interface Log {
-	(lvl: LogLevel, tag: string | null, message: string, time?: Date): Date,
-	verbosity: LogLevel,
-
-	/**
-	 * Writes to log with level:
-	 * > Failure (0)   - System is unusable (calling this level will crash application)
-	 *
-	 * @param lvl - Level that message should have.
-	 * @param tag - Header of message - `null` if not desired.
-	 * @param message - Body of message.
-	 * @param time - Optional time for which log message should be printed.
-	 * Usable if message was preprocessed for a long time.
-	 *
-	 * @returns `time` if passed, timestamp of log message otherwise
-	 */
-	F: LoggerFunc,
-
-	/**
-	 * Writes to log with level:
-	 * > Alert (1) - Action must be taken immediately
-	 *
-	 * @param lvl - Level that message should have.
-	 * @param tag - Header of message - `null` if not desired.
-	 * @param message - Body of message.
-	 * @param time - Optional time for which log message should be printed.
-	 * Usable if message was preprocessed for a long time.
-	 *
-	 * @returns `time` if passed, timestamp of log message otherwise
-	 */
-	A: LoggerFunc,
-
-	/**
-	 * Writes to log with level:
-	 * > Critical (2) - Critical conditions
-	 *
-	 * @param lvl - Level that message should have.
-	 * @param tag - Header of message - `null` if not desired.
-	 * @param message - Body of message.
-	 * @param time - Optional time for which log message should be printed.
-	 * Usable if message was preprocessed for a long time.
-	 *
-	 * @returns `time` if passed, timestamp of log message otherwise
-	 */
-	C: LoggerFunc,
-
-	/**
-	 * Writes to log with level:
-	 * > Error (3) - Error conditions
-	 *
-	 * @param lvl - Level that message should have.
-	 * @param tag - Header of message - `null` if not desired.
-	 * @param message - Body of message.
-	 * @param time - Optional time for which log message should be printed.
-	 * Usable if message was preprocessed for a long time.
-	 *
-	 * @returns `time` if passed, timestamp of log message otherwise
-	 */
-	E: LoggerFunc,
-
-	/**
-	 * Writes to log with level:
-	 * > Warning (4) - Warning conditions
-	 *
-	 * @param lvl - Level that message should have.
-	 * @param tag - Header of message - `null` if not desired.
-	 * @param message - Body of message.
-	 * @param time - Optional time for which log message should be printed.
-	 * Usable if message was preprocessed for a long time.
-	 *
-	 * @returns `time` if passed, timestamp of log message otherwise
-	 */
-	W: LoggerFunc,
-
-	/**
-	 * Writes to log with level:
-	 * > Notice (5) - Normal but significant
-	 *
-	 * @param lvl - Level that message should have.
-	 * @param tag - Header of message - `null` if not desired.
-	 * @param message - Body of message.
-	 * @param time - Optional time for which log message should be printed.
-	 * Usable if message was preprocessed for a long time.
-	 *
-	 * @returns `time` if passed, timestamp of log message otherwise
-	 */
-	N: LoggerFunc,
-
-	/**
-	 * Writes to log with level:
-	 * > Info (6) - Information messaging
-	 *
-	 * @param lvl - Level that message should have.
-	 * @param tag - Header of message - `null` if not desired.
-	 * @param message - Body of message.
-	 * @param time - Optional time for which log message should be printed.
-	 * Usable if message was preprocessed for a long time.
-	 *
-	 * @returns `time` if passed, timestamp of log message otherwise
-	 */
-	I: LoggerFunc,
-
-	/**
-	 * Writes to log with level:
-	 * > Debug (7) - Debug-level messages
-	 *
-	 * @param lvl - Level that message should have.
-	 * @param tag - Header of message - `null` if not desired.
-	 * @param message - Body of message.
-	 * @param time - Optional time for which log message should be printed.
-	 * Usable if message was preprocessed for a long time.
-	 *
-	 * @returns `time` if passed, timestamp of log message otherwise
-	 */
-	D: LoggerFunc,
-
-	/**
-	 * Writes to log with level:
-	 * > Verbose (8) - Verbose messaging
-	 *
-	 * @param lvl - Level that message should have.
-	 * @param tag - Header of message - `null` if not desired.
-	 * @param message - Body of message.
-	 * @param time - Optional time for which log message should be printed.
-	 * Usable if message was preprocessed for a long time.
-	 *
-	 * @returns `time` if passed, timestamp of log message otherwise
-	 */
-	V: LoggerFunc,
-
-	/**
-	 * Registers new listener to the logger
-	 */
-	on: RegisterFunc,
-
-	/**
-	 * Removes listener from the logger
-	 */
-	off: RegisterFunc,
-
-	/**
-	 * Produces string wrapped in color for given log level or ANSI code point.
-	 *
-	 * @param code - LogLevel or numerical code for given format.
-	 * @param msg - Message to wrap in color.
-	 * @returns Formatted message (if color is not disabled), with format reset at the end.
-	 */
-	colorize: typeof colorize,
 }
 
 /**
@@ -335,7 +194,10 @@ interface Log {
  *
  * @returns `time` if passed, timestamp of log message otherwise
  */
-export const Log = function log(lvl: LogLevel, tag: string | null, message: string, time?: Date) {
+/* eslint-disable-next-line func-style --
+ * Necessary for namespace-merging
+ */
+export function Log(lvl: LogLevel, tag: string | null, message: string, time?: Date): Date {
 	const timestamp = time ?? new Date()
 	const localDT = new Date(timestamp.getTime() - (timestamp.getTimezoneOffset() * 1000))
 	let dt = localDT.toJSON()
@@ -372,44 +234,219 @@ export const Log = function log(lvl: LogLevel, tag: string | null, message: stri
 	}
 
 	return timestamp
-} as Log
-
-Log.verbosity = "Verbose"
-Log.F = (tag, message, time) => Log("Failure", tag, message, time)
-Log.A = (tag, message, time) => Log("Alert", tag, message, time)
-Log.C = (tag, message, time) => Log("Critical", tag, message, time)
-Log.E = (tag, message, time) => Log("Error", tag, message, time)
-Log.W = (tag, message, time) => Log("Warning", tag, message, time)
-Log.N = (tag, message, time) => Log("Notice", tag, message, time)
-Log.I = (tag, message, time) => Log("Info", tag, message, time)
-Log.D = (tag, message, time) => Log("Debug", tag, message, time)
-Log.V = (tag, message, time) => Log("Verbose", tag, message, time)
-
-Log.on = (filter, listener) => {
-	let requestedHandlers: ReadonlyArray<LogLevel>
-	if (filter === "Any") {
-		requestedHandlers = logLevels
-	} else if (typeof filter === "string") {
-		requestedHandlers = [ filter ]
-	} else {
-		requestedHandlers = filter
-	}
-	requestedHandlers.forEach((h) => void handlers[h].push(listener))
 }
 
-Log.off = (filter, listener) => {
-	let requestedHandlers: ReadonlyArray<LogLevel>
-	if (filter === "Any") {
-		requestedHandlers = logLevels
-	} else if (typeof filter === "string") {
-		requestedHandlers = [ filter ]
-	} else {
-		requestedHandlers = filter
+
+// Log.colorize = colorize
+
+const __colorize__ = colorize
+
+export namespace Log {
+
+	/**
+	 * Available levels of logging severity.
+	 */
+	export type Level = LogLevel
+
+	/**
+	 * Structure used by {@link Log.on} listeners, containing full context of log entry,
+	 */
+	export type Entry = LogEntry
+
+	/**
+	 * Currently set level of verbosity of Log.
+	 *
+	 * Affects only printing to `console`, as listeners provide their own filters.
+	 */
+	/* eslint-disable-next-line prefer-const --
+	 * This must be modifiable outside of module
+	 */
+	export let verbosity: LogLevel = "Verbose"
+
+	/**
+	 * Writes to log with level:
+	 * > Failure (0)   - System is unusable (calling this level will crash application)
+	 *
+	 * @param lvl - Level that message should have.
+	 * @param tag - Header of message - `null` if not desired.
+	 * @param message - Body of message.
+	 * @param time - Optional time for which log message should be printed.
+	 * Usable if message was preprocessed for a long time.
+	 *
+	 * @returns `time` if passed, timestamp of log message otherwise
+	 */
+	export const F: LoggerFunc = function Log_Failure(tag, message, time) {
+		return Log("Failure", tag, message, time)
 	}
-	requestedHandlers.forEach((h) => {
-		const i = handlers[h].indexOf(listener)
-		if (i >= 0) { handlers[h].splice(i, 1) }
-	})
+
+	/**
+	 * Writes to log with level:
+	 * > Alert (1) - Action must be taken immediately
+	 *
+	 * @param lvl - Level that message should have.
+	 * @param tag - Header of message - `null` if not desired.
+	 * @param message - Body of message.
+	 * @param time - Optional time for which log message should be printed.
+	 * Usable if message was preprocessed for a long time.
+	 *
+	 * @returns `time` if passed, timestamp of log message otherwise
+	 */
+	export const A: LoggerFunc = function Log_Alert(tag, message, time) {
+		return Log("Alert", tag, message, time)
+	}
+
+	/**
+	 * Writes to log with level:
+	 * > Critical (2) - Critical conditions
+	 *
+	 * @param lvl - Level that message should have.
+	 * @param tag - Header of message - `null` if not desired.
+	 * @param message - Body of message.
+	 * @param time - Optional time for which log message should be printed.
+	 * Usable if message was preprocessed for a long time.
+	 *
+	 * @returns `time` if passed, timestamp of log message otherwise
+	 */
+	export const C: LoggerFunc = function Log_Critical(tag, message, time) {
+		return Log("Critical", tag, message, time)
+	}
+
+	/**
+	 * Writes to log with level:
+	 * > Error (3) - Error conditions
+	 *
+	 * @param lvl - Level that message should have.
+	 * @param tag - Header of message - `null` if not desired.
+	 * @param message - Body of message.
+	 * @param time - Optional time for which log message should be printed.
+	 * Usable if message was preprocessed for a long time.
+	 *
+	 * @returns `time` if passed, timestamp of log message otherwise
+	 */
+	export const E: LoggerFunc = function Log_Error(tag, message, time) {
+		return Log("Error", tag, message, time)
+	}
+
+	/**
+	 * Writes to log with level:
+	 * > Warning (4) - Warning conditions
+	 *
+	 * @param lvl - Level that message should have.
+	 * @param tag - Header of message - `null` if not desired.
+	 * @param message - Body of message.
+	 * @param time - Optional time for which log message should be printed.
+	 * Usable if message was preprocessed for a long time.
+	 *
+	 * @returns `time` if passed, timestamp of log message otherwise
+	 */
+	export const W: LoggerFunc = function Log_Warning(tag, message, time) {
+		return Log("Warning", tag, message, time)
+	}
+
+	/**
+	 * Writes to log with level:
+	 * > Notice (5) - Normal but significant
+	 *
+	 * @param lvl - Level that message should have.
+	 * @param tag - Header of message - `null` if not desired.
+	 * @param message - Body of message.
+	 * @param time - Optional time for which log message should be printed.
+	 * Usable if message was preprocessed for a long time.
+	 *
+	 * @returns `time` if passed, timestamp of log message otherwise
+	 */
+	export const N: LoggerFunc = function Log_Notice(tag, message, time) {
+		return Log("Notice", tag, message, time)
+	}
+
+	/**
+	 * Writes to log with level:
+	 * > Info (6) - Information messaging
+	 *
+	 * @param lvl - Level that message should have.
+	 * @param tag - Header of message - `null` if not desired.
+	 * @param message - Body of message.
+	 * @param time - Optional time for which log message should be printed.
+	 * Usable if message was preprocessed for a long time.
+	 *
+	 * @returns `time` if passed, timestamp of log message otherwise
+	 */
+	export const I: LoggerFunc = function Log_Info(tag, message, time) {
+		return Log("Info", tag, message, time)
+	}
+
+	/**
+	 * Writes to log with level:
+	 * > Debug (7) - Debug-level messages
+	 *
+	 * @param lvl - Level that message should have.
+	 * @param tag - Header of message - `null` if not desired.
+	 * @param message - Body of message.
+	 * @param time - Optional time for which log message should be printed.
+	 * Usable if message was preprocessed for a long time.
+	 *
+	 * @returns `time` if passed, timestamp of log message otherwise
+	 */
+	export const D: LoggerFunc = function Log_Debug(tag, message, time) {
+		return Log("Debug", tag, message, time)
+	}
+
+	/**
+	 * Writes to log with level:
+	 * > Verbose (8) - Verbose messaging
+	 *
+	 * @param lvl - Level that message should have.
+	 * @param tag - Header of message - `null` if not desired.
+	 * @param message - Body of message.
+	 * @param time - Optional time for which log message should be printed.
+	 * Usable if message was preprocessed for a long time.
+	 *
+	 * @returns `time` if passed, timestamp of log message otherwise
+	 */
+	export const V: LoggerFunc = function Log_Verbose(tag, message, time) {
+		return Log("Verbose", tag, message, time)
+	}
+
+	/**
+	 * Registers new listener to the logger
+	 */
+	export const on: RegisterFunc = function Log_on(filter, listener) {
+		let requestedHandlers: ReadonlyArray<LogLevel>
+		if (filter === "Any") {
+			requestedHandlers = logLevels
+		} else if (typeof filter === "string") {
+			requestedHandlers = [ filter ]
+		} else {
+			requestedHandlers = filter
+		}
+		requestedHandlers.forEach((h) => void handlers[h].push(listener))
+	}
+
+	/**
+	 * Removes listener from the logger
+	 */
+	export const off: RegisterFunc = function Log_off(filter, listener) {
+		let requestedHandlers: ReadonlyArray<LogLevel>
+		if (filter === "Any") {
+			requestedHandlers = logLevels
+		} else if (typeof filter === "string") {
+			requestedHandlers = [ filter ]
+		} else {
+			requestedHandlers = filter
+		}
+		requestedHandlers.forEach((h) => {
+			const i = handlers[h].indexOf(listener)
+			if (i >= 0) { handlers[h].splice(i, 1) }
+		})
+	}
+
+	/**
+	 * Produces string wrapped in color for given log level or ANSI code point.
+	 *
+	 * @param code - LogLevel or numerical code for given format.
+	 * @param msg - Message to wrap in color.
+	 * @returns Formatted message (if color is not disabled), with format reset at the end.
+	 */
+	export const colorize = __colorize__
 }
 
-Log.colorize = colorize

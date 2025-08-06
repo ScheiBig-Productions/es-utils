@@ -14,10 +14,10 @@ Map.groupBy ??= function groupBy(items, keySelector) {
     return result;
 };
 Map.Indexed ??= class IndexedMap extends Map {
-    idx;
+    $;
     constructor(entries) {
         super(entries ?? []);
-        this.idx = new Proxy(Object.defineProperty({}, Symbol.toStringTag, {
+        this.$ = new Proxy(Object.defineProperty({}, Symbol.toStringTag, {
             value: "Map Proxy",
             enumerable: false,
             writable: true,

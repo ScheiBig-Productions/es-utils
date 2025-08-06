@@ -49,4 +49,28 @@ declare global {
         pack: (this: string) => string;
     }
 }
+type DecoratorConfig = {
+    prefix: string;
+} | {
+    suffix: string;
+} | {
+    prefix: string;
+    suffix: string;
+};
+declare global {
+    interface StringConstructor {
+        /**
+         * Creates decorator template function, that place prefix and/or suffix next
+         * to provided string.
+         *
+         * Returned function can also be used as wrapper function,
+         * if templating is not necessary.
+         *
+         * @param config - Configuration of prefix/suffix
+         * @param result - Requested function type
+         * @return Decorating template function
+         */
+        decorator(config: DecoratorConfig): ((strings: TemplateStringsArray | string, ...values: Array<unknown>) => string);
+    }
+}
 //# sourceMappingURL=String.extension.d.ts.map

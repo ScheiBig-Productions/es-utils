@@ -29,5 +29,15 @@ String.prototype.pack ??= function pack() {
         .filter((l) => l)
         .join(" ");
 };
+/* eslint-disable-next-line @typescript-eslint/unbound-method --
+ * Static extension.
+ */
+String.decorator ??= function decorator(config) {
+    const prefix = "prefix" in config ? config.prefix : "";
+    const suffix = "suffix" in config ? config.suffix : "";
+    return (strings, ...values) => prefix + (typeof strings === "string"
+        ? strings
+        : String.raw(strings, ...values)) + suffix;
+};
 export {};
 //# sourceMappingURL=String.extension.js.map

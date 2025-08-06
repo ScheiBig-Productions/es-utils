@@ -4,8 +4,12 @@
 * Although the method may appear always present in type definitions,
 * the actual environment might lack it (e.g. ES2022 targets).
 */
+/* eslint-disable @typescript-eslint/no-invalid-void-type --
+ * This intentionally enables creating generic function which might or might not
+ * have a parameter.
+ */
 fetch.factory ??= function factory(url, init) {
-    return async function fetchFactoryCreation(config) {
+    return Promise.factory(async (config) => {
         const resolvedUrl = typeof url === "function"
             ? url(config)
             : url;
@@ -15,7 +19,7 @@ fetch.factory ??= function factory(url, init) {
                 ? init(config)
                 : init;
         return await fetch(resolvedUrl, resolvedInit);
-    };
+    });
 };
 export {};
 //# sourceMappingURL=fetch.extension.js.map

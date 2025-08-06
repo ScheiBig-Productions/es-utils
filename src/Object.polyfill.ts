@@ -31,7 +31,7 @@ Object.groupBy ??= function groupBy<T, K extends PropertyKey>(
 	/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment --
 	 * No other away to please type-checker
 	 */
-	const result: Partial<Record<K, Array<T>>> = Object.create(Object.prototype)
+	const result: Partial<Record<K, Array<T>>> = Object.create(null)
 	for (let i = 0; i < items.length; i++) {
 		const key = keySelector(items[i], i)
 			; (result[key] ??= []).push(items[i])
