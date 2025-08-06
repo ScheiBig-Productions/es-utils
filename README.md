@@ -20,13 +20,16 @@ Package introduces following additions - both to global objects, as well as new 
 - [Function](#function---extensions),
 - [Map](#map---extensions),
 - [Object](#object---extensions),
+- [Promise](#promise---extensions)
 - [String](#string---extensions).
 
 #### New APIs:
+- [ContractViolationError](#contractviolationerror),
 - [Enum](#enum),
-- [Mime](#mime),
-- [sc](#sc),
 - [Log](#log),
+- [Mime](#mime),
+- type [PromiseFactory](#type-promisefactory)
+- [SC](#sc),
 - Temporal (as import, not polyfill - re-export of [@js-temporal/polyfill](https://www.npmjs.com/package/@js-temporal/polyfill))
 
 ---
