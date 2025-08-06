@@ -1,6 +1,6 @@
 {
   "name": "es-utils",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Various utilities for working in the ECMAScript/TypeScript codebase with less friction",
   "main": "dist/src/index.js",
   "type": "module",
