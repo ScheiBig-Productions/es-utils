@@ -41,6 +41,7 @@
 		"module": "NodeNext",
 		"incremental": true,
 		"removeComments": false,
+		"rootDir": "src",
 		"outDir": "./dist",
 	}
 }
