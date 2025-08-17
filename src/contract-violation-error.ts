@@ -58,6 +58,7 @@ export const ContractViolationError: ContractViolationErrorConstructor = functio
 	this: ContractViolationError | undefined,
 	cause?: string | Error,
 ): ContractViolationError {
+	// eslint-disable-next-line consistent-this -- Conditional creation of this
 	const self = this instanceof ContractViolationError
 		? this
 		: Object.create(ContractViolationError.prototype) as ContractViolationError

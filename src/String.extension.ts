@@ -146,5 +146,4 @@ String.decorator ??= function decorator(config: DecoratorConfig) {
 			? strings
 			: String.raw(strings, ...values)
 	) + suffix
-
 }

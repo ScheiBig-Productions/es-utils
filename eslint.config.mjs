@@ -199,7 +199,7 @@ export default config(
 				treatUndefinedAsUnspecified: false,
 			}],
 			"consistent-this": [ "error",
-				"__self__",
+				"self",
 			],
 			curly: [ "error", "all" ],
 			"default-case": [ "error", {
@@ -829,7 +829,7 @@ export default config(
 			"@typescript-eslint/no-shadow": [ "off" ], // base rule actually works in typescript
 			"@typescript-eslint/no-this-alias": [ "error", {
 				allowDestructuring: true,
-				allowedNames: [ "__self__" ],
+				allowedNames: [ "self" ],
 			}],
 			"@typescript-eslint/no-type-alias": [ "off" ], // not really useful
 			/* type */"@typescript-eslint/no-unnecessary-boolean-literal-compare": [ "error" ],

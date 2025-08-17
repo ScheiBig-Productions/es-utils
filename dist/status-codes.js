@@ -200,6 +200,7 @@ export var SC;
      * Wrapper over textual message, that is to be passed to Response.
      */
     SC.Message = function Message(msg, code) {
+        // eslint-disable-next-line consistent-this -- Conditional creation of this
         const self = (this instanceof SC.Message
             ? this
             : Object.create(SC.Message.prototype));
@@ -230,6 +231,7 @@ export var SC;
      * Wrapper over redirect happening as Response.
      */
     SC.Location = function Location(to, code = Redirect.found) {
+        // eslint-disable-next-line consistent-this -- Conditional creation of this
         const self = (this instanceof SC.Location
             ? this
             : Object.create(SC.Location.prototype));

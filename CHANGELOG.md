@@ -5,6 +5,10 @@ Simple journal of changes made to package
 
 ---
 
+### [2025-08-17] - `1.2.0`
+
+Added function after, refactored Enum into dynamic class, minor linting changes
+
 ### [2025-08-06] - `1.1.1`
 
 Fix docs and project structure

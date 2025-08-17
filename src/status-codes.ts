@@ -298,6 +298,7 @@ export namespace SC {
 		msg: string,
 		code: ContentStatusCode,
 	): Message {
+		// eslint-disable-next-line consistent-this -- Conditional creation of this
 		const self = (this instanceof SC.Message
 			? this
 			: Object.create(SC.Message.prototype as object)
@@ -381,6 +382,7 @@ export namespace SC {
 		to: string,
 		code: RedirectStatusCode = Redirect.found,
 	): Location {
+		// eslint-disable-next-line consistent-this -- Conditional creation of this
 		const self = (this instanceof SC.Location
 			? this
 			: Object.create(SC.Location.prototype as object)

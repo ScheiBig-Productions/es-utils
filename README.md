@@ -24,6 +24,7 @@ Package introduces following additions - both to global objects, as well as new 
 - [String](#string---extensions).
 
 #### New APIs:
+- [after](#after),
 - [ContractViolationError](#contractviolationerror),
 - [Enum](#enum),
 - [Log](#log),
@@ -1276,6 +1277,31 @@ sparkle("Hi")
 
 ## New APIs
 
+### after
+
+Simple function that can work as asynchronous delay, 
+either with or without returned value.
+```ts
+interface AfterFn {
+
+	/**
+	 * Returns new Promise, that fulfills after given delay.
+	 */
+	(delay: number | Temporal.Duration): Promise<void>,
+
+	/**
+	 * Returns new Promise, that fulfills after given delay to specified value.
+	 */
+	<T>(delay: number | Temporal.Duration, value: T): Promise<T>,
+}
+
+
+/**
+ * Returns new Promise, that fulfills after given delay to specified value.
+ */
+export const after = async function after(delay, value) { ... } as AfterFn
+```
+
 ### ContractViolationError
 
 Callable-class error, used internally by `Error.never`.
@@ -1314,77 +1340,82 @@ Used internally by [Error.never](#errornever).
 
 ### Enum
 
-Utility namespace that allows for creation of proper-runtime enums,
+Utility namespace class that allows for creation of proper-runtime enums,
 without any sugarcoat magic.
 
-`ObjectEnum` objects are stamped with private, unique symbol, used to detect them,
-as well as quickly store array of values for access. For created `ObjectEnum`,
+`Enum` objects are stamped with private, unique symbol, used to detect them,
+as well as quickly store array of values for access. For created `Enum`,
 its "type" (union of values) as well as array of values can be obtained.
+
+It is important to remember, that shown below is only replacement code,
+as for proper type-safety, ES5 class was necessary.
 ```ts
 /**
- * Allows for creation of `ObjectEnum`, which provides runtime-level enums, without disgusting
+ * Allows for creation of `Enum`, which provides runtime-level enums, without disgusting
  * generated mess done by TypeScripts `enum`s.
  *
  * It facilitates storage of allowed values, which might come in handy in parsing scenarios.
  *
  * Created enums are frozen and cannot be modified in any way.
  */
-namespace Enum { ... }
-```
+/* callable */ class Enum<const T extends Entries> {
 
-#### `Enum.create`
-```ts
-/**
- * Creates new `ObjectEnum`.
- *
- * @param rawValues - A set of strings to be turned into enums elements.
- * A tuple of two strings can also be provided, in which case first one will
- * be used as key and a second as a value.
- * @returns Created object enum, which has all the specified keys and hidden tag
- * to represent stored values.
- */
-var /*Enum.*/create = function <const T extends Entries>(...rawValues: T): ObjectEnum<T> { ... }
-```
-For example:
-```ts
-const Cars = Enum.create("Audi", "Peugeot", ["Lexus", "Toyota"])
-//    ^? => { Audi: "Audi", Peugeot: "Peugeot", Lexus: "Toyota" }
+	/**
+	 * Creates new `Enum`.
+	 *
+	 * @param rawValues - A set of strings to be turned into enums elements.
+	 * A tuple of two strings can also be provided, in which case first one will
+	 * be used as key and a second as a value.
+	 * @returns Created object enum, which has all the specified keys and hidden tag
+	 * to represent stored values.
+	 *
+	 * @example
+	 * ```ts
+	 * const Cars = Enum.create("Audi", "Peugeot", ["Lexus", "Toyota"])
+	 * //    ^? => Enum { Audi: "Audi", Peugeot: "Peugeot", Lexus: "Toyota" }
+	 * ```
+	 */
+	constructor(...rawValues: T) { ... }
+
+	/**
+	 * Extracts an array, which holds all values that are assigned to `Enum`s keys.
+	 *
+	 * Provided as static method, as to not clash with enum keys.
+	 *
+	 * @param enumObj - Created `Enum`; objects that looks like these on the outside
+	 * are not supported.
+	 *
+	 * @example
+	 *
+	 * const supportedCars = Enum.values(Cars)
+	 * //    ^? => ("Audi" | "Peugeot" | "Toyota")[]
+	 */
+	static values<const T extends Entries>(enumObj: Enum<T>): ReadonlyArray<ExtractValues<T>[number]> { ... }
+}
 ```
 
 #### type `Enum.type`
 ```ts
 /**
- * Extracts a type, which is an union of values that are assigned to `ObjectEnum`s keys.
+ * Extracts a type, which is an union of values that are assigned to `Enum`s keys.
  *
- * @param E - `typeof` created `ObjectEnum`; objects that looks like these on the outside
+ * @param E - `typeof` created `Enum`; objects that looks like these on the outside
  * are not supported.
  */
-type /*Enum.*/type<E extends ObjectEnum<any>> = E[typeof Symbol_enumValues][number]
-```
-For example:
-```ts
-const Cars = Enum.create("Audi", "Peugeot", ["Lexus", "Toyota"])
-type Cars = Enum.type<typeof Cars>
-//   ^? => "Audi" | "Peugeot" | "Toyota"
+type /*Enum.*/type<E extends Enum<any>> = E[typeof Symbol_enumValues][number]
 ```
 
-#### `Enum.values`
-```ts
-/**
- * Extracts an array, which holds all values that are assigned to `ObjectEnum`s keys.
- *
- * @param enumObj - Created `ObjectEnum`; objects that looks like these on the outside
- * are not supported.
- */
-var /*Enum.*/values = function values<const T extends Entries>(
-	enumObj: ObjectEnum<T>,
-): ReadonlyArray<ExtractValues<T>[number]> { ... }
-```
+
+<br>
+
 For example:
 ```ts
-const Cars = Enum.create("Audi", "Peugeot", ["Lexus", "Toyota"])
+const Cars = Enum("Audi", "Peugeot", ["Lexus", "Toyota"])
+//    ^? => Enum { Audi: "Audi", Peugeot: "Peugeot", Lexus: "Toyota" }
 const supportedCars = Enum.values(Cars)
 //    ^? => ("Audi" | "Peugeot" | "Toyota")[]
+type Cars = Enum.type<typeof Cars>
+//   ^? => "Audi" | "Peugeot" | "Toyota"
 ```
 
 ### Log
