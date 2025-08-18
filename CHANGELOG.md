@@ -5,6 +5,10 @@ Simple journal of changes made to package
 
 ---
 
+### [2025-08-18] - `1.3.0`
+
+Added ES2024 Set operators
+
 ### [2025-08-17] - `1.2.0`
 
 Added function after, refactored Enum into dynamic class, minor linting changes
