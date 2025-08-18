@@ -1,11 +1,11 @@
 import "./Array.polyfill.js";
 import "./Map.polyfill.js";
 import "./Object.polyfill.js";
+import "./Set.polyfill.js";
 import "./Array.extension.js";
 import "./Error.extension.js";
 import "./fetch.extension.js";
 import "./Function.extension.js";
-import "./unused/JSON.extension.js";
 import "./Map.extension.js";
 import "./Object.extension.js";
 import "./Promise.extension.js";

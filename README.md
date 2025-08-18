@@ -9,9 +9,10 @@ Various utilities for working in ECMAScript/TypeScript codebase
 Package introduces following additions - both to global objects, as well as new ones:
 
 #### Global polyfills (add some functionalities introduced after ES2022):
-- [Array](#array---polyfill),
-- [Map](#map---polyfill),
-- [Object](#object---polyfill).
+- [Array](#array---polyfills),
+- [Map](#map---polyfills),
+- [Object](#object---polyfills),
+- [Set](#set---polyfills).
 
 #### Global extensions (instance and static methods extending existing classes / functions):
 - [Array](#array---extensions),
@@ -217,6 +218,64 @@ Object.groupBy(arr, (n) => n % 2 === 0)
 //   false: [ 1, 3, 5, 7, 9 ],
 //   true: [ 2, 4, 6, 8, 10 ]
 // }
+```
+
+### Set - polyfills
+
+#### `Set.prototype.difference`
+```ts
+/**
+ * @returns a new Set containing elements in this set but not in the other.
+ */
+var /*Set<T>.prototype.*/difference: (this: Set<T>, other: Set<T>) => Set<T>,
+```
+
+#### `Set.prototype.intersection`
+```ts
+/**
+ * @returns a new Set containing elements present in both sets.
+ */
+var /*Set<T>.prototype.*/intersection: (this: Set<T>, other: Set<T>) => Set<T>,
+```
+
+#### `Set.prototype.symmetricDifference`
+```ts
+/**
+ * @returns a new Set containing elements in either set but not both.
+ */
+var /*Set<T>.prototype.*/symmetricDifference: (this: Set<T>, other: Set<T>) => Set<T>,
+```
+
+#### `Set.prototype.union`
+```ts
+/**
+ * @returns a new Set containing all elements from both sets.
+ */
+var /*Set<T>.prototype.*/union: (this: Set<T>, other: Set<T>) => Set<T>,
+```
+
+#### `Set.prototype.isDisjointFrom`
+```ts
+/**
+ * @returns true if the sets share no elements.
+ */
+var /*Set<T>.prototype.*/isDisjointFrom: (this: Set<T>, other: Set<T>) => boolean,
+```
+
+#### `Set.prototype.isSubsetOf`
+```ts
+/**
+ * @returns true if this set is a subset of the other.
+ */
+var /*Set<T>.prototype.*/isSubsetOf: (this: Set<T>, other: Set<T>) => boolean,
+```
+
+#### `Set.prototype.isSupersetOf`
+```ts
+/**
+ * @returns true if this set is a superset of the other.
+ */
+var /*Set<T>.prototype.*/isSupersetOf: (this: Set<T>, other: Set<T>) => boolean,
 ```
 
 ## Extensions
