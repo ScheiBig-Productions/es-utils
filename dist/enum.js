@@ -10,7 +10,7 @@ const Symbol_enumValues = Symbol("Enum Values");
  * however any property from it can be shadowed safely.
  *
  * @example
- * const Cars = Enum.create("Audi", "Peugeot", ["Lexus", "Toyota"])
+ * const Cars = Enum("Audi", "Peugeot", ["Lexus", "Toyota"])
  * //    ^? => { Audi: "Audi", Peugeot: "Peugeot", Lexus: "Toyota" }
  *
  * type Cars = Enum.type<typeof Cars>

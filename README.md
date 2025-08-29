@@ -1430,7 +1430,7 @@ as for proper type-safety, ES5 class was necessary.
 	 *
 	 * @example
 	 * ```ts
-	 * const Cars = Enum.create("Audi", "Peugeot", ["Lexus", "Toyota"])
+	 * const Cars = new Enum("Audi", "Peugeot", ["Lexus", "Toyota"])
 	 * //    ^? => Enum { Audi: "Audi", Peugeot: "Peugeot", Lexus: "Toyota" }
 	 * ```
 	 */
