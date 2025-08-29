@@ -29,6 +29,24 @@ String.prototype.pack ??= function pack() {
         .filter((l) => l)
         .join(" ");
 };
+String.prototype.divide ??= function divide(chunkCount, rem = true) {
+    if (typeof chunkCount !== "number" || chunkCount <= 0 || !Number.isFinite(chunkCount)) {
+        throw new TypeError("chunkSize must be a positive finite number");
+    }
+    const str = String(this);
+    const chunkSize = Math.floor(str.length / chunkCount);
+    const result = [];
+    for (let i = 0; i < chunkCount; i++) {
+        const start = i * chunkSize;
+        const end = rem
+            ? i === chunkCount - 1
+                ? str.length
+                : start + chunkSize
+            : start + chunkSize;
+        result.push(str.slice(start, end));
+    }
+    return result;
+};
 /* eslint-disable-next-line @typescript-eslint/unbound-method --
  * Static extension.
  */

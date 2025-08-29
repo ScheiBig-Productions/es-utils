@@ -1302,6 +1302,31 @@ For example:
 // "This is a test"
 ```
 
+### `String.prototype.divide`
+```ts
+/**
+ * Divides the string into a specified number of chunks.
+ *
+ * @param chunkCount - The number of chunks to divide the string into.
+ * Must be a positive integer.
+ * @param rem - If `false`, any leftover characters that don't fit evenly are discarded.
+ * Defaults to `true`.
+ * @returns An array of `chunkCount` (almost) equal-length substrings.
+ *
+ * @throws {TypeError} If `chunkCount` is not a positive integer.
+ */
+var /*String.prototype.*/divide: (chunkCount: number, rem?: boolean) => Array<string>
+```
+
+For example:
+```ts
+"abcdefghij".divide(3)
+// ["abc", "def", "ghij"]
+
+"abcdefghij".divide(3, false)
+// ["abc", "def", "ghi"]
+ ```
+
 #### `String.decorator`
 ```ts
 type DecoratorConfig = { prefix: string }

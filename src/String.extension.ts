@@ -64,6 +64,27 @@ declare global {
 		 * // "This is a test"
 		 */
 		pack: (this: string) => string,
+
+		/**
+		 * Divides the string into a specified number of chunks.
+		 *
+		 * @param chunkCount - The number of chunks to divide the string into.
+		 * Must be a positive integer.
+		 * @param rem - If `false`, any leftover characters that don't fit evenly are discarded.
+		 * Defaults to `true`.
+		 * @returns An array of `chunkCount` (almost) equal-length substrings.
+		 *
+		 * @throws {TypeError} If `chunkCount` is not a positive integer.
+		 *
+		 * @example
+		 * "abcdefghij".divide(3);
+		 * // → ["abc", "def", "ghij"]
+		 *
+		 * @example
+		 * "abcdefghij".divide(3, false);
+		 * // → ["abc", "def", "ghi"]
+		 */
+		divide: (chunkCount: number, rem?: boolean) => Array<string>,
 	}
 }
 
@@ -104,6 +125,30 @@ String.prototype.pack ??= function pack(this: string) {
 		.map((l) => l.trim())
 		.filter((l) => l)
 		.join(" ")
+}
+
+
+String.prototype.divide ??= function divide(chunkCount: number, rem = true) {
+	if (typeof chunkCount !== "number" || chunkCount <= 0 || !Number.isFinite(chunkCount)) {
+		throw new TypeError("chunkSize must be a positive finite number")
+	}
+
+	const str = String(this)
+	const chunkSize = Math.floor(str.length / chunkCount)
+	const result: Array<string> = []
+
+	for (let i = 0; i < chunkCount; i++) {
+		const start = i * chunkSize
+		const end = rem
+			? i === chunkCount - 1
+				? str.length
+				: start + chunkSize
+			: start + chunkSize
+
+		result.push(str.slice(start, end))
+	}
+
+	return result
 }
 
 type DecoratorConfig = { prefix: string }
