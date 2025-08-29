@@ -1,7 +1,7 @@
-type Entries = Array<string | readonly [k: string, v: string]>
+type Entries = ReadonlyArray<string | readonly [k: string, v: string]>
 
 type ExtractEnum<T extends Entries> = {
-	readonly [K in T[number]as K extends string
+	readonly [K in T[number] as K extends string
 		? K
 		: K[0]
 	]: K extends string ? K : K[1]
@@ -36,11 +36,11 @@ interface EnumConstructor {
 	 *
 	 * @example
 	 * ```ts
-	 * const Cars = Enum.create("Audi", "Peugeot", ["Lexus", "Toyota"])
+	 * const Cars = new Enum("Audi", "Peugeot", ["Lexus", "Toyota"])
 	 * //    ^? => Enum { Audi: "Audi", Peugeot: "Peugeot", Lexus: "Toyota" }
 	 * ```
 	 */
-	new<T extends Entries>(...rawValues: T): Enum<T>,
+	new<const T extends Entries>(...rawValues: T): Enum<T>,
 
 	/**
 	 * Creates new `Enum`.
@@ -53,11 +53,11 @@ interface EnumConstructor {
 	 *
 	 * @example
 	 * ```ts
-	 * const Cars = Enum.create("Audi", "Peugeot", ["Lexus", "Toyota"])
+	 * const Cars = Enum("Audi", "Peugeot", ["Lexus", "Toyota"])
 	 * //    ^? => Enum { Audi: "Audi", Peugeot: "Peugeot", Lexus: "Toyota" }
 	 * ```
 	 */
-	<T extends Entries>(...rawValues: T): Enum<T>,
+	<const T extends Entries>(...rawValues: T): Enum<T>,
 
 	/**
 	 * Extracts an array, which holds all values that are assigned to `Enum`s keys.
@@ -72,7 +72,7 @@ interface EnumConstructor {
 	 * const supportedCars = Enum.values(Cars)
 	 * //    ^? => ("Audi" | "Peugeot" | "Toyota")[]
 	 */
-	values: <T extends Entries>(enumObj: Enum<T>) => ReadonlyArray<ExtractValues<T>[number]>,
+	values: <const T extends Entries>(enumObj: Enum<T>) => ReadonlyArray<ExtractValues<T>[number]>,
 }
 
 /**
@@ -86,7 +86,7 @@ interface EnumConstructor {
  * however any property from it can be shadowed safely.
  *
  * @example
- * const Cars = Enum.create("Audi", "Peugeot", ["Lexus", "Toyota"])
+ * const Cars = Enum("Audi", "Peugeot", ["Lexus", "Toyota"])
  * //    ^? => { Audi: "Audi", Peugeot: "Peugeot", Lexus: "Toyota" }
  *
  * type Cars = Enum.type<typeof Cars>
@@ -147,4 +147,3 @@ export namespace Enum {
 	export type type<E extends Enum<any>> =
 		E[typeof Symbol_enumValues][number]
 }
-
