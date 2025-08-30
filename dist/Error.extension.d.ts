@@ -16,6 +16,14 @@ declare global {
          */
         never: (msg?: string | Error, ...context: Array<any>) => never;
         /**
+         * Trips on implementation violation.
+         *
+         * This call indicates that code path is defined, but not yet implemented.
+         * @throws {TodoError}
+         * @see {@link TodoError}
+         */
+        todo: (message: string, cause?: unknown) => never;
+        /**
          * Determines whether a given value is a genuine Error object.
          * This includes native Error types like Error, TypeError, DOMException, etc.
          *

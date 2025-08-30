@@ -32,6 +32,7 @@ Package introduces following additions - both to global objects, as well as new 
 - [Mime](#mime),
 - type [PromiseFactory](#type-promisefactory)
 - [SC](#sc),
+- [TodoError](#todoerror)
 - Temporal (as import, not polyfill - re-export of [@js-temporal/polyfill](https://www.npmjs.com/package/@js-temporal/polyfill))
 
 ---
@@ -737,7 +738,7 @@ arr.groupBy((n) => n % 2 == 0, "Map")
 ```
 
 ### Error - extensions
-#### Error.never
+#### `Error.never`
 ```ts
 /**
  * Trips on contract violation.
@@ -766,9 +767,21 @@ app.get(
 )
 ```
 
-Throws [ContractViolationError](#errorextensioncontractviolationerror).
+Throws [ContractViolationError](#contractviolationerror).
 
-#### Error.isError
+#### `Error.todo`
+```ts
+/**
+ * Trips on implementation violation.
+ *
+ * This call indicates that code path is defined, but not yet implemented.
+ */
+todo: (message: string, cause: unknown) => never,
+```
+
+Throws [TodoError](#todoerror).
+
+#### `Error.isError`
 ```ts
 /**
  * Determines whether a given value is a genuine Error object.
@@ -795,7 +808,7 @@ Error.isError({ name: "Error", message: "Something is wrong" })
 // false
 ```
 
-#### Error.errorLike
+#### `Error.errorLike`
 ```ts
 /**
  * Determines whether a given value is "error-like" - meaning it structurally
@@ -2093,3 +2106,36 @@ export namespace SC {
 	tuple: () => readonly [to: string, code: RedirectStatusCode]
 }
 ```
+
+### TodoError
+
+Represents a runtime code path violation - typically thrown when a function
+is called because declaration is present, but implementation not.
+
+Internally used by `Error.todo`
+
+This error is designed to be used both with and without the `new` keyword,
+and mimics native `Error` behavior as closely as possible in ES5-compatible environments.
+```ts
+/* callable */ class TodoError extends Error {
+	name = "TodoError"
+
+	/**
+	 * Creates new `TodoError` with provided cause and message.
+	 */
+	constructor(message: string, cause?: string | Error) { 
+		super(message, cause && { cause })
+	}
+}
+```
+For example:
+```ts
+TodoError("Planned for next sprint") // callable-class - `new` keyword might be omitted
+// TodoError: Planned for next sprint
+
+new ContractViolationError("Delayed for monday", "Damn you John!")
+// ContractViolationError: Delayed for monday!
+//     at ...
+//   cause: 'Damn you John!'
+```
+Used internally by [Error.todo](#errortodo).

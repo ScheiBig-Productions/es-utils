@@ -5,6 +5,8 @@
 * the actual environment might lack it (e.g. ES2022 targets).
 */
 import { ContractViolationError } from "./contract-violation-error.js"
+import { TodoError } from "./todo-error.js"
+
 
 declare global {
 	interface ErrorConstructor {
@@ -24,6 +26,15 @@ declare global {
 		 * @see {@link ContractViolationError}
 		 */
 		never: (msg?: string | Error, ...context: Array<any>) => never,
+
+		/**
+		 * Trips on implementation violation.
+		 *
+		 * This call indicates that code path is defined, but not yet implemented.
+		 * @throws {TodoError}
+		 * @see {@link TodoError}
+		 */
+		todo: (message: string, cause?: unknown) => never,
 
 		/**
 		 * Determines whether a given value is a genuine Error object.
@@ -99,6 +110,10 @@ Error.never ??= function never(msg?: string | Error, ...context: Array<any>): ne
 	if (isDev) { debugger }
 
 	throw ContractViolationError(msg)
+}
+
+Error.todo ??= function todo(message: string, cause?: unknown) {
+	throw TodoError(message, cause)
 }
 
 Error.isError ??= function isError(value: unknown) {

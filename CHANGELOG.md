@@ -5,6 +5,10 @@ Simple journal of changes made to package.
 
 ---
 
+### [2025-08-30] - `1.5.0`
+
+Added Error.todo and backing TodoError class.
+
 ### [2025-08-29] - `1.4.0`
 
 Add String division (chunking).
