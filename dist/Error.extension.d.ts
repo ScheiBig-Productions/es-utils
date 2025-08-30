@@ -1,3 +1,4 @@
+import { type TodoErrorConstructor } from "./todo-error.js";
 declare global {
     interface ErrorConstructor {
         /**
@@ -15,6 +16,12 @@ declare global {
          * @see {@link ContractViolationError}
          */
         never: (msg?: string | Error, ...context: Array<any>) => never;
+        /**
+         * Trips on implementation violation.
+         *
+         * This call indicates that code path is defined, but not yet implemented.
+         */
+        todo: TodoErrorConstructor;
         /**
          * Determines whether a given value is a genuine Error object.
          * This includes native Error types like Error, TypeError, DOMException, etc.
@@ -44,5 +51,4 @@ declare global {
         errorLike: (value: unknown) => value is Error;
     }
 }
-export {};
 //# sourceMappingURL=Error.extension.d.ts.map

@@ -5,6 +5,7 @@
 * the actual environment might lack it (e.g. ES2022 targets).
 */
 import { ContractViolationError } from "./contract-violation-error.js";
+import { TodoError } from "./todo-error.js";
 // eslint-disable-next-line complexity -- doing heavy checking to allow this
 const isDev = (() => {
     const global = globalThis;
@@ -47,6 +48,7 @@ Error.never ??= function never(msg, ...context) {
     }
     throw ContractViolationError(msg);
 };
+Error.todo ??= TodoError;
 Error.isError ??= function isError(value) {
     const first = Object.prototype.toString.call(value) === "[object Error]"
         || Object.prototype.toString.call(value) === "[object DOMException]";
