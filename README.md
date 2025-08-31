@@ -2041,18 +2041,18 @@ export namespace SC {
  * Can be invoked directly or via `new`.
  *
  * It might be useful to throw `Message` inside promise, as escape signal from inner handler;
- * such throw can be anticipated via `Message.expect` promise wrapper.
+ * such throw can be caught via `Message.handler` promise catcher.
  */
 
 /* callable */ class /*SC.*/Message {
 
 	/**
-	 * Awaits a promise and returns either its resolved value or a `Message` if it throws.
-	 * Useful for wrapping async operations with typed error signaling.
-	 * @param inside - A promise to monitor.
-	 * @returns A promise resolving to the original value or a `Message` if an error occurs.
+	 * Catches in promise and either returns `Message` if it was thrown,
+	 * or rethrows original error.
+	 *
+	 * Useful for catching in async operations with typed error signaling.
 	 */
-	static expect: <T>(inside: Promise<T>) => Promise<T | Message>,
+	static handler: (this: void, err: unknown) => Message,
 
 	/**
 	 * Constructs a new `Message` instance.

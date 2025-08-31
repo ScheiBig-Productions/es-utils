@@ -221,12 +221,12 @@ export var SC;
         Object.freeze(self);
         return self;
     };
-    SC.Message.expect = async (inside) => await inside.catch((e) => {
-        if (e instanceof SC.Message) {
-            return e;
+    SC.Message.handler = function handler(err) {
+        if (err instanceof SC.Message) {
+            return err;
         }
-        throw e;
-    });
+        throw err;
+    };
     /**
      * Wrapper over redirect happening as Response.
      */
