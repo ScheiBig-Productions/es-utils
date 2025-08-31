@@ -5,6 +5,10 @@ Simple journal of changes made to package.
 
 ---
 
+### [2025-08-31] - `1.6.0`
+
+Added JSON.maybeStringify for safe debugging of object values.
+
 ### [2025-08-31] - `1.5.1`
 
 Refactor SC.Message.expect to SC.Message.handler, to be passable to `.catch()` instead of wrapping promise
