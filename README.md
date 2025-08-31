@@ -19,6 +19,7 @@ Package introduces following additions - both to global objects, as well as new 
 - [Error](#error---extensions),
 - [fetch](#fetch---extensions),
 - [Function](#function---extensions),
+- [JSON](#json---extensions),
 - [Map](#map---extensions),
 - [Object](#object---extensions),
 - [Promise](#promise---extensions)
@@ -957,6 +958,34 @@ at(1)
 at = Function.bound(a, "at") // or `Function.bound(a, o => o.at)` - longer but refactor-safe
 at(1)
 // 2
+```
+
+### JSON - extensions
+
+#### `JSON.maybeStringify`
+```ts
+/**
+ * Attempts conversion of a JavaScript value to a JavaScript Object Notation (JSON) string.
+ *
+ * Fail gracefully, with fallback to `String(value)`.
+ * @param value A value to be converted.
+ * @param replacer Either function that transforms the results,
+ * array of whitelisted property keys, or `null` for no transformation.
+ * @param space Number of spaces or indentation character - when passed,
+ * the result is pretty-printed.
+ */
+var /*JSON.*/maybeStringify: (value: unknown, replacer?: Replacer, space?: string | number) => string
+```
+
+For example:
+```ts
+const obj = { n: 1 }
+JSON.maybeStringify(obj)
+// '{"n":1}'
+const loop = {}
+loop.l = loop
+JSON.maybeStringify(loop)
+// '[object Object]'
 ```
 
 ### Map - extensions
