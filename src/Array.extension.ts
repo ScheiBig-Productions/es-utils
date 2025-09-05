@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/naming-convention --
+ * Hidden property with mangled name.
+ */
 /* eslint-disable @typescript-eslint/no-unnecessary-condition --
 * Conditional assignment for `Array.prototype` props (`??=`) is intentional and context-aware:
 * it acts as a runtime polyfill or extension, only defining the method if it doesn't already exist.
@@ -226,6 +229,7 @@ interface GroupByFn {
 		returnType: "Map",
 	): Map<K, Array<T>>,
 }
+type IndexProxy<T> = Record<number, T>
 
 declare global {
 	interface Array<T> {
@@ -358,6 +362,14 @@ declare global {
 		 * @returns An object or map with keys mapped to arrays of corresponding elements.
 		 */
 		groupBy: GroupByFn,
+
+		/**
+		 * Provides unsafe indexing of an array with support for negative indices.
+		 *
+		 * @see {@link Array.at}
+		 * @see {@link IndexedMap.$}
+		 */
+		readonly $: IndexProxy<T>,
 	}
 }
 
@@ -606,6 +618,52 @@ interface RangeFn {
 	 */
 	(start: number, end: number, step: number): Array<number>,
 }
+
+Array.prototype.$ ?? Object.defineProperty(Array.prototype, "$", {
+	configurable: true,
+	enumerable: false,
+	get <T>(this: Array<T> & { __$__?: IndexProxy<T> }): IndexProxy<T> {
+		if (!this.__$__) {
+			const handler: ProxyHandler<Array<T>> = {
+				get(target, prop) {
+					const index = Number(prop)
+					if (Number.isInteger(index)) {
+						let i = index
+						const len = target.length
+
+						if (i < 0 && i > -len) {
+							i += len
+						}
+						if (i < 0 || i >= len) {
+							throw new RangeError("Index out of range")
+						}
+						return target[i]
+					}
+					throw TypeError("Indexer only support array element access")
+				},
+				set(target, prop, value: T) {
+					const index = Number(prop)
+					if (Number.isInteger(index)) {
+						let i = index
+						const len = target.length
+
+						if (i < 0 && i > -len) {
+							i += len
+						}
+						if (i < 0 || i >= len) {
+							throw new RangeError("Index out of range")
+						}
+						target[i] = value
+						return true
+					}
+					throw TypeError("Indexer only support array element access")
+				},
+			}
+			this.__$__ = new Proxy(this, handler)
+		}
+		return this.__$__
+	},
+})
 
 
 declare global {

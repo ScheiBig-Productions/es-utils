@@ -128,11 +128,14 @@ String.prototype.pack ??= function pack(this: string) {
 }
 
 
-String.prototype.divide ??= function divide(chunkCount: number, rem = true) {
+String.prototype.divide ??= function divide(this: string, chunkCount: number, rem = true) {
 	if (typeof chunkCount !== "number" || chunkCount <= 0 || !Number.isFinite(chunkCount)) {
 		throw new TypeError("chunkSize must be a positive finite number")
 	}
 
+	/* eslint-disable-next-line @typescript-eslint/no-unnecessary-type-conversion --
+	 * Simplest way to copy a string.
+	 */
 	const str = String(this)
 	const chunkSize = Math.floor(str.length / chunkCount)
 	const result: Array<string> = []

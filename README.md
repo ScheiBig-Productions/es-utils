@@ -738,6 +738,27 @@ arr.groupBy((n) => n % 2 == 0, "Map")
 // }
 ```
 
+#### `Array.prototype.$`
+```ts
+/**
+ * Provides unsafe indexing of an array with support for negative indices.
+ *
+ * @see {@link Array.at}
+ * @see {@link IndexedMap.$}
+ */
+var /*Array.prototype.*/$: Proxy,
+```
+
+For example:
+```ts
+[ 1, 2, 3 ].$[-1]
+// 3
+[ 1, 2, 3 ].$[-1] = 4
+// [ 1, 2, 4 ]
+[ 1, 2, 3 ].$[-5]
+// Uncaught RangeError...
+```
+
 ### Error - extensions
 #### `Error.never`
 ```ts
@@ -1367,7 +1388,7 @@ For example:
 
 "abcdefghij".divide(3, false)
 // ["abc", "def", "ghi"]
- ```
+```
 
 #### `String.decorator`
 ```ts

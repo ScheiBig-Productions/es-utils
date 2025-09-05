@@ -144,6 +144,49 @@ Array.prototype.groupBy ??= function groupBy(keySelector, returnType = "Object")
     }
     throw TypeError(`Unknown grouping provider: ${String(returnType)}.`);
 };
+Array.prototype.$ ?? Object.defineProperty(Array.prototype, "$", {
+    configurable: true,
+    enumerable: false,
+    get() {
+        if (!this.__$__) {
+            const handler = {
+                get(target, prop) {
+                    const index = Number(prop);
+                    if (Number.isInteger(index)) {
+                        let i = index;
+                        const len = target.length;
+                        if (i < 0 && i > -len) {
+                            i += len;
+                        }
+                        if (i < 0 || i >= len) {
+                            throw new RangeError("Index out of range");
+                        }
+                        return target[i];
+                    }
+                    throw TypeError("Indexer only support array element access");
+                },
+                set(target, prop, value) {
+                    const index = Number(prop);
+                    if (Number.isInteger(index)) {
+                        let i = index;
+                        const len = target.length;
+                        if (i < 0 && i > -len) {
+                            i += len;
+                        }
+                        if (i < 0 || i >= len) {
+                            throw new RangeError("Index out of range");
+                        }
+                        target[i] = value;
+                        return true;
+                    }
+                    throw TypeError("Indexer only support array element access");
+                },
+            };
+            this.__$__ = new Proxy(this, handler);
+        }
+        return this.__$__;
+    },
+});
 Array.range ??= function range(startOrEnd, maybeEnd, maybeStep = 1) {
     const [start, end, step] = maybeEnd === undefined
         ? [0, startOrEnd, maybeStep]

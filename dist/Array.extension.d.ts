@@ -152,6 +152,7 @@ interface GroupByFn {
      */
     <T, K extends keyof T | ((string | number) & {})>(this: Array<T>, keySelector: (item: T, index: number) => K, returnType: "Map"): Map<K, Array<T>>;
 }
+type IndexProxy<T> = Record<number, T>;
 declare global {
     interface Array<T> {
         /**
@@ -251,6 +252,13 @@ declare global {
          * @returns An object or map with keys mapped to arrays of corresponding elements.
          */
         groupBy: GroupByFn;
+        /**
+         * Provides unsafe indexing of an array with support for negative indices.
+         *
+         * @see {@link Array.at}
+         * @see {@link IndexedMap.$}
+         */
+        readonly $: IndexProxy<T>;
     }
 }
 interface RangeFn {

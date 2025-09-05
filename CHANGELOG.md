@@ -5,6 +5,10 @@ Simple journal of changes made to package.
 
 ---
 
+### [2025-09-05] - `1.7.0`
+
+Added extension for unsafe `at`-like indexing of Arrays via lezy-proxy $.
+
 ### [2025-08-31] - `1.6.0`
 
 Added JSON.maybeStringify for safe debugging of object values.
