@@ -287,7 +287,7 @@ interface RangeFn {
      *
      * @param start - The inclusive lower bound of the range.
      * @param end - The exclusive upper bound of the range.
-     * @param step - The step interval between numbers.
+     * @param step - The step interval between numbers. Must be positive.
      * @returns An array containing numbers `[start, start+step, ..., < end]`.
      * @example
      * Array.range(0, 10, 2); // [0, 2, 4, 6, 8]

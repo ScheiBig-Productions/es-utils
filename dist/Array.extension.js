@@ -191,6 +191,9 @@ Array.range ??= function range(startOrEnd, maybeEnd, maybeStep = 1) {
     const [start, end, step] = maybeEnd === undefined
         ? [0, startOrEnd, maybeStep]
         : [startOrEnd, maybeEnd, maybeStep];
+    if (step <= 0) {
+        throw RangeError("Step of range must be positive");
+    }
     const result = Array();
     for (let i = start; i < end; i += step) {
         result.push(i);
