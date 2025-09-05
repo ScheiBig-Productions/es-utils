@@ -5,6 +5,10 @@ Simple journal of changes made to package.
 
 ---
 
+### [2025-09-05] - `1.8.0`
+
+Added custom Iter(ator) helper
+
 ### [2025-09-05] - `1.7.0`
 
 Added extension for unsafe `at`-like indexing of Arrays via lezy-proxy $.

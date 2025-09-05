@@ -1104,7 +1104,7 @@ export default config(
 			}],
 			"@stylistic/lines-between-class-members": [ "error", {
 				enforce: [{
-					blankLine: "never",
+					blankLine: "always",
 					prev: "field",
 					next: "field",
 				}, {

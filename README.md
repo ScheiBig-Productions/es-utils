@@ -29,6 +29,7 @@ Package introduces following additions - both to global objects, as well as new 
 - [after](#after),
 - [ContractViolationError](#contractviolationerror),
 - [Enum](#enum),
+- [Iter]() _**TODO - provide docs**_,
 - [Log](#log),
 - [Mime](#mime),
 - type [PromiseFactory](#type-promisefactory)
