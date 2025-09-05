@@ -358,6 +358,13 @@ declare global {
 		 * @returns An object or map with keys mapped to arrays of corresponding elements.
 		 */
 		groupBy: GroupByFn,
+
+		/**
+		 * Provides unsafe indexing of an array with support for negative indices.
+		 *
+		 * @see {@link Array.at}
+		 */
+		get: (this: Array<T>, index: number) => T,
 	}
 }
 
@@ -605,6 +612,20 @@ interface RangeFn {
 	 * Array.range(0, 10, 2); // [0, 2, 4, 6, 8]
 	 */
 	(start: number, end: number, step: number): Array<number>,
+}
+
+Array.prototype.get = function get<T>(this: Array<T>, index: number): T {
+	let i = index
+	const len = this.length
+
+	if (i < 0 && i > -len) {
+		i += len
+	}
+	if (i < 0 || i >= len) {
+		throw new RangeError("Index out of range")
+	}
+
+	return this[i]
 }
 
 

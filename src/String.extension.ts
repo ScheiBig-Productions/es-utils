@@ -85,6 +85,13 @@ declare global {
 		 * // → ["abc", "def", "ghi"]
 		 */
 		divide: (chunkCount: number, rem?: boolean) => Array<string>,
+
+		/**
+		 * Provides unsafe indexing of a string with support for negative indices.
+		 *
+		 * @see {@link String.at}
+		 */
+		get: (this: string, index: number) => string,
 	}
 }
 
@@ -128,11 +135,14 @@ String.prototype.pack ??= function pack(this: string) {
 }
 
 
-String.prototype.divide ??= function divide(chunkCount: number, rem = true) {
+String.prototype.divide ??= function divide(this: string, chunkCount: number, rem = true) {
 	if (typeof chunkCount !== "number" || chunkCount <= 0 || !Number.isFinite(chunkCount)) {
 		throw new TypeError("chunkSize must be a positive finite number")
 	}
 
+	/* eslint-disable-next-line @typescript-eslint/no-unnecessary-type-conversion --
+	 * Simplest way to copy a string.
+	 */
 	const str = String(this)
 	const chunkSize = Math.floor(str.length / chunkCount)
 	const result: Array<string> = []
@@ -149,6 +159,20 @@ String.prototype.divide ??= function divide(chunkCount: number, rem = true) {
 	}
 
 	return result
+}
+
+String.prototype.get = function get(this: string, index: number): string {
+	let i = index
+	const len = this.length
+
+	if (i < 0 && i > -len) {
+		i += len
+	}
+	if (i < 0 || i >= len) {
+		throw new RangeError("Index out of range")
+	}
+
+	return this[i]
 }
 
 type DecoratorConfig = { prefix: string }

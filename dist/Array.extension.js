@@ -144,6 +144,17 @@ Array.prototype.groupBy ??= function groupBy(keySelector, returnType = "Object")
     }
     throw TypeError(`Unknown grouping provider: ${String(returnType)}.`);
 };
+Array.prototype.get = function get(index) {
+    let i = index;
+    const len = this.length;
+    if (i < 0 && i > -len) {
+        i += len;
+    }
+    if (i < 0 || i >= len) {
+        throw new RangeError("Index out of range");
+    }
+    return this[i];
+};
 Array.range ??= function range(startOrEnd, maybeEnd, maybeStep = 1) {
     const [start, end, step] = maybeEnd === undefined
         ? [0, startOrEnd, maybeStep]

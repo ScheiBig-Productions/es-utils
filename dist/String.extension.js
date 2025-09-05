@@ -33,6 +33,9 @@ String.prototype.divide ??= function divide(chunkCount, rem = true) {
     if (typeof chunkCount !== "number" || chunkCount <= 0 || !Number.isFinite(chunkCount)) {
         throw new TypeError("chunkSize must be a positive finite number");
     }
+    /* eslint-disable-next-line @typescript-eslint/no-unnecessary-type-conversion --
+     * Simplest way to copy a string.
+     */
     const str = String(this);
     const chunkSize = Math.floor(str.length / chunkCount);
     const result = [];
@@ -46,6 +49,17 @@ String.prototype.divide ??= function divide(chunkCount, rem = true) {
         result.push(str.slice(start, end));
     }
     return result;
+};
+String.prototype.get = function get(index) {
+    let i = index;
+    const len = this.length;
+    if (i < 0 && i > -len) {
+        i += len;
+    }
+    if (i < 0 || i >= len) {
+        throw new RangeError("Index out of range");
+    }
+    return this[i];
 };
 /* eslint-disable-next-line @typescript-eslint/unbound-method --
  * Static extension.

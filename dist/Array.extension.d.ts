@@ -251,6 +251,12 @@ declare global {
          * @returns An object or map with keys mapped to arrays of corresponding elements.
          */
         groupBy: GroupByFn;
+        /**
+         * Provides unsafe indexing of an array with support for negative indices.
+         *
+         * @see {@link Array.at}
+         */
+        get: (this: Array<T>, index: number) => T;
     }
 }
 interface RangeFn {

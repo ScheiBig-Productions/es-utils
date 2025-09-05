@@ -67,6 +67,12 @@ declare global {
          * // → ["abc", "def", "ghi"]
          */
         divide: (chunkCount: number, rem?: boolean) => Array<string>;
+        /**
+         * Provides unsafe indexing of a string with support for negative indices.
+         *
+         * @see {@link String.at}
+         */
+        get: (this: string, index: number) => string;
     }
 }
 type DecoratorConfig = {
