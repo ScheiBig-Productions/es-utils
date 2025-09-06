@@ -13,7 +13,7 @@ interface ElseFn {
 	 * Returns the provided value if it is defined, otherwise returns
 	 * the result of the fallback.
 	 *
-	 * @param val - Value to inspect for `null`.
+	 * @param val - Value to inspect for `null` or `undefined.
 	 * @param fallbacks - Function to invoke if `val` is `null` or `undefined`,
 	 * returning a replacement value.
 	 * @returns `val` if defined; otherwise result of `fallback()`.
@@ -50,7 +50,7 @@ interface ElseFn {
 	 * Returns the provided value if it is defined, otherwise returns
 	 * the result of the fallback.
 	 *
-	 * @param val - Value to inspect for `null`.
+	 * @param val - Value to inspect for `null` or `undefined.
 	 * @param fallbacks - Object with functions to invoke if `val` is `null` or `undefined`,
 	 * returning a replacement value.
 	 * @returns `val` if defined; result of `fallbacks.null()` if `val` is `null`,
@@ -60,6 +60,57 @@ interface ElseFn {
 		null: () => R,
 		undef: () => S,
 	}): T | R | S,
+}
+
+interface AlsoFn {
+
+	/**
+	 * Applies mapping to value, if it is defined, otherwise returns
+	 * the value itself.
+	 *
+	 * @param val - Value to inspect for `null` or `undefined.
+	 * @param mapping - Mapping function to be applied to `val` if val is not nullish.
+	 * @param passthrough - Type of non-defined `val` that is allowed to be returned
+	 * without mapping - defaults to "nullish".
+	 * @returns `mapping` result if val is not nullish, otherwise `val`.
+	 */
+	<T, R>(
+		val: T,
+		mapping: (it: Exclude<T, null | undefined>) => R,
+		passthrough?: "nullish"
+	): R | Extract<T, null | undefined>,
+
+	/**
+	 * Applies mapping to value, if it is defined, otherwise returns
+	 * the value itself.
+	 *
+	 * @param val - Value to inspect for `null`.
+	 * @param mapping - Mapping function to be applied to `val` if val is not null.
+	 * @param passthrough - Type of non-defined `val` that is allowed to be returned
+	 * without mapping - defaults to "nullish".
+	 * @returns `mapping` result if val is not null, otherwise `val`.
+	 */
+	<T, R>(
+		val: T,
+		mapping: (it: Exclude<T, null>) => R,
+		passthrough: "null"
+	): R | Extract<T, null>,
+
+	/**
+	 * Applies mapping to value, if it is defined, otherwise returns
+	 * the value itself.
+	 *
+	 * @param val - Value to inspect for `undefined`.
+	 * @param mapping - Mapping function to be applied to `val` if val is not undefined.
+	 * @param passthrough - Type of non-defined `val` that is allowed to be returned
+	 * without mapping - defaults to "nullish".
+	 * @returns `mapping` result if val is not undefined, otherwise `val`.
+	 */
+	<T, R>(
+		val: T | undefined,
+		mapping: (it: Exclude<T, undefined>) => R,
+		passthrough: "undef"
+	): R | Extract<T, undefined>,
 }
 
 declare global {
@@ -124,6 +175,18 @@ declare global {
 		 * @returns `val` if defined; result of fallback result in given other case.
 		 */
 		else: ElseFn,
+
+		/**
+		 * Applies mapping to value, if it is defined, otherwise returns
+		 * the value itself.
+		 *
+		 * @param val - Value to inspect for being defined.
+		 * @param mapping - Mapping function to be applied to `val` if val is not nullish.
+		 * @param passthrough - Type of non-defined `val` that is allowed to be returned
+		 * without mapping - defaults to "nullish".
+		 * @returns `mapping` result if val is not defined, otherwise `val`.
+		 */
+		also: AlsoFn,
 	}
 }
 
@@ -202,3 +265,16 @@ Object.else ??= {
 		return val
 	},
 }.else
+
+Object.also ??= function also<T, R>(
+	val: T | null | undefined,
+	mapping: (it: T | null | undefined) => R,
+	passthrough: "nullish" | "null" | "undef" = "nullish",
+) {
+	const passNull = passthrough === "nullish" || passthrough === "null"
+	const passUndef = passthrough === "nullish" || passthrough === "undef"
+
+	if (val === null && passNull) { return null }
+	if (val === undefined && passUndef) { return undefined }
+	return mapping(val)
+}

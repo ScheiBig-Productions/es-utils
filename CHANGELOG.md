@@ -5,6 +5,10 @@ Simple journal of changes made to package.
 
 ---
 
+### [2025-09-06] - `1.9.0`
+
+Added Object.also for conditional transformation of defined values
+
 ### [2025-09-05] - `1.8.0`
 
 Added custom Iter(ator) helper
