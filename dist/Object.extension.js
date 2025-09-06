@@ -49,5 +49,16 @@ Object.else ??= {
         return val;
     },
 }.else;
+Object.also ??= function also(val, mapping, passthrough = "nullish") {
+    const passNull = passthrough === "nullish" || passthrough === "null";
+    const passUndef = passthrough === "nullish" || passthrough === "undef";
+    if (val === null && passNull) {
+        return null;
+    }
+    if (val === undefined && passUndef) {
+        return undefined;
+    }
+    return mapping(val);
+};
 export {};
 //# sourceMappingURL=Object.extension.js.map

@@ -100,10 +100,9 @@ const colorize = function Log_colorize(code, msg) {
 };
 const handlers = Object.fromEntries([...logLevels].map((l) => [l, []]));
 const emit = function emit(entry) {
-    /* eslint-disable-next-line @typescript-eslint/no-meaningless-void-operator --
-     * This produces unexpected errors.
-     */
-    handlers[entry.lvl].forEach((func) => void func(entry));
+    for (const hand of handlers[entry.lvl]) {
+        hand(entry);
+    }
 };
 /**
  * Logging callable, that should be used as central way of printing feedback from application.

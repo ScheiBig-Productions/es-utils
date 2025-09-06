@@ -152,10 +152,9 @@ const handlers = Object.fromEntries(
 ) as unknown as Record<LogLevel, Array<(entry: LogEntry) => void>>
 
 const emit = function emit(entry: LogEntry) {
-	/* eslint-disable-next-line @typescript-eslint/no-meaningless-void-operator --
-	 * This produces unexpected errors.
-	 */
-	handlers[entry.lvl].forEach((func) => void func(entry))
+	for (const hand of handlers[entry.lvl]) {
+		hand(entry)
+	}
 }
 
 /**

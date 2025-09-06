@@ -1266,6 +1266,10 @@ Object.else(c, {
 // null
 ```
 
+#### `Object.also`
+
+_**TODO - add docs**_
+
 ### Promise - extensions
 
 #### `Promise.factory`
