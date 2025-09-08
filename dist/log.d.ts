@@ -201,6 +201,20 @@ export declare namespace Log {
      * @returns Formatted message (if color is not disabled), with format reset at the end.
      */
     const colorize: (code: LogLevel | number, msg: string) => string;
+    /**
+     * Returns tag for given value, which can be placed without worry of breaking
+     * naming after refactor.
+     *
+     * @param val - Value to tag.
+     * @param key - Selector of member of `val` to include in tag
+     * @returns `primitive ${typeof}` for primitives, `constructor.name` for objects
+     * or `name` for functions (and classes by extension).
+     *
+     * If key is provided for object value, ` : tag(key(val))` is added.
+     *
+     * If key is provided for function value, ` : <static> tag(key(val))` is added.
+     */
+    const tag: <T>(val: T, key?: (o: T) => unknown) => string;
 }
 export {};
 //# sourceMappingURL=log.d.ts.map

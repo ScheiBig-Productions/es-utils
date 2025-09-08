@@ -447,5 +447,60 @@ export namespace Log {
 	 * @returns Formatted message (if color is not disabled), with format reset at the end.
 	 */
 	export const colorize = __colorize__
-}
 
+	/**
+	 * Returns tag for given value, which can be placed without worry of breaking
+	 * naming after refactor.
+	 *
+	 * @param val - Value to tag.
+	 * @param key - Selector of member of `val` to include in tag
+	 * @returns `primitive ${typeof}` for primitives, `constructor.name` for objects
+	 * or `name` for functions (and classes by extension).
+	 *
+	 * If key is provided for object value, ` : tag(key(val))` is added.
+	 *
+	 * If key is provided for function value, ` : <static> tag(key(val))` is added.
+	 */
+	// eslint-disable-next-line complexity -- This is already as simple, as possible
+	export const tag = function Log_tag<T>(
+		val: T,
+		key?: (o: T) => unknown,
+	): string {
+		let valTag: string
+		let keyTag = ""
+		switch (typeof val) {
+			case "string" :
+			case "number" :
+			case "bigint" :
+			case "boolean" :
+			case "symbol" :
+			case "undefined" : {
+				valTag = `<primitive> ${typeof val}`
+				break
+			}
+			case "object" : {
+				if (val === null) {
+					valTag = "<object> null"
+					break
+				}
+				valTag = val.constructor.name
+				if (key) {
+					keyTag = `${tag(key(val)) || "<anonymous>"}`
+				}
+				break
+			}
+			case "function" : {
+				valTag = val.name
+				if (key) {
+					keyTag = `<static> ${tag(key(val)) || "<anonymous>"}`
+				}
+				break
+			}
+			default : {
+				return Error.never("There are no other primitive values", val)
+			}
+		}
+		valTag += keyTag && ` : ${keyTag}`
+		return valTag
+	}
+}

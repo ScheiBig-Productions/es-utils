@@ -5,6 +5,10 @@ Simple journal of changes made to package.
 
 ---
 
+### [2025-09-08] - `1.11.0`
+
+Added tagging utility to log
+
 ### [2025-09-08] - `1.10.0`
 
 Added factory method to Iter
