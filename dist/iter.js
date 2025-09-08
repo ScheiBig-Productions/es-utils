@@ -18,6 +18,24 @@ export class Iter {
             }
         })());
     }
+    /**
+     * Returns `Iter` of given source.
+     *
+     * If source is {@link Iterable}, it returns `Iter` that can theoretically be reused,
+     * as it will supply new {@link Iterator} on each chain from `Iter`.
+     *
+     * If source is {@link Iterator}, it returns `Iter` that is single-usage,
+     * as it wil consume entire iterator passed in source.
+     *
+     * @param source - {@link Iterable} or {@link Iterator} to wrap with `Iter`
+     * @returns new `Iter` wrapping `source`
+     */
+    static of(source) {
+        if (Symbol.iterator in source) {
+            return new Iter(source);
+        }
+        return new Iter({ [Symbol.iterator]: () => source });
+    }
     #iterable;
     /**
      * Creates a new Iter instance from any iterable.

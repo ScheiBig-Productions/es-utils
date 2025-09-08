@@ -35,6 +35,19 @@ export declare class Iter<T> implements Iterable<T> {
      */
     static range(start: number, end: number, step: number): Iter<number>;
     /**
+     * Returns `Iter` of given source.
+     *
+     * If source is {@link Iterable}, it returns `Iter` that can theoretically be reused,
+     * as it will supply new {@link Iterator} on each chain from `Iter`.
+     *
+     * If source is {@link Iterator}, it returns `Iter` that is single-usage,
+     * as it wil consume entire iterator passed in source.
+     *
+     * @param source - {@link Iterable} or {@link Iterator} to wrap with `Iter`
+     * @returns new `Iter` wrapping `source`
+     */
+    static of<T>(source: Iterable<T> | Iterator<T>): Iter<T>;
+    /**
      * Creates a new Iter instance from any iterable.
      * @param iterable The source iterable.
      */
