@@ -369,5 +369,30 @@ const __colorize__ = colorize;
      * @returns Formatted message (if color is not disabled), with format reset at the end.
      */
     Log.colorize = __colorize__;
+    /**
+     * Returns tag for given value, which can be placed without worry of breaking
+     * naming after refactor.
+     *
+     * @param val - Value to tag.
+     * @returns `primitive ${typeof}` for primitives, `constructor.name` for objects
+     * or `name` for functions (and classes by extension).
+     */
+    Log.tag = function Log_tag(val) {
+        switch (typeof val) {
+            case "string": return "primitive string";
+            case "number": return "primitive number";
+            case "bigint": return "primitive bigint";
+            case "boolean": return "primitive boolean";
+            case "symbol": return "primitive symbol";
+            case "undefined": return "primitive undefined";
+            case "object":
+                if (val === null) {
+                    return "object null";
+                }
+                return val.constructor.name;
+            case "function": return val.name;
+            default: return Error.never("There are no other primitive values", val);
+        }
+    };
 })(Log || (Log = {}));
 //# sourceMappingURL=log.js.map
