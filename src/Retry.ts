@@ -1,0 +1,393 @@
+/* eslint-disable no-await-in-loop --
+ * Exponential backoff implementation.
+ */
+/* eslint-disable @typescript-eslint/naming-convention --
+ * Inner classes.
+ */
+/* eslint-disable @typescript-eslint/no-unnecessary-condition --
+ * Unfortunately in some developer-unfriendly browsers (Firefox as always)
+ * `Error.captureStackTrace` is alarmingly recent addition,
+ * which must be assumed to be unavailable
+ */
+/* eslint-disable func-names --
+ * Relying on name propagation from const, as shadowing would be extremely annoying here.
+ */
+/* eslint-disable complexity --
+ * Bound single-use logic should live inside function.
+ */
+
+import type { Mutable } from "src/types.js"
+
+/**
+ * A reusable retry executor with exponential backoff.
+ *
+ * Provides a configurable exponential‑backoff retry
+ * mechanism with optional jitter, early‑cancel semantics, and aggregated
+ * error reporting. It is suitable for connection logic, service discovery,
+ * and any asynchronous operation that may require repeated attempts.
+ *
+ * Example:
+ * ```ts
+ * const retry = new Runner({ maxAttempts: 5 });
+ * const result = await retry.run(() => fetch("http://localhost:3000"));
+ * ```
+ */
+export interface Retry {
+
+	/**
+	 * Initial delay before the first retry (in milliseconds).
+	 * Must be zero or greater.
+	 * @default 500
+	 */
+	readonly initialDelay: number,
+
+	/**
+	 * Exponential growth factor applied to the delay.
+	 * Must be greater than zero.
+	 * @default 1.8
+	 */
+	readonly growth: number,
+
+	/**
+	 * Jitter ratio applied to each delay.
+	 * Must be zero or greater.
+	 * @default 0.2
+	 */
+	readonly jitter: number,
+
+	/**
+	 * Maximum duration of retry campaign (in milliseconds).
+	 * Must be greater than zero.
+	 * @default 20000
+	 */
+	readonly timeout: number,
+
+	/**
+	 * Maximum number of retry attempts.
+	 * Must be greater than zero.
+	 * @default Infinity
+	 */
+	readonly maxAttempts: number,
+
+	/**
+	 * Executes an asynchronous function repeatedly until it succeeds,
+	 * is cancelled, or exceeds the maximum number of attempts.
+	 *
+	 * @template TRet The resolved type of the asynchronous function.
+	 * @template TErr The resolved type of error handler.
+	 *
+	 * @param fn The asynchronous operation to retry.
+	 * @param onEachError Optional error handler invoked after each failure.
+	 * Returning any non‑`undefined` value triggers early cancellation.
+	 * Allows for introspection of error, which gives ability to report that it happened.
+	 * @returns A promise resolving to the successful result of `fn`.
+	 *
+	 * @throws {Retry.CancelException}
+	 * Thrown when the error handler returns a non‑`undefined` value, caused by such value.
+	 *
+	 * @throws {Retry.TimeoutException}
+	 * Thrown when all retry attempts fail, caused by array of all errors.
+	 */
+	run: <TRet, TErr = never>(
+		this: Retry,
+		fn: () => Promise<TRet>,
+		onEachError?: (err: unknown, attempt: number, nextDelay: number) => TErr | undefined,
+	) => Promise<TRet | TErr>,
+}
+
+/**
+ * Constructor interface for {@link Retry}.
+ *
+ * Supports both `new Retry(...)` and `Retry(...)` usage.
+ */
+export interface RetryConstructor {
+
+	/**
+	 * Creates a new Retry runner.
+	 *
+	 * @param config Configuration object controlling backoff behavior.
+	 *
+	 * @throws {RangeError} If any configuration value violates constraints:
+	 * - `growth <= 0`
+	 * - `timeout <= 0`
+	 * - `maxAttempts <= 0`
+	 * - `initialDelay < 0`
+	 * - `jitter < 0`
+	 */
+	new(config?: Retry.Config): Retry,
+
+	/**
+	 * Creates a new Retry runner.
+	 *
+	 * @param config Configuration object controlling backoff behavior.
+	 *
+	 * @throws {RangeError} If any configuration value violates constraints:
+	 * - `growth <= 0`
+	 * - `timeout <= 0`
+	 * - `maxAttempts <= 0`
+	 * - `initialDelay < 0`
+	 * - `jitter < 0`
+	 */
+	(config?: Retry.Config): Retry,
+
+	prototype: Retry,
+
+	/**
+	 * Exception thrown when retrying is cancelled early due to a critical error.
+	 */
+	CancelError: Retry.CancelErrorConstructor,
+
+	/**
+	 * Exception thrown when all retry attempts are exhausted.
+	 */
+	TimeoutError: Retry.TimeoutErrorConstructor,
+}
+
+export const Retry = function (
+	this: Retry | undefined,
+	config: Retry.Config,
+) {
+	// eslint-disable-next-line consistent-this -- Conditional creation of this
+	const self: Mutable<Retry> = this instanceof Retry
+		? this
+		: Object.create(Retry.prototype) as Retry
+
+	self.initialDelay = config?.initialDelay ?? 500
+	self.growth = config?.growth ?? 1.8
+	self.jitter = config?.jitter ?? 0.2
+	self.timeout = config?.timeout ?? Infinity
+	self.maxAttempts = config?.maxAttempts ?? 5
+
+	if (self.growth <= 0) {
+		throw new RangeError("growth must be greater than zero")
+	}
+	if (self.timeout <= 0) {
+		throw new RangeError("timeout must be greater than zero")
+	}
+	if (self.maxAttempts <= 0) {
+		throw new RangeError("maxAttempts must be greater than zero")
+	}
+	if (self.initialDelay < 0) {
+		throw new RangeError("initialDelay must be zero or greater")
+	}
+	if (self.jitter < 0) {
+		throw new RangeError("jitter must be zero or greater")
+	}
+
+	return self as Retry
+} as RetryConstructor
+
+Retry.prototype.run = async function run<TRet, TErr = never>(
+	this: Retry,
+	fn: () => Promise<TRet>,
+	// eslint-disable-next-line no-shadow -- This is not a shadowing
+	onEachError?: (err: unknown, attempt: number, nextDelay: number) => TErr | undefined,
+): Promise<TRet | TErr> {
+	const jitter = (delay: number) => delay * this.jitter * (Math.random() - 0.5) * 2
+	let baseDelay = this.initialDelay
+	let nextDelay = baseDelay + jitter(baseDelay)
+	let timeSpent = 0
+	let attempt = 0
+	const errors = Array<unknown>()
+
+	while (true) {
+		const delay = nextDelay
+		timeSpent += delay
+		baseDelay *= this.growth
+		nextDelay = baseDelay + jitter(baseDelay)
+		try {
+			return await fn()
+		} catch(err) {
+			errors.push(err)
+
+			if (onEachError) {
+				const result = onEachError(err, attempt, nextDelay)
+				if (result !== undefined) {
+					throw Retry.CancelError(result)
+				}
+			}
+
+			attempt++
+
+			if (attempt >= this.maxAttempts) {
+				throw Retry.TimeoutError(errors, "attempts")
+			}
+			if (timeSpent > this.timeout) {
+				throw Retry.TimeoutError(errors, "delay")
+			}
+
+			await Promise.after(delay)
+		}
+	}
+}
+
+
+Retry.CancelError = function <E = unknown>(
+	this: Retry.CancelError<E> | undefined,
+	cause: E,
+) {
+	const message = "Retry cancelled due to critical error"
+	// eslint-disable-next-line consistent-this -- Conditional creation of this
+	const self = this instanceof Retry.CancelError
+		? this
+		: Object.create(Retry.CancelError.prototype) as Retry.CancelError<E>
+
+	self.name = "CancelError"
+	self.message = message
+	self.cause = cause
+	if (Error.captureStackTrace) {
+		Error.captureStackTrace(self, Retry.CancelError)
+	} else {
+		// Unfortunately in some developer-unfriendly browsers (Firefox as always)
+		// `Error.captureStackTrace` is alarmingly recent addition,
+		// which must be assumed to be unavailable
+		const { stack } = new Error(message, cause ? { cause } : {})
+		if (stack) { self.stack = stack }
+	}
+
+	Object.setPrototypeOf(self, Retry.CancelError.prototype)
+
+	return self
+} as Retry.CancelErrorConstructor
+
+
+Retry.TimeoutError = function (
+	this: Retry.TimeoutError | undefined,
+	cause: Array<unknown>,
+	type: "attempts" | "delay",
+) {
+	const message = `Retry cancelled due to ${type === "attempts"
+		? "too many attempts"
+		: "too long of a timeout"
+	}`
+	// eslint-disable-next-line consistent-this -- Conditional creation of this
+	const self = this instanceof Retry.TimeoutError
+		? this
+		: Object.create(Retry.TimeoutError.prototype) as Retry.TimeoutError
+
+	self.name = "TimeoutError"
+	self.message = message
+	self.cause = cause
+	if (Error.captureStackTrace) {
+		Error.captureStackTrace(self, Retry.TimeoutError)
+	} else {
+		// Unfortunately in some developer-unfriendly browsers (Firefox as always)
+		// `Error.captureStackTrace` is alarmingly recent addition,
+		// which must be assumed to be unavailable
+		const { stack } = new Error(message, cause ? { cause } : {})
+		if (stack) { self.stack = stack }
+	}
+
+	Object.setPrototypeOf(self, Retry.TimeoutError.prototype)
+
+	return self
+} as Retry.TimeoutErrorConstructor
+
+Retry.TimeoutError.prototype = Object.create(Error.prototype) as Retry.TimeoutError
+Retry.TimeoutError.prototype.constructor = Retry.TimeoutError
+
+
+export namespace Retry {
+
+	/**
+	 * Configuration options for {@link Retry} constructor.
+	 */
+	export interface Config {
+
+		/**
+		 * Initial delay before the first retry (in milliseconds).
+		 * Must be zero or greater.
+		 * @default 500
+		 */
+		initialDelay?: number,
+
+		/**
+		 * Exponential growth factor applied to the delay.
+		 * Must be greater than zero.
+		 * @default 1.8
+		 */
+		growth?: number,
+
+		/**
+		 * Jitter ratio applied to each delay.
+		 * Must be zero or greater.
+		 * @default 0.2
+		 */
+		jitter?: number,
+
+		/**
+		 * Maximum duration of retry campaign (in milliseconds).
+		 * Must be greater than zero.
+		 * @default Infinity
+		 */
+		timeout?: number,
+
+		/**
+		 * Maximum number of retry attempts.
+		 * Must be greater than zero.
+		 * @default 5
+		 */
+		maxAttempts?: number,
+	}
+
+	/**
+	 * Exception thrown when retrying is cancelled early due to a critical error.
+	 */
+	export interface CancelError<E = unknown> extends Error {
+
+		/**
+		 * The value returned by the error handler that triggered cancellation.
+		 */
+		cause: E,
+	}
+
+	/**
+	 * Constructor interface for {@link CancelError}.
+	 *
+	 * Supports both `new CancelError(...)` and `CancelError(...)` usage.
+	 */
+	export interface CancelErrorConstructor {
+
+		/**
+		 * Creates new `CancelError` with provided cause.
+		 */
+		new<E = unknown>(cause: E): CancelError<E>,
+
+		/**
+		 * Creates new `CancelError` with provided cause.
+		 */
+		<E = unknown>(cause: E): CancelError<E>,
+		prototype: CancelError,
+	}
+
+	/**
+	 * Exception thrown when all retry attempts are exhausted.
+	 */
+	export interface TimeoutError extends Error {
+
+		/**
+		 * Array of all errors thrown during retry attempts.
+		 */
+		cause: Array<unknown>,
+	}
+
+	/**
+	 * Constructor interface for {@link TimeoutError}.
+	 *
+	 * Supports both `new TimeoutError(...)` and `TimeoutError(...)` usage.
+	 */
+	export interface TimeoutErrorConstructor {
+
+		/**
+		 * Creates new `TimeoutError` with provided cause.
+		 */
+		new (cause: Array<unknown>, type: "attempts" | "delay"): TimeoutError,
+
+		/**
+		 * Creates new `TimeoutError` with provided cause.
+		 */
+		(cause: Array<unknown>, type: "attempts" | "delay"): TimeoutError,
+		prototype: TimeoutError,
+	}
+}
+

@@ -5,6 +5,10 @@ Simple journal of changes made to package.
 
 ---
 
+### [2026-01-24] - `1.12.0`
+
+Added Retry utility for exponential backoff retry of a promise producer
+
 ### [2026-01-24] - `1.11.1`
 
 Move after function to Promise static extension method
