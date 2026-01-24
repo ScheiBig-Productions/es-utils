@@ -1303,6 +1303,33 @@ await praise("John", 32)
 ```
 For documentation of factory, see [PromiseFactory](#type-promisefactory).
 
+### `Promise.after`
+
+Simple function that can work as asynchronous delay, 
+either with or without returned value.
+```ts
+interface AfterFn {
+
+	/**
+	 * Returns new Promise, that fulfills after given delay.
+	 */
+	(delay: number | Temporal.Duration): Promise<void>,
+
+	/**
+	 * Returns new Promise, that fulfills after given delay to specified value.
+	 */
+	<T>(delay: number | Temporal.Duration, value: T): Promise<T>,
+}
+
+
+/**
+ * Returns new Promise, that fulfills after given delay to specified value.
+ *
+ * Uses promise-based `setTimeout` on node.js-compatible engines.
+ */
+var /*Promise.*/after:  AfterFn
+```
+
 ### String - extensions
 
 #### `String.prototype.pack`
@@ -1428,31 +1455,6 @@ sparkle("Hi")
 ```
 
 ## New APIs
-
-### after
-
-Simple function that can work as asynchronous delay, 
-either with or without returned value.
-```ts
-interface AfterFn {
-
-	/**
-	 * Returns new Promise, that fulfills after given delay.
-	 */
-	(delay: number | Temporal.Duration): Promise<void>,
-
-	/**
-	 * Returns new Promise, that fulfills after given delay to specified value.
-	 */
-	<T>(delay: number | Temporal.Duration, value: T): Promise<T>,
-}
-
-
-/**
- * Returns new Promise, that fulfills after given delay to specified value.
- */
-export const after = async function after(delay, value) { ... } as AfterFn
-```
 
 ### ContractViolationError
 

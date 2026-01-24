@@ -14,8 +14,8 @@ export interface PromiseFactory<TRes, TArgs extends ReadonlyArray<unknown>> {
     /**
      * Chains a `.then` call onto the factory.
      *
-     * @template TFulRes - The result type after fulfillment.
-     * @template TRejRes - The result type after rejection.
+     * @template TFulRes The result type after fulfillment.
+     * @template TRejRes The result type after rejection.
      * @param onfulfilled - Callback for successful resolution.
      * @param onrejected - Callback for rejection.
      * @returns A new PromiseFactory with the transformed result.

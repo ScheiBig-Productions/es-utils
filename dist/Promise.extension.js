@@ -23,5 +23,24 @@ Promise.factory ??= function promiseFactory(producer) {
     });
     return factory;
 };
+let nodeSetTimeout = null;
+try {
+    const timers = await import("node:timers/promises");
+    if (timers?.setTimeout) {
+        nodeSetTimeout = timers.setTimeout;
+    }
+}
+catch {
+    nodeSetTimeout = null;
+}
+Promise.after ??= async function after(delay, value) {
+    const actualDelay = typeof delay === "number"
+        ? delay
+        : delay.total("milliseconds");
+    if (nodeSetTimeout) {
+        return await nodeSetTimeout(actualDelay, value);
+    }
+    return await new Promise((res) => void setTimeout(() => res(value), actualDelay));
+};
 export {};
 //# sourceMappingURL=Promise.extension.js.map

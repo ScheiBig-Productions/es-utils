@@ -21,7 +21,7 @@ export const TodoError = function (message, cause) {
         Error.captureStackTrace(self, TodoError);
     }
     else {
-        // Unfortunately in some 3rd world browsers (Firefox as always)
+        // Unfortunately in some developer-unfriendly browsers (Firefox as always)
         // `Error.captureStackTrace` is alarmingly recent addition,
         // which must be assumed to be unavailable
         const { stack } = new Error(message, cause ? { cause } : {});

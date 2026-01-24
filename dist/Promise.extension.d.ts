@@ -1,4 +1,15 @@
 import type { PromiseFactory } from "./promise-factory.js";
+import type { Temporal } from "@js-temporal/polyfill";
+interface AfterFn {
+    /**
+     * Returns new Promise, that fulfills after given delay.
+     */
+    (delay: number | Temporal.Duration): Promise<void>;
+    /**
+     * Returns new Promise, that fulfills after given delay to specified value.
+     */
+    <T>(delay: number | Temporal.Duration, value: T): Promise<T>;
+}
 /**
  * Augments the global PromiseConstructor with a `factory` method.
  */
@@ -16,6 +27,13 @@ declare global {
          * @returns A PromiseFactory with promise-like API chaining methods.
          */
         factory: <TRes, TArgs extends ReadonlyArray<unknown>>(producer: (...args: TArgs) => Promise<TRes>) => PromiseFactory<TRes, TArgs>;
+        /**
+         * Returns new Promise, that fulfills after given delay to specified value.
+         *
+         * Uses promise-based `setTimeout` on node.js-compatible engines.
+         */
+        after: AfterFn;
     }
 }
+export {};
 //# sourceMappingURL=Promise.extension.d.ts.map

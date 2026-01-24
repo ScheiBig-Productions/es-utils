@@ -5,6 +5,10 @@ Simple journal of changes made to package.
 
 ---
 
+### [2026-01-24] - `1.11.1`
+
+Move after function to Promise static extension method
+
 ### [2025-09-08] - `1.11.0`
 
 Added tagging utility to log

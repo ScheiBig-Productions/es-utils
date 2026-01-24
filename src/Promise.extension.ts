@@ -6,6 +6,20 @@
  */
 
 import type { PromiseFactory } from "./promise-factory.js"
+import type { Temporal } from "@js-temporal/polyfill"
+
+interface AfterFn {
+
+	/**
+	 * Returns new Promise, that fulfills after given delay.
+	 */
+	(delay: number | Temporal.Duration): Promise<void>,
+
+	/**
+	 * Returns new Promise, that fulfills after given delay to specified value.
+	 */
+	<T>(delay: number | Temporal.Duration, value: T): Promise<T>,
+}
 
 /**
  * Augments the global PromiseConstructor with a `factory` method.
@@ -27,6 +41,13 @@ declare global {
 		factory: <TRes, TArgs extends ReadonlyArray<unknown>> (
 			producer: (...args: TArgs) => Promise<TRes>
 		) => PromiseFactory<TRes, TArgs>,
+
+		/**
+		 * Returns new Promise, that fulfills after given delay to specified value.
+		 *
+		 * Uses promise-based `setTimeout` on node.js-compatible engines.
+		 */
+		after: AfterFn,
 	}
 }
 
@@ -60,3 +81,27 @@ Promise.factory ??= function promiseFactory<TRes, TArgs extends ReadonlyArray<un
 
 	return factory
 }
+
+let nodeSetTimeout: (<T = void>(ms: number, value?: T) => Promise<T>) | null = null
+
+try {
+	const timers = await import("node:timers/promises")
+	nodeSetTimeout = timers?.setTimeout ?? null
+} catch {
+	nodeSetTimeout = null
+}
+
+Promise.after ??= async function after<T = void>(
+	delay: number | Temporal.Duration,
+	value: T,
+) {
+	const actualDelay = typeof delay === "number"
+		? delay
+		: delay.total("milliseconds")
+
+	if (nodeSetTimeout) {
+		return await nodeSetTimeout(actualDelay, value)
+	}
+
+	return await new Promise<T>((res) => void setTimeout(() => res(value), actualDelay))
+} as AfterFn
