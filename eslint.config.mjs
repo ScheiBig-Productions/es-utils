@@ -812,7 +812,7 @@ export default config(
 			"@typescript-eslint/no-loop-func": [ "off" ], // base rule actually works in typescript
 			"@typescript-eslint/no-loss-of-precision": [ "off" ], // base rule actually works in typescript
 			"@typescript-eslint/no-magic-numbers": [ "off" ], // base rule is disabled as well
-			/* type */"@typescript-eslint/no-meaningless-void-operator": [ "warn" ],
+			/* type */"@typescript-eslint/no-meaningless-void-operator": [ "off" ], // proven itself to not be helpful
 			"@typescript-eslint/no-misused-new": [ "error" ],
 			/* type */"@typescript-eslint/no-misused-promises": [ "error" ],
 			/* type */"@typescript-eslint/no-misused-spread": [ "error" ],

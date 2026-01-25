@@ -26,21 +26,40 @@ Promise.factory ??= function promiseFactory(producer) {
 let nodeSetTimeout = null;
 try {
     const timers = await import("node:timers/promises");
-    if (timers?.setTimeout) {
-        nodeSetTimeout = timers.setTimeout;
-    }
+    nodeSetTimeout = timers?.setTimeout ?? null;
 }
 catch {
     nodeSetTimeout = null;
 }
-Promise.after ??= async function after(delay, value) {
+Promise.after ??= async function after(args) {
+    const { delay, signal, value } = typeof args === "number" || !("delay" in args)
+        ? { delay: args }
+        : args;
     const actualDelay = typeof delay === "number"
         ? delay
         : delay.total("milliseconds");
     if (nodeSetTimeout) {
-        return await nodeSetTimeout(actualDelay, value);
+        return await nodeSetTimeout(actualDelay, value, signal ? { signal } : undefined);
     }
-    return await new Promise((res) => void setTimeout(() => res(value), actualDelay));
+    return await new Promise((res, rej) => {
+        if (signal?.aborted) {
+            rej(signal.reason);
+        }
+        // eslint-disable-next-line prefer-const -- how do you expect me to assign to frozen const?
+        let abort;
+        const tid = setTimeout(() => {
+            signal?.removeEventListener("abort", abort);
+            res(value);
+        }, actualDelay);
+        abort = () => {
+            clearTimeout(tid);
+            signal?.removeEventListener("abort", abort);
+            rej(signal?.reason);
+        };
+        if (signal) {
+            signal.addEventListener("abort", abort);
+        }
+    });
 };
 export {};
 //# sourceMappingURL=Promise.extension.js.map

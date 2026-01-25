@@ -8,7 +8,7 @@
  *
  * Example:
  * ```ts
- * const retry = new Runner({ maxAttempts: 5 });
+ * const retry = new Retry({ maxAttempts: 5 });
  * const result = await retry.run(() => fetch("http://localhost:3000"));
  * ```
  */
@@ -51,6 +51,7 @@ export interface Retry {
      * @template TErr The resolved type of error handler.
      *
      * @param fn The asynchronous operation to retry.
+     * Optionally, might accept `AbortController` used by runner to cancel after timeout.
      * @param onEachError Optional error handler invoked after each failure.
      * Returning any non‑`undefined` value triggers early cancellation.
      * Allows for introspection of error, which gives ability to report that it happened.
@@ -62,7 +63,7 @@ export interface Retry {
      * @throws {Retry.TimeoutException}
      * Thrown when all retry attempts fail, caused by array of all errors.
      */
-    run: <TRet, TErr = never>(this: Retry, fn: () => Promise<TRet>, onEachError?: (err: unknown, attempt: number, nextDelay: number) => TErr | undefined) => Promise<TRet | TErr>;
+    run: <TRet, TErr = never>(this: Retry, fn: (() => Promise<TRet>) | ((signal: AbortSignal) => Promise<TRet>), onEachError?: (err: unknown, attempt: number, nextDelay: number) => TErr | undefined) => Promise<TRet | TErr>;
 }
 /**
  * Constructor interface for {@link Retry}.
@@ -176,6 +177,12 @@ export declare namespace Retry {
          * Array of all errors thrown during retry attempts.
          */
         cause: Array<unknown>;
+        /**
+         * Type of timeout:
+         * - "attempt" - too many attempts,
+         * - "timeout" - flat timeout reached,
+         */
+        type: "attempt" | "timeout";
     }
     /**
      * Constructor interface for {@link TimeoutError}.
@@ -186,11 +193,11 @@ export declare namespace Retry {
         /**
          * Creates new `TimeoutError` with provided cause.
          */
-        new (cause: Array<unknown>, type: "attempts" | "delay"): TimeoutError;
+        new (cause: Array<unknown>, type: "attempt" | "timeout"): TimeoutError;
         /**
          * Creates new `TimeoutError` with provided cause.
          */
-        (cause: Array<unknown>, type: "attempts" | "delay"): TimeoutError;
+        (cause: Array<unknown>, type: "attempt" | "timeout"): TimeoutError;
         prototype: TimeoutError;
     }
 }

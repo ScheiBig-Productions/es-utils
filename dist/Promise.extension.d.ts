@@ -6,9 +6,20 @@ interface AfterFn {
      */
     (delay: number | Temporal.Duration): Promise<void>;
     /**
+     * Returns new Promise, that fulfills after given delay.
+     */
+    (args: {
+        delay: number | Temporal.Duration;
+        signal?: AbortSignal;
+    }): Promise<void>;
+    /**
      * Returns new Promise, that fulfills after given delay to specified value.
      */
-    <T>(delay: number | Temporal.Duration, value: T): Promise<T>;
+    <T>(args: {
+        delay: number | Temporal.Duration;
+        signal?: AbortSignal;
+        value: T;
+    }): Promise<T>;
 }
 /**
  * Augments the global PromiseConstructor with a `factory` method.

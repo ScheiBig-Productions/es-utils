@@ -16,9 +16,21 @@ interface AfterFn {
 	(delay: number | Temporal.Duration): Promise<void>,
 
 	/**
+	 * Returns new Promise, that fulfills after given delay.
+	 */
+	(args: {
+		delay: number | Temporal.Duration,
+		signal?: AbortSignal,
+	}): Promise<void>,
+
+	/**
 	 * Returns new Promise, that fulfills after given delay to specified value.
 	 */
-	<T>(delay: number | Temporal.Duration, value: T): Promise<T>,
+	<T>(args: {
+		delay: number | Temporal.Duration,
+		signal?: AbortSignal,
+		value: T,
+	}): Promise<T>,
 }
 
 /**
@@ -82,7 +94,11 @@ Promise.factory ??= function promiseFactory<TRes, TArgs extends ReadonlyArray<un
 	return factory
 }
 
-let nodeSetTimeout: (<T = void>(ms: number, value?: T) => Promise<T>) | null = null
+let nodeSetTimeout: (<T = void>(
+	ms: number,
+	value?: T,
+	options?: { signal?: AbortSignal }
+) => Promise<T>) | null = null
 
 try {
 	const timers = await import("node:timers/promises")
@@ -91,17 +107,43 @@ try {
 	nodeSetTimeout = null
 }
 
-Promise.after ??= async function after<T = void>(
+Promise.after ??= async function after<T = void>(args: {
 	delay: number | Temporal.Duration,
+	signal?: AbortSignal,
 	value: T,
-) {
+} | number | Temporal.Duration): Promise<T> {
+	const { delay, signal, value } = typeof args === "number" || !("delay" in args)
+		? { delay: args }
+		: args
 	const actualDelay = typeof delay === "number"
 		? delay
 		: delay.total("milliseconds")
 
 	if (nodeSetTimeout) {
-		return await nodeSetTimeout(actualDelay, value)
+		return await nodeSetTimeout(actualDelay, value, signal ? { signal } : undefined)
 	}
 
-	return await new Promise<T>((res) => void setTimeout(() => res(value), actualDelay))
+	return await new Promise<T>((res, rej) => {
+		if (signal?.aborted) {
+			rej(signal.reason)
+		}
+
+		// eslint-disable-next-line prefer-const -- how do you expect me to assign to frozen const?
+		let abort: () => void
+
+		const tid = setTimeout(() => {
+			signal?.removeEventListener("abort", abort)
+			res(value as T)
+		}, actualDelay)
+
+		abort = () => {
+			clearTimeout(tid)
+			signal?.removeEventListener("abort", abort)
+			rej(signal?.reason)
+		}
+
+		if (signal) {
+			signal.addEventListener("abort", abort)
+		}
+	})
 } as AfterFn

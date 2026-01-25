@@ -26,16 +26,18 @@ Package introduces following additions - both to global objects, as well as new 
 - [String](#string---extensions).
 
 #### New APIs:
-- [after](#after),
 - [ContractViolationError](#contractviolationerror),
 - [Enum](#enum),
 - [Iter]() _**TODO - provide docs**_,
 - [Log](#log),
 - [Mime](#mime),
 - type [PromiseFactory](#type-promisefactory)
+- [Retry](#retry)
 - [SC](#sc),
 - [TodoError](#todoerror)
 - Temporal (as import, not polyfill - re-export of [@js-temporal/polyfill](https://www.npmjs.com/package/@js-temporal/polyfill))
+
+Classes marked with `/* callable */` comment can create objects without using `new` keyword - they will produce same instance as when called as constructor vs as function, unless specifically mentioned otherwise.
 
 ---
 
@@ -2023,6 +2025,215 @@ var /*PromiseFactory.prototype.*/alwaysCatch: <TRejRes = TRes>(
  * @returns A new PromiseFactory with the same result type.
  */
 var /*PromiseFactory.prototype.*/alwaysFinally: (onfinally: () => void) => PromiseFactory<TRes, TArgs>,
+```
+
+### Retry
+
+Reusable promise executor with exponential-backoff retry policy.
+
+It allows retrying given promise, with optional conditional cancellation based on error handler,
+and support for flat timeout (signal is presented to promise provider).
+
+```ts
+/**
+ * A reusable retry executor with exponential backoff.
+ *
+ * Provides a configurable exponential‑backoff retry
+ * mechanism with optional jitter, early‑cancel semantics, and aggregated
+ * error reporting. It is suitable for connection logic, service discovery,
+ * and any asynchronous operation that may require repeated attempts.
+ *
+ * Example:
+ * ```ts
+ * const retry = new Retry({ maxAttempts: 5 });
+ * const result = await retry.run(() => fetch("http://localhost:3000"));
+ * ```
+ */
+/* callable */ class Retry {
+
+		/**
+	 * Initial delay before the first retry (in milliseconds).
+	 * Must be zero or greater.
+	 * @default 500
+	 */
+	readonly initialDelay: number
+
+	/**
+	 * Exponential growth factor applied to the delay.
+	 * Must be greater than zero.
+	 * @default 1.8
+	 */
+	readonly growth: number
+
+	/**
+	 * Jitter ratio applied to each delay.
+	 * Must be zero or greater.
+	 * @default 0.2
+	 */
+	readonly jitter: number
+
+	/**
+	 * Maximum duration of retry campaign (in milliseconds).
+	 * Must be greater than zero.
+	 * @default 20000
+	 */
+	readonly timeout: number
+
+	/**
+	 * Maximum number of retry attempts.
+	 * Must be greater than zero.
+	 * @default Infinity
+	 */
+	readonly maxAttempts: number
+
+	/**
+	 * Creates a new Retry runner.
+	 *
+	 * @param config Configuration object controlling backoff behavior.
+	 *
+	 * @throws {RangeError} If any configuration value violates constraints:
+	 * - `growth <= 0`
+	 * - `timeout <= 0`
+	 * - `maxAttempts <= 0`
+	 * - `initialDelay < 0`
+	 * - `jitter < 0`
+	 */
+	constructor(config?: Retry.Config) { ... }
+
+	run: <TRet, TErr = never>(
+		this: Retry,
+		fn: (() => Promise<TRet>) | ((signal: AbortSignal) => Promise<TRet>),
+		onEachError?: (err: unknown, attempt: number, nextDelay: number) => TErr | undefined,
+	) => Promise<TRet | TErr>
+
+	/* callable */ static CancelError = class { ... }
+	/* callable */ static TimeoutError = class { ... }
+}
+```
+
+#### `Retry.prototype.run`
+```ts
+/**
+ * Executes an asynchronous function repeatedly until it succeeds,
+ * is cancelled, or exceeds the maximum number of attempts.
+ *
+ * @template TRet The resolved type of the asynchronous function.
+ * @template TErr The resolved type of error handler.
+ *
+ * @param fn The asynchronous operation to retry.
+ * Optionally, might accept `AbortController` used by runner to cancel after timeout.
+ * @param onEachError Optional error handler invoked after each failure.
+ * Returning any non‑`undefined` value triggers early cancellation.
+ * Allows for introspection of error, which gives ability to report that it happened.
+ * @returns A promise resolving to the successful result of `fn`.
+ *
+ * @throws {Retry.CancelException}
+ * Thrown when the error handler returns a non‑`undefined` value, caused by such value.
+ *
+ * @throws {Retry.TimeoutException}
+ * Thrown when all retry attempts fail, caused by array of all errors.
+ */
+var /*Retry.prototype.*/run: <TRet, TErr = never>(
+	this: Retry,
+	fn: (() => Promise<TRet>) | ((signal: AbortSignal) => Promise<TRet>),
+	onEachError?: (err: unknown, attempt: number, nextDelay: number) => TErr | undefined,
+) => Promise<TRet | TErr>
+```
+For example:
+```ts
+const retryNoTimeout = Retry({ maxAttempts: 10 })
+const retryTimeout = new Retry({ timeout: 500 })
+
+await retryNoTimeout.run(
+	() => fetch("https://localhost:3000"),
+	(err, attempt, nextDelay) => alert(`Trying again in ${nextDelay}ms due to ${err}`),
+)
+
+await retryTimeout.run((signal) => fetch("https://localhost:3000", { signal }))
+```
+
+#### `Retry.CancelError`
+This error is thrown by `Retry.prototype.run` when `onEachError` argument returns non-undefined result.
+
+Cause of instance will be set to mentioned result.
+```ts
+/**
+ * Exception thrown when retrying is cancelled early due to a critical error.
+ */
+/* callable */ class /*Retry.*/CancelError<E = unknown> extends Error {
+	/**
+	 * The value returned by the error handler that triggered cancellation.
+	 */
+	cause: E
+
+	/**
+	 * Creates new `CancelError` with provided cause.
+	 */
+	<E = unknown>(cause: E): CancelError<E>
+}
+```
+For example:
+```ts
+Retry().run(
+	doSomethingIffy,
+	(err) => err instanceof TypeError ? TypeError("Critical error in execution", { cause: err 11}) : undefined,
+)
+// Uncaught CancelError: Retry cancelled due to critical error {
+// 	cause: [TypeError: Critical error in execution] { ... },
+// }
+```
+
+#### `Retry.TimeoutError`
+This error is thrown by `Retry.prototype.run` when execution gives up.
+
+Cause will be provided as enumeration of all errors that happened while trying.
+
+This error might be raised both when number of attempts is exhausted, or when flat timeout is reached.
+```ts
+/**
+ * Exception thrown when all retry attempts are exhausted.
+ */
+/* callable */ class /*Retry.*/TimeoutError extends Error {
+
+	/**
+	 * Array of all errors thrown during retry attempts.
+	 */
+	cause: Array<unknown>
+
+	/**
+	 * Type of timeout:
+	 * - "attempt" - too many attempts,
+	 * - "timeout" - flat timeout reached,
+	 */
+	type: "attempt" | "timeout"
+
+	/**
+	 * Creates new `TimeoutError` with provided cause.
+	 */
+	constructor(cause: Array<unknown>, type: "attempt" | "timeout") { ... }
+}
+```
+For example:
+```ts
+Retry({ maxAttempts: 2 }).run(
+	() => fetch("nowhere"),
+)
+// Uncaught TimeoutError: Retry cancelled due to too many attempts {
+// 	cause: [
+// 		TypeError: Failed to parse URL from nowhere
+// 				 ... {
+// 			[cause]: [TypeError]
+// 		},
+// 		TypeError: Failed to parse URL from nowhere
+// 				... {
+// 			[cause]: [TypeError]
+// 		},
+// 		TypeError: Failed to parse URL from nowhere
+// 				... {
+// 			[cause]: [TypeError]
+// 		}
+// 	]
+// }
 ```
 
 ### SC

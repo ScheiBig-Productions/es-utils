@@ -42,25 +42,36 @@ export const Retry = function (config) {
     }
     return self;
 };
-Retry.prototype.run = async function run(fn, 
+// eslint-disable-next-line id-length -- Name must be descriptive
+const __INERT_SIGNAL__YOU_ARE_NOT_ALLOWED_TO_USE_IT = new AbortController().signal;
+Retry.prototype.run = async function run(
+// eslint-disable-next-line no-shadow -- This is not a shadowing
+fn, 
 // eslint-disable-next-line no-shadow -- This is not a shadowing
 onEachError) {
     const jitter = (delay) => delay * this.jitter * (Math.random() - 0.5) * 2;
     let baseDelay = this.initialDelay;
     let nextDelay = baseDelay + jitter(baseDelay);
-    let timeSpent = 0;
     let attempt = 0;
     const errors = Array();
+    const signal = this.timeout === Infinity
+        ? __INERT_SIGNAL__YOU_ARE_NOT_ALLOWED_TO_USE_IT
+        : AbortSignal.timeout(this.timeout);
     while (true) {
+        if (signal.aborted) {
+            throw Retry.TimeoutError(errors, "timeout");
+        }
         const delay = nextDelay;
-        timeSpent += delay;
         baseDelay *= this.growth;
         nextDelay = baseDelay + jitter(baseDelay);
         try {
-            return await fn();
+            return await fn(signal);
         }
         catch (err) {
             errors.push(err);
+            if (signal.aborted) {
+                throw Retry.TimeoutError(errors, "timeout");
+            }
             if (onEachError) {
                 const result = onEachError(err, attempt, nextDelay);
                 if (result !== undefined) {
@@ -69,16 +80,23 @@ onEachError) {
             }
             attempt++;
             if (attempt >= this.maxAttempts) {
-                throw Retry.TimeoutError(errors, "attempts");
+                throw Retry.TimeoutError(errors, "attempt");
             }
-            if (timeSpent > this.timeout) {
-                throw Retry.TimeoutError(errors, "delay");
+            try {
+                await Promise.after({
+                    delay,
+                    signal,
+                });
             }
-            await Promise.after(delay);
+            catch {
+                if (signal.aborted) {
+                    throw Retry.TimeoutError(errors, "timeout");
+                }
+            }
         }
     }
 };
-Retry.CancelError = function (cause) {
+Retry.CancelError = function CancelError(cause) {
     const message = "Retry cancelled due to critical error";
     // eslint-disable-next-line consistent-this -- Conditional creation of this
     const self = this instanceof Retry.CancelError
@@ -102,8 +120,8 @@ Retry.CancelError = function (cause) {
     Object.setPrototypeOf(self, Retry.CancelError.prototype);
     return self;
 };
-Retry.TimeoutError = function (cause, type) {
-    const message = `Retry cancelled due to ${type === "attempts"
+Retry.TimeoutError = function TimeoutError(cause, type) {
+    const message = `Retry cancelled due to ${type === "attempt"
         ? "too many attempts"
         : "too long of a timeout"}`;
     // eslint-disable-next-line consistent-this -- Conditional creation of this
@@ -112,6 +130,7 @@ Retry.TimeoutError = function (cause, type) {
         : Object.create(Retry.TimeoutError.prototype);
     self.name = "TimeoutError";
     self.message = message;
+    self.type = type;
     self.cause = cause;
     if (Error.captureStackTrace) {
         Error.captureStackTrace(self, Retry.TimeoutError);

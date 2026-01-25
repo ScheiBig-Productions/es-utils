@@ -28,7 +28,7 @@ import type { Mutable } from "src/types.js"
  *
  * Example:
  * ```ts
- * const retry = new Runner({ maxAttempts: 5 });
+ * const retry = new Retry({ maxAttempts: 5 });
  * const result = await retry.run(() => fetch("http://localhost:3000"));
  * ```
  */
@@ -77,6 +77,7 @@ export interface Retry {
 	 * @template TErr The resolved type of error handler.
 	 *
 	 * @param fn The asynchronous operation to retry.
+	 * Optionally, might accept `AbortController` used by runner to cancel after timeout.
 	 * @param onEachError Optional error handler invoked after each failure.
 	 * Returning any non‑`undefined` value triggers early cancellation.
 	 * Allows for introspection of error, which gives ability to report that it happened.
@@ -90,7 +91,7 @@ export interface Retry {
 	 */
 	run: <TRet, TErr = never>(
 		this: Retry,
-		fn: () => Promise<TRet>,
+		fn: (() => Promise<TRet>) | ((signal: AbortSignal) => Promise<TRet>),
 		onEachError?: (err: unknown, attempt: number, nextDelay: number) => TErr | undefined,
 	) => Promise<TRet | TErr>,
 }
@@ -114,7 +115,7 @@ export interface RetryConstructor {
 	 * - `initialDelay < 0`
 	 * - `jitter < 0`
 	 */
-	new(config?: Retry.Config): Retry,
+	new (config?: Retry.Config): Retry,
 
 	/**
 	 * Creates a new Retry runner.
@@ -177,28 +178,42 @@ export const Retry = function (
 	return self as Retry
 } as RetryConstructor
 
+// eslint-disable-next-line id-length -- Name must be descriptive
+const __INERT_SIGNAL__YOU_ARE_NOT_ALLOWED_TO_USE_IT = new AbortController().signal
+
 Retry.prototype.run = async function run<TRet, TErr = never>(
 	this: Retry,
-	fn: () => Promise<TRet>,
+	// eslint-disable-next-line no-shadow -- This is not a shadowing
+	fn: (() => Promise<TRet>) | ((signal: AbortSignal) => Promise<TRet>),
 	// eslint-disable-next-line no-shadow -- This is not a shadowing
 	onEachError?: (err: unknown, attempt: number, nextDelay: number) => TErr | undefined,
 ): Promise<TRet | TErr> {
 	const jitter = (delay: number) => delay * this.jitter * (Math.random() - 0.5) * 2
 	let baseDelay = this.initialDelay
 	let nextDelay = baseDelay + jitter(baseDelay)
-	let timeSpent = 0
 	let attempt = 0
 	const errors = Array<unknown>()
 
+	const signal: AbortSignal = this.timeout === Infinity
+		? __INERT_SIGNAL__YOU_ARE_NOT_ALLOWED_TO_USE_IT
+		: AbortSignal.timeout(this.timeout)
+
 	while (true) {
+		if (signal.aborted) {
+			throw Retry.TimeoutError(errors, "timeout")
+		}
+
 		const delay = nextDelay
-		timeSpent += delay
 		baseDelay *= this.growth
 		nextDelay = baseDelay + jitter(baseDelay)
 		try {
-			return await fn()
+			return await fn(signal)
 		} catch(err) {
 			errors.push(err)
+
+			if (signal.aborted) {
+				throw Retry.TimeoutError(errors, "timeout")
+			}
 
 			if (onEachError) {
 				const result = onEachError(err, attempt, nextDelay)
@@ -208,21 +223,25 @@ Retry.prototype.run = async function run<TRet, TErr = never>(
 			}
 
 			attempt++
-
 			if (attempt >= this.maxAttempts) {
-				throw Retry.TimeoutError(errors, "attempts")
-			}
-			if (timeSpent > this.timeout) {
-				throw Retry.TimeoutError(errors, "delay")
+				throw Retry.TimeoutError(errors, "attempt")
 			}
 
-			await Promise.after(delay)
+			try {
+				await Promise.after({
+					delay,
+					signal,
+				})
+			} catch {
+				if (signal.aborted) {
+					throw Retry.TimeoutError(errors, "timeout")
+				}
+			}
 		}
 	}
 }
 
-
-Retry.CancelError = function <E = unknown>(
+Retry.CancelError = function CancelError<E = unknown>(
 	this: Retry.CancelError<E> | undefined,
 	cause: E,
 ) {
@@ -251,12 +270,12 @@ Retry.CancelError = function <E = unknown>(
 } as Retry.CancelErrorConstructor
 
 
-Retry.TimeoutError = function (
+Retry.TimeoutError = function TimeoutError(
 	this: Retry.TimeoutError | undefined,
 	cause: Array<unknown>,
-	type: "attempts" | "delay",
+	type: "attempt" | "timeout",
 ) {
-	const message = `Retry cancelled due to ${type === "attempts"
+	const message = `Retry cancelled due to ${type === "attempt"
 		? "too many attempts"
 		: "too long of a timeout"
 	}`
@@ -267,6 +286,7 @@ Retry.TimeoutError = function (
 
 	self.name = "TimeoutError"
 	self.message = message
+	self.type = type
 	self.cause = cause
 	if (Error.captureStackTrace) {
 		Error.captureStackTrace(self, Retry.TimeoutError)
@@ -369,6 +389,13 @@ export namespace Retry {
 		 * Array of all errors thrown during retry attempts.
 		 */
 		cause: Array<unknown>,
+
+		/**
+		 * Type of timeout:
+		 * - "attempt" - too many attempts,
+		 * - "timeout" - flat timeout reached,
+		 */
+		type: "attempt" | "timeout",
 	}
 
 	/**
@@ -381,12 +408,12 @@ export namespace Retry {
 		/**
 		 * Creates new `TimeoutError` with provided cause.
 		 */
-		new (cause: Array<unknown>, type: "attempts" | "delay"): TimeoutError,
+		new (cause: Array<unknown>, type: "attempt" | "timeout"): TimeoutError,
 
 		/**
 		 * Creates new `TimeoutError` with provided cause.
 		 */
-		(cause: Array<unknown>, type: "attempts" | "delay"): TimeoutError,
+		(cause: Array<unknown>, type: "attempt" | "timeout"): TimeoutError,
 		prototype: TimeoutError,
 	}
 }
