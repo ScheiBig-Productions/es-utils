@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/naming-convention --
- * Hidden property with mangled name.
- */
+
 /* eslint-disable @typescript-eslint/no-unnecessary-condition --
 * Conditional assignment for `Array.prototype` props (`??=`) is intentional and context-aware:
 * it acts as a runtime polyfill or extension, only defining the method if it doesn't already exist.
@@ -619,11 +617,13 @@ interface RangeFn {
 	(start: number, end: number, step: number): Array<number>,
 }
 
+const Symbol_indexProxy = Symbol("index proxy")
+
 Array.prototype.$ ?? Object.defineProperty(Array.prototype, "$", {
 	configurable: true,
 	enumerable: false,
-	get <T>(this: Array<T> & { __$__?: IndexProxy<T> }): IndexProxy<T> {
-		if (!this.__$__) {
+	get <T>(this: Array<T> & { [Symbol_indexProxy]?: IndexProxy<T> }): IndexProxy<T> {
+		if (!this[Symbol_indexProxy]) {
 			const handler: ProxyHandler<Array<T>> = {
 				get(target, prop) {
 					const index = Number(prop)
@@ -631,7 +631,7 @@ Array.prototype.$ ?? Object.defineProperty(Array.prototype, "$", {
 						let i = index
 						const len = target.length
 
-						if (i < 0 && i > -len) {
+						if (i < 0 && i >= -len) {
 							i += len
 						}
 						if (i < 0 || i >= len) {
@@ -647,7 +647,7 @@ Array.prototype.$ ?? Object.defineProperty(Array.prototype, "$", {
 						let i = index
 						const len = target.length
 
-						if (i < 0 && i > -len) {
+						if (i < 0 && i >= -len) {
 							i += len
 						}
 						if (i < 0 || i >= len) {
@@ -659,9 +659,9 @@ Array.prototype.$ ?? Object.defineProperty(Array.prototype, "$", {
 					throw TypeError("Indexer only support array element access")
 				},
 			}
-			this.__$__ = new Proxy(this, handler)
+			this[Symbol_indexProxy] = new Proxy(this, handler)
 		}
-		return this.__$__
+		return this[Symbol_indexProxy]
 	},
 })
 

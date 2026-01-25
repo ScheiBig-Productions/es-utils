@@ -144,18 +144,19 @@ Array.prototype.groupBy ??= function groupBy(keySelector, returnType = "Object")
     }
     throw TypeError(`Unknown grouping provider: ${String(returnType)}.`);
 };
+const Symbol_indexProxy = Symbol("index proxy");
 Array.prototype.$ ?? Object.defineProperty(Array.prototype, "$", {
     configurable: true,
     enumerable: false,
     get() {
-        if (!this.__$__) {
+        if (!this[Symbol_indexProxy]) {
             const handler = {
                 get(target, prop) {
                     const index = Number(prop);
                     if (Number.isInteger(index)) {
                         let i = index;
                         const len = target.length;
-                        if (i < 0 && i > -len) {
+                        if (i < 0 && i >= -len) {
                             i += len;
                         }
                         if (i < 0 || i >= len) {
@@ -170,7 +171,7 @@ Array.prototype.$ ?? Object.defineProperty(Array.prototype, "$", {
                     if (Number.isInteger(index)) {
                         let i = index;
                         const len = target.length;
-                        if (i < 0 && i > -len) {
+                        if (i < 0 && i >= -len) {
                             i += len;
                         }
                         if (i < 0 || i >= len) {
@@ -182,9 +183,9 @@ Array.prototype.$ ?? Object.defineProperty(Array.prototype, "$", {
                     throw TypeError("Indexer only support array element access");
                 },
             };
-            this.__$__ = new Proxy(this, handler);
+            this[Symbol_indexProxy] = new Proxy(this, handler);
         }
-        return this.__$__;
+        return this[Symbol_indexProxy];
     },
 });
 Array.range ??= function range(startOrEnd, maybeEnd, maybeStep = 1) {
