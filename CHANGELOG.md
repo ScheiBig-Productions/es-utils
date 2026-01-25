@@ -5,6 +5,10 @@ Simple journal of changes made to package.
 
 ---
 
+### [2026-01-25] - `1.12.2`
+
+Fix problems with esbuild vs global await in Promise extension module
+
 ### [2026-01-25] - `1.12.1`
 
 Add cancellation ability to Retry and Promise.after; update docs

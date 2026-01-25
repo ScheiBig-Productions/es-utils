@@ -94,17 +94,21 @@ Promise.factory ??= function promiseFactory<TRes, TArgs extends ReadonlyArray<un
 	return factory
 }
 
-let nodeSetTimeout: (<T = void>(
-	ms: number,
-	value?: T,
-	options?: { signal?: AbortSignal }
-) => Promise<T>) | null = null
+type PromiseSetTimeout =
+	| (<T = void>(ms: number, value?: T, options?: { signal?: AbortSignal }) => Promise<T>)
+	| null
 
-try {
-	const timers = await import("node:timers/promises")
-	nodeSetTimeout = timers?.setTimeout ?? null
-} catch {
-	nodeSetTimeout = null
+let nodeSetTimeout: () => Promise<PromiseSetTimeout> | PromiseSetTimeout = async () => {
+
+	try {
+		const timers = await import("node:timers/promises")
+		const timeout = timers?.setTimeout ?? null
+		nodeSetTimeout = () => timeout
+		return timeout
+	} catch {
+		nodeSetTimeout = () => null
+		return null
+	}
 }
 
 Promise.after ??= async function after<T = void>(args: {
@@ -119,8 +123,9 @@ Promise.after ??= async function after<T = void>(args: {
 		? delay
 		: delay.total("milliseconds")
 
-	if (nodeSetTimeout) {
-		return await nodeSetTimeout(actualDelay, value, signal ? { signal } : undefined)
+	const asyncSetTimeout = await nodeSetTimeout()
+	if (asyncSetTimeout) {
+		return await asyncSetTimeout(actualDelay, value, signal ? { signal } : undefined)
 	}
 
 	return await new Promise<T>((res, rej) => {

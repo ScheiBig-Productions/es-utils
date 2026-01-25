@@ -23,14 +23,18 @@ Promise.factory ??= function promiseFactory(producer) {
     });
     return factory;
 };
-let nodeSetTimeout = null;
-try {
-    const timers = await import("node:timers/promises");
-    nodeSetTimeout = timers?.setTimeout ?? null;
-}
-catch {
-    nodeSetTimeout = null;
-}
+let nodeSetTimeout = async () => {
+    try {
+        const timers = await import("node:timers/promises");
+        const timeout = timers?.setTimeout ?? null;
+        nodeSetTimeout = () => timeout;
+        return timeout;
+    }
+    catch {
+        nodeSetTimeout = () => null;
+        return null;
+    }
+};
 Promise.after ??= async function after(args) {
     const { delay, signal, value } = typeof args === "number" || !("delay" in args)
         ? { delay: args }
@@ -38,8 +42,9 @@ Promise.after ??= async function after(args) {
     const actualDelay = typeof delay === "number"
         ? delay
         : delay.total("milliseconds");
-    if (nodeSetTimeout) {
-        return await nodeSetTimeout(actualDelay, value, signal ? { signal } : undefined);
+    const asyncSetTimeout = await nodeSetTimeout();
+    if (asyncSetTimeout) {
+        return await asyncSetTimeout(actualDelay, value, signal ? { signal } : undefined);
     }
     return await new Promise((res, rej) => {
         if (signal?.aborted) {
