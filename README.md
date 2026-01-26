@@ -2045,11 +2045,12 @@ and support for flat timeout (signal is presented to promise provider).
  *
  * Example:
  * ```ts
- * const retry = new Retry({ maxAttempts: 5 });
+ * const retry = new Retry({ attempts: 5 });
  * const result = await retry.run(() => fetch("http://localhost:3000"));
  * ```
  */
-/* callable */ class Retry {
+/*Maximum delay between retries - delay length is clamped to this value,
+	 * which is useful for "forever" retries.
 
 		/**
 	 * Initial delay before the first retry (in milliseconds).
@@ -2084,7 +2085,15 @@ and support for flat timeout (signal is presented to promise provider).
 	 * Must be greater than zero.
 	 * @default Infinity
 	 */
-	readonly maxAttempts: number
+	readonly attempts: number
+
+	/**
+	 * Maximum delay between retries - delay length is clamped to this value,
+	 * which is useful for "forever" retries.
+	 * Must be greater than zero.
+	 * @default Infinity
+	 */
+	readonly maxDelay?: number
 
 	/**
 	 * Creates a new Retry runner.
@@ -2092,13 +2101,15 @@ and support for flat timeout (signal is presented to promise provider).
 	 * @param config Configuration object controlling backoff behavior.
 	 *
 	 * @throws {RangeError} If any configuration value violates constraints:
-	 * - `growth <= 0`
-	 * - `timeout <= 0`
-	 * - `maxAttempts <= 0`
 	 * - `initialDelay < 0`
+	 * - `growth <= 0`
 	 * - `jitter < 0`
+	 * - `timeout <= 0`
+	 * - `attempts <= 0`
+	 * - `maxDelay <= 0`
 	 */
-	constructor(config?: Retry.Config) { ... }
+	coMaximum delay between retries - delay length is clamped to this value,
+	 * which is useful for "forever" retries.
 
 	run: <TRet, TErr = never>(
 		this: Retry,
@@ -2141,10 +2152,11 @@ var /*Retry.prototype.*/run: <TRet, TErr = never>(
 ```
 For example:
 ```ts
-const retryNoTimeout = Retry({ maxAttempts: 10 })
+const retryNoTimeout = Retry({ attempts: 10 })
 const retryTimeout = new Retry({ timeout: 500 })
 
-await retryNoTimeout.run(
+awMaximum delay between retries - delay length is clamped to this value,
+	 * which is useful for "forever" retries.
 	() => fetch("https://localhost:3000"),
 	(err, attempt, nextDelay) => alert(`Trying again in ${nextDelay}ms due to ${err}`),
 )
@@ -2215,10 +2227,11 @@ This error might be raised both when number of attempts is exhausted, or when fl
 ```
 For example:
 ```ts
-Retry({ maxAttempts: 2 }).run(
+Retry({ attempts: 2 }).run(
 	() => fetch("nowhere"),
 )
-// Uncaught TimeoutError: Retry cancelled due to too many attempts {
+//Maximum delay between retries - delay length is clamped to this value,
+	 * which is useful for "forever" retries.
 // 	cause: [
 // 		TypeError: Failed to parse URL from nowhere
 // 				 ... {

@@ -5,6 +5,10 @@ Simple journal of changes made to package.
 
 ---
 
+### [2026-01-26] - `1.12.4`
+
+Add delay clamp to Retry via maxDelay, rename maxAttempts to not confuse
+
 ### [2026-01-25] - `1.12.3`
 
 Move Array index proxy under Symbol to prevent failure due to Object.getOwnPropertyNames

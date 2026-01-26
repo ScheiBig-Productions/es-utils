@@ -28,7 +28,7 @@ import type { Mutable } from "src/types.js"
  *
  * Example:
  * ```ts
- * const retry = new Retry({ maxAttempts: 5 });
+ * const retry = new Retry({ attempts: 5 });
  * const result = await retry.run(() => fetch("http://localhost:3000"));
  * ```
  */
@@ -67,7 +67,15 @@ export interface Retry {
 	 * Must be greater than zero.
 	 * @default Infinity
 	 */
-	readonly maxAttempts: number,
+	readonly attempts: number,
+
+	/**
+	 * Maximum delay between retries - delay length is clamped to this value,
+	 * which is useful for "forever" retries.
+	 * Must be greater than zero.
+	 * @default Infinity
+	 */
+	readonly maxDelay: number,
 
 	/**
 	 * Executes an asynchronous function repeatedly until it succeeds,
@@ -109,11 +117,12 @@ export interface RetryConstructor {
 	 * @param config Configuration object controlling backoff behavior.
 	 *
 	 * @throws {RangeError} If any configuration value violates constraints:
-	 * - `growth <= 0`
-	 * - `timeout <= 0`
-	 * - `maxAttempts <= 0`
 	 * - `initialDelay < 0`
+	 * - `growth <= 0`
 	 * - `jitter < 0`
+	 * - `timeout <= 0`
+	 * - `attempts <= 0`
+	 * - `maxDelay <= 0`
 	 */
 	new (config?: Retry.Config): Retry,
 
@@ -123,11 +132,12 @@ export interface RetryConstructor {
 	 * @param config Configuration object controlling backoff behavior.
 	 *
 	 * @throws {RangeError} If any configuration value violates constraints:
-	 * - `growth <= 0`
-	 * - `timeout <= 0`
-	 * - `maxAttempts <= 0`
 	 * - `initialDelay < 0`
+	 * - `growth <= 0`
 	 * - `jitter < 0`
+	 * - `timeout <= 0`
+	 * - `attempts <= 0`
+	 * - `maxDelay <= 0`
 	 */
 	(config?: Retry.Config): Retry,
 
@@ -157,22 +167,26 @@ export const Retry = function (
 	self.growth = config?.growth ?? 1.8
 	self.jitter = config?.jitter ?? 0.2
 	self.timeout = config?.timeout ?? Infinity
-	self.maxAttempts = config?.maxAttempts ?? 5
+	self.attempts = config?.attempts ?? 5
+	self.maxDelay = config?.maxDelay ?? Infinity
 
+	if (self.initialDelay < 0) {
+		throw new RangeError("initialDelay must be zero or greater")
+	}
 	if (self.growth <= 0) {
 		throw new RangeError("growth must be greater than zero")
+	}
+	if (self.jitter < 0) {
+		throw new RangeError("jitter must be zero or greater")
 	}
 	if (self.timeout <= 0) {
 		throw new RangeError("timeout must be greater than zero")
 	}
-	if (self.maxAttempts <= 0) {
-		throw new RangeError("maxAttempts must be greater than zero")
+	if (self.attempts <= 0) {
+		throw new RangeError("attempts must be greater than zero")
 	}
-	if (self.initialDelay < 0) {
-		throw new RangeError("initialDelay must be zero or greater")
-	}
-	if (self.jitter < 0) {
-		throw new RangeError("jitter must be zero or greater")
+	if (self.maxDelay <= 0) {
+		throw new RangeError("maxDelay must be greater than zero")
 	}
 
 	return self as Retry
@@ -190,7 +204,7 @@ Retry.prototype.run = async function run<TRet, TErr = never>(
 ): Promise<TRet | TErr> {
 	const jitter = (delay: number) => delay * this.jitter * (Math.random() - 0.5) * 2
 	let baseDelay = this.initialDelay
-	let nextDelay = baseDelay + jitter(baseDelay)
+	let nextDelay = Math.max(baseDelay + jitter(baseDelay), this.maxDelay)
 	let attempt = 0
 	const errors = Array<unknown>()
 
@@ -205,7 +219,7 @@ Retry.prototype.run = async function run<TRet, TErr = never>(
 
 		const delay = nextDelay
 		baseDelay *= this.growth
-		nextDelay = baseDelay + jitter(baseDelay)
+		nextDelay = Math.min(baseDelay + jitter(baseDelay), this.maxDelay)
 		try {
 			return await fn(signal)
 		} catch(err) {
@@ -223,15 +237,12 @@ Retry.prototype.run = async function run<TRet, TErr = never>(
 			}
 
 			attempt++
-			if (attempt >= this.maxAttempts) {
+			if (attempt >= this.attempts) {
 				throw Retry.TimeoutError(errors, "attempt")
 			}
 
 			try {
-				await Promise.after({
-					delay,
-					signal,
-				})
+				await Promise.after({ delay, signal })
 			} catch {
 				if (signal.aborted) {
 					throw Retry.TimeoutError(errors, "timeout")
@@ -347,7 +358,15 @@ export namespace Retry {
 		 * Must be greater than zero.
 		 * @default 5
 		 */
-		maxAttempts?: number,
+		attempts?: number,
+
+		/**
+		 * Maximum delay between retries - delay length is clamped to this value,
+		 * hich is useful for "forever" retries.
+		 * Must be greater than zero.
+		 * @default Infinity
+		 */
+		maxDelay?: number,
 	}
 
 	/**
