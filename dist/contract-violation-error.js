@@ -1,3 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-condition --
+* Conditional assignment for `Array.prototype` props (`??=`) is intentional and context-aware:
+* it acts as a runtime polyfill or extension, only defining the method if it doesn't already exist.
+* Although the method may appear always present in type definitions,
+* the actual environment might lack it (e.g. ES2022 targets).
+*/
+import { Object_tag } from "./common/object-tag.js";
 /**
  * Constructor for {@link ContractViolationError}.
  *
@@ -35,5 +42,5 @@ export const ContractViolationError = function (cause) {
 };
 ContractViolationError.prototype = Object.create(Error.prototype);
 ContractViolationError.prototype.constructor = ContractViolationError;
-Object.tag(ContractViolationError);
+Object_tag(ContractViolationError);
 //# sourceMappingURL=contract-violation-error.js.map

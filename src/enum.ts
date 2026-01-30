@@ -1,3 +1,5 @@
+import { Object_tag } from "./common/object-tag.js"
+
 type Entries = ReadonlyArray<string | readonly [k: string, v: string]>
 
 type ExtractEnum<T extends Entries> = {
@@ -128,7 +130,7 @@ export const Enum = Object.assign(function Enum<const T extends Entries>(
 		enumObj: Enum<T>,
 	): ReadonlyArray<ExtractValues<T>[number]> { return enumObj[Symbol_enumValues] },
 }) as EnumConstructor
-Object.tag(Enum)
+Object_tag(Enum)
 
 export namespace Enum {
 

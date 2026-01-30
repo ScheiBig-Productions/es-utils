@@ -4,6 +4,8 @@
 
 import type { Mutable } from "./types.js"
 
+import { Object_tag } from "./common/object-tag.js"
+
 /* eslint-disable @typescript-eslint/no-unnecessary-condition --
  * Conditional assignment for `Array.prototype` props (`??=`) is intentional and context-aware:
  * it acts as a runtime polyfill, only defining the method if it doesn't already exist.
@@ -124,4 +126,4 @@ Map.groupBy ??= function groupBy<T, K>(
 		)
 	}
 } as IndexedMapConstructor
-Object.tag(Map.Indexed)
+Object_tag(Map.Indexed)

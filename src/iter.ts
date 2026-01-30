@@ -1,6 +1,9 @@
 /* eslint-disable complexity --
  * Not making helper function for fairly simple functions.
  */
+
+import { Object_tag } from "./common/object-tag.js"
+
 /* eslint-disable @typescript-eslint/no-non-null-assertion --
  * Known as defined at this point.
  */
@@ -461,4 +464,4 @@ export class Iter<T> implements Iterable<T> {
 		})())
 	}
 }
-Object.tag(Iter)
+Object_tag(Iter)

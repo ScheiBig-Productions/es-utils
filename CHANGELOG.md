@@ -5,6 +5,10 @@ Simple journal of changes made to package.
 
 ---
 
+### [2026-01-30] - `1.14.0`
+
+Introduce more scope functions to Object
+
 ### [2026-01-30] - `1.13.0`
 
 Introduce Object.tag for one-line Symbol.toStringTag attachement - tag all classes in lib

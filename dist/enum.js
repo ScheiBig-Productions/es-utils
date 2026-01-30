@@ -1,3 +1,4 @@
+import { Object_tag } from "./common/object-tag.js";
 const Symbol_enumValues = Symbol("Enum Values");
 /**
  * Allows for creation of `Enum`, which provides runtime-level enums, without disgusting
@@ -44,5 +45,5 @@ export const Enum = Object.assign(function Enum(...rawValues) {
 }, {
     values: function Enum_values(enumObj) { return enumObj[Symbol_enumValues]; },
 });
-Object.tag(Enum);
+Object_tag(Enum);
 //# sourceMappingURL=enum.js.map

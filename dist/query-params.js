@@ -1,3 +1,4 @@
+import { Object_tag } from "./common/object-tag.js";
 /**
  * A utility class for constructing and manipulating URL query parameters
  * with support for rich input types and serialization.
@@ -123,5 +124,5 @@ export class QueryParams extends URLSearchParams {
         }
     }
 }
-Object.tag(QueryParams);
+Object_tag(QueryParams);
 //# sourceMappingURL=query-params.js.map

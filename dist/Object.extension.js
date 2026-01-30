@@ -4,6 +4,7 @@
 * Although the method may appear always present in type definitions,
 * the actual environment might lack it (e.g. ES2022 targets).
 */
+import { Object_tag } from "./common/object-tag.js";
 Object.omit ??= function omit(obj, ...keys) {
     return Object.fromEntries(Object.entries(obj)
         .filter(([key]) => !keys.includes(key)));
@@ -49,23 +50,31 @@ Object.else ??= {
         return val;
     },
 }.else;
-Object.also ??= function also(val, mapping, passthrough = "nullish") {
-    const passNull = passthrough === "nullish" || passthrough === "null";
-    const passUndef = passthrough === "nullish" || passthrough === "undef";
-    if (val === null && passNull) {
-        return null;
+/* eslint-disable-next-line @typescript-eslint/unbound-method --
+ * This function assignment intentionally mirrors native prototype methods,
+ * which are unbound by design (e.g. `[].map`, `[].find`, etc.).
+ * Consumers should call via array instance to preserve `this` context:
+ * e.g. `array.with(...)`, not `const fn = array.with; fn(...)`
+ */
+Object.let ??= {
+    let(val, mapping, passthrough = "nullish") {
+        const passNull = passthrough === "nullish" || passthrough === "null";
+        const passUndef = passthrough === "nullish" || passthrough === "undef";
+        if (val === null && passNull) {
+            return null;
+        }
+        if (val === undefined && passUndef) {
+            return undefined;
+        }
+        return mapping(val);
+    },
+}.let;
+Object.also ??= function also(val, builder) {
+    const built = builder(val);
+    if (built instanceof Promise) {
+        return built.then(() => val);
     }
-    if (val === undefined && passUndef) {
-        return undefined;
-    }
-    return mapping(val);
+    return val;
 };
-Object.tag ??= function tag(ctor, name) {
-    const tagName = name ?? ctor.name;
-    Object.defineProperty(ctor.prototype, Symbol.toStringTag, {
-        configurable: true,
-        get: () => tagName,
-    });
-};
-export {};
+Object.tag ??= Object_tag;
 //# sourceMappingURL=Object.extension.js.map
