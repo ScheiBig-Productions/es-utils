@@ -1272,6 +1272,30 @@ Object.else(c, {
 
 _**TODO - add docs**_
 
+#### `Object.tag`
+```ts
+/**
+ * Tags class with {@link Symbol.toStringTag}.
+ *
+ * @param ctor - Class (constructor function) that should be tagged
+ * @param name - Name to tag with; if omitted, `ctor.name` is used
+ */
+var /*Object*/.tag: (
+	ctor: new (...args: Array<any>) => unknown,
+	name?: string,
+) => void
+```
+For example:
+```ts
+class Example {}
+const example = new Example()
+Object.prototype.toString.call(example)
+// [object Object]
+Object.brand(Example)
+Object.prototype.toString.call(example)
+// [object Example]
+```
+
 ### Promise - extensions
 
 #### `Promise.factory`

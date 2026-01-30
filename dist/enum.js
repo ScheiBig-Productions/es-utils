@@ -44,4 +44,5 @@ export const Enum = Object.assign(function Enum(...rawValues) {
 }, {
     values: function Enum_values(enumObj) { return enumObj[Symbol_enumValues]; },
 });
+Object.tag(Enum);
 //# sourceMappingURL=enum.js.map

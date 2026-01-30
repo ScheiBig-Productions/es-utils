@@ -80,3 +80,4 @@ export const TodoError: TodoErrorConstructor = function (
 
 TodoError.prototype = Object.create(Error.prototype) as TodoError
 TodoError.prototype.constructor = TodoError
+Object.tag(TodoError)

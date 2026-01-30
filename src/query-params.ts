@@ -129,3 +129,4 @@ export class QueryParams extends URLSearchParams {
 		}
 	}
 }
+Object.tag(QueryParams)

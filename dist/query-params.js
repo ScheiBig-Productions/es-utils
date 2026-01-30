@@ -123,4 +123,5 @@ export class QueryParams extends URLSearchParams {
         }
     }
 }
+Object.tag(QueryParams);
 //# sourceMappingURL=query-params.js.map

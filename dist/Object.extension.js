@@ -60,5 +60,12 @@ Object.also ??= function also(val, mapping, passthrough = "nullish") {
     }
     return mapping(val);
 };
+Object.tag ??= function tag(ctor, name) {
+    const tagName = name ?? ctor.name;
+    Object.defineProperty(ctor.prototype, Symbol.toStringTag, {
+        configurable: true,
+        get: () => tagName,
+    });
+};
 export {};
 //# sourceMappingURL=Object.extension.js.map

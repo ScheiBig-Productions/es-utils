@@ -34,4 +34,5 @@ export const TodoError = function (message, cause) {
 };
 TodoError.prototype = Object.create(Error.prototype);
 TodoError.prototype.constructor = TodoError;
+Object.tag(TodoError);
 //# sourceMappingURL=todo-error.js.map

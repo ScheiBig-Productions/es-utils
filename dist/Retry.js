@@ -24,24 +24,29 @@ export const Retry = function (config) {
     self.growth = config?.growth ?? 1.8;
     self.jitter = config?.jitter ?? 0.2;
     self.timeout = config?.timeout ?? Infinity;
-    self.maxAttempts = config?.maxAttempts ?? 5;
-    if (self.growth <= 0) {
-        throw new RangeError("growth must be greater than zero");
-    }
-    if (self.timeout <= 0) {
-        throw new RangeError("timeout must be greater than zero");
-    }
-    if (self.maxAttempts <= 0) {
-        throw new RangeError("maxAttempts must be greater than zero");
-    }
+    self.attempts = config?.attempts ?? 5;
+    self.maxDelay = config?.maxDelay ?? Infinity;
     if (self.initialDelay < 0) {
         throw new RangeError("initialDelay must be zero or greater");
+    }
+    if (self.growth <= 0) {
+        throw new RangeError("growth must be greater than zero");
     }
     if (self.jitter < 0) {
         throw new RangeError("jitter must be zero or greater");
     }
+    if (self.timeout <= 0) {
+        throw new RangeError("timeout must be greater than zero");
+    }
+    if (self.attempts <= 0) {
+        throw new RangeError("attempts must be greater than zero");
+    }
+    if (self.maxDelay <= 0) {
+        throw new RangeError("maxDelay must be greater than zero");
+    }
     return self;
 };
+Object.tag(Retry);
 // eslint-disable-next-line id-length -- Name must be descriptive
 const __INERT_SIGNAL__YOU_ARE_NOT_ALLOWED_TO_USE_IT = new AbortController().signal;
 Retry.prototype.run = async function run(
@@ -51,7 +56,7 @@ fn,
 onEachError) {
     const jitter = (delay) => delay * this.jitter * (Math.random() - 0.5) * 2;
     let baseDelay = this.initialDelay;
-    let nextDelay = baseDelay + jitter(baseDelay);
+    let nextDelay = Math.max(baseDelay + jitter(baseDelay), this.maxDelay);
     let attempt = 0;
     const errors = Array();
     const signal = this.timeout === Infinity
@@ -63,7 +68,7 @@ onEachError) {
         }
         const delay = nextDelay;
         baseDelay *= this.growth;
-        nextDelay = baseDelay + jitter(baseDelay);
+        nextDelay = Math.min(baseDelay + jitter(baseDelay), this.maxDelay);
         try {
             return await fn(signal);
         }
@@ -79,14 +84,11 @@ onEachError) {
                 }
             }
             attempt++;
-            if (attempt >= this.maxAttempts) {
+            if (attempt >= this.attempts) {
                 throw Retry.TimeoutError(errors, "attempt");
             }
             try {
-                await Promise.after({
-                    delay,
-                    signal,
-                });
+                await Promise.after({ delay, signal });
             }
             catch {
                 if (signal.aborted) {
@@ -120,6 +122,9 @@ Retry.CancelError = function CancelError(cause) {
     Object.setPrototypeOf(self, Retry.CancelError.prototype);
     return self;
 };
+Retry.CancelError.prototype = Object.create(Error.prototype);
+Retry.CancelError.prototype.constructor = Retry.CancelError;
+Object.tag(Retry.CancelError);
 Retry.TimeoutError = function TimeoutError(cause, type) {
     const message = `Retry cancelled due to ${type === "attempt"
         ? "too many attempts"
@@ -149,4 +154,5 @@ Retry.TimeoutError = function TimeoutError(cause, type) {
 };
 Retry.TimeoutError.prototype = Object.create(Error.prototype);
 Retry.TimeoutError.prototype.constructor = Retry.TimeoutError;
+Object.tag(Retry.TimeoutError);
 //# sourceMappingURL=Retry.js.map

@@ -124,4 +124,4 @@ Map.groupBy ??= function groupBy<T, K>(
 		)
 	}
 } as IndexedMapConstructor
-
+Object.tag(Map.Indexed)

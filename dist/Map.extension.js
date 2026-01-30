@@ -42,5 +42,6 @@ Map.Indexed ??= class IndexedMap extends Map {
         });
     }
 };
+Object.tag(Map.Indexed);
 export {};
 //# sourceMappingURL=Map.extension.js.map

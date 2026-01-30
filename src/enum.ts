@@ -128,6 +128,7 @@ export const Enum = Object.assign(function Enum<const T extends Entries>(
 		enumObj: Enum<T>,
 	): ReadonlyArray<ExtractValues<T>[number]> { return enumObj[Symbol_enumValues] },
 }) as EnumConstructor
+Object.tag(Enum)
 
 export namespace Enum {
 

@@ -191,6 +191,7 @@ export const Retry = function (
 
 	return self as Retry
 } as RetryConstructor
+Object.tag(Retry)
 
 // eslint-disable-next-line id-length -- Name must be descriptive
 const __INERT_SIGNAL__YOU_ARE_NOT_ALLOWED_TO_USE_IT = new AbortController().signal
@@ -280,6 +281,10 @@ Retry.CancelError = function CancelError<E = unknown>(
 	return self
 } as Retry.CancelErrorConstructor
 
+Retry.CancelError.prototype = Object.create(Error.prototype) as Retry.CancelError
+Retry.CancelError.prototype.constructor = Retry.CancelError
+Object.tag(Retry.CancelError)
+
 
 Retry.TimeoutError = function TimeoutError(
 	this: Retry.TimeoutError | undefined,
@@ -316,7 +321,7 @@ Retry.TimeoutError = function TimeoutError(
 
 Retry.TimeoutError.prototype = Object.create(Error.prototype) as Retry.TimeoutError
 Retry.TimeoutError.prototype.constructor = Retry.TimeoutError
-
+Object.tag(Retry.TimeoutError)
 
 export namespace Retry {
 

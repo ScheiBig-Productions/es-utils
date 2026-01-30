@@ -35,4 +35,5 @@ export const ContractViolationError = function (cause) {
 };
 ContractViolationError.prototype = Object.create(Error.prototype);
 ContractViolationError.prototype.constructor = ContractViolationError;
+Object.tag(ContractViolationError);
 //# sourceMappingURL=contract-violation-error.js.map

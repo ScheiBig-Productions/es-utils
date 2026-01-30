@@ -5,6 +5,10 @@ Simple journal of changes made to package.
 
 ---
 
+### [2026-01-30] - `1.13.0`
+
+Introduce Object.tag for one-line Symbol.toStringTag attachement - tag all classes in lib
+
 ### [2026-01-26] - `1.12.4`
 
 Add delay clamp to Retry via maxDelay, rename maxAttempts to not confuse

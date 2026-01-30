@@ -143,6 +143,13 @@ declare global {
          * @returns `mapping` result if val is not defined, otherwise `val`.
          */
         also: AlsoFn;
+        /**
+         * Tags class with {@link Symbol.toStringTag}.
+         *
+         * @param ctor - Class (constructor function) that should be tagged
+         * @param name - Name to tag with; if omitted, `ctor.name` is used
+         */
+        tag: (ctor: new (...args: Array<any>) => unknown, name?: string) => void;
     }
 }
 //# sourceMappingURL=Object.extension.d.ts.map

@@ -294,4 +294,5 @@ export class Iter {
         })());
     }
 }
+Object.tag(Iter);
 //# sourceMappingURL=iter.js.map

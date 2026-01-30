@@ -11,8 +11,8 @@ declare global {
 		interface CollatorConstructor {
 
 			/**
-             * Configuration of `Intl.Collator` that simulates how MacOS Finder sorts files.
-             */
+			 * Configuration of `Intl.Collator` that simulates how MacOS Finder sorts files.
+			 */
 			finderConfig: CollatorOptions,
 		}
 	}

@@ -8,7 +8,7 @@
  *
  * Example:
  * ```ts
- * const retry = new Retry({ maxAttempts: 5 });
+ * const retry = new Retry({ attempts: 5 });
  * const result = await retry.run(() => fetch("http://localhost:3000"));
  * ```
  */
@@ -42,7 +42,14 @@ export interface Retry {
      * Must be greater than zero.
      * @default Infinity
      */
-    readonly maxAttempts: number;
+    readonly attempts: number;
+    /**
+     * Maximum delay between retries - delay length is clamped to this value,
+     * which is useful for "forever" retries.
+     * Must be greater than zero.
+     * @default Infinity
+     */
+    readonly maxDelay: number;
     /**
      * Executes an asynchronous function repeatedly until it succeeds,
      * is cancelled, or exceeds the maximum number of attempts.
@@ -77,11 +84,12 @@ export interface RetryConstructor {
      * @param config Configuration object controlling backoff behavior.
      *
      * @throws {RangeError} If any configuration value violates constraints:
-     * - `growth <= 0`
-     * - `timeout <= 0`
-     * - `maxAttempts <= 0`
      * - `initialDelay < 0`
+     * - `growth <= 0`
      * - `jitter < 0`
+     * - `timeout <= 0`
+     * - `attempts <= 0`
+     * - `maxDelay <= 0`
      */
     new (config?: Retry.Config): Retry;
     /**
@@ -90,11 +98,12 @@ export interface RetryConstructor {
      * @param config Configuration object controlling backoff behavior.
      *
      * @throws {RangeError} If any configuration value violates constraints:
-     * - `growth <= 0`
-     * - `timeout <= 0`
-     * - `maxAttempts <= 0`
      * - `initialDelay < 0`
+     * - `growth <= 0`
      * - `jitter < 0`
+     * - `timeout <= 0`
+     * - `attempts <= 0`
+     * - `maxDelay <= 0`
      */
     (config?: Retry.Config): Retry;
     prototype: Retry;
@@ -142,7 +151,14 @@ export declare namespace Retry {
          * Must be greater than zero.
          * @default 5
          */
-        maxAttempts?: number;
+        attempts?: number;
+        /**
+         * Maximum delay between retries - delay length is clamped to this value,
+         * hich is useful for "forever" retries.
+         * Must be greater than zero.
+         * @default Infinity
+         */
+        maxDelay?: number;
     }
     /**
      * Exception thrown when retrying is cancelled early due to a critical error.

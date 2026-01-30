@@ -461,3 +461,4 @@ export class Iter<T> implements Iterable<T> {
 		})())
 	}
 }
+Object.tag(Iter)

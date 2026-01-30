@@ -88,3 +88,4 @@ export const ContractViolationError: ContractViolationErrorConstructor = functio
 
 ContractViolationError.prototype = Object.create(Error.prototype) as ContractViolationError
 ContractViolationError.prototype.constructor = ContractViolationError
+Object.tag(ContractViolationError)

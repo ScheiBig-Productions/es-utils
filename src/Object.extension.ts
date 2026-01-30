@@ -187,6 +187,17 @@ declare global {
 		 * @returns `mapping` result if val is not defined, otherwise `val`.
 		 */
 		also: AlsoFn,
+
+		/**
+		 * Tags class with {@link Symbol.toStringTag}.
+		 *
+		 * @param ctor - Class (constructor function) that should be tagged
+		 * @param name - Name to tag with; if omitted, `ctor.name` is used
+		 */
+		tag: (
+			ctor: new (...args: Array<any>) => unknown,
+			name?: string,
+		) => void,
 	}
 }
 
@@ -277,4 +288,20 @@ Object.also ??= function also<T, R>(
 	if (val === null && passNull) { return null }
 	if (val === undefined && passUndef) { return undefined }
 	return mapping(val)
+}
+
+Object.tag ??= function tag(
+	ctor: new (...args: Array<any>) => unknown,
+	name?: string,
+) {
+	const tagName = name ?? ctor.name
+
+	Object.defineProperty(
+		ctor.prototype,
+		Symbol.toStringTag,
+		{
+			configurable: true,
+			get: () => tagName,
+		},
+	)
 }
