@@ -15,6 +15,7 @@
 /* eslint-disable complexity --
  * Bound single-use logic should live inside function.
  */
+import { Object_tag } from "./common/object-tag.js";
 export const Retry = function (config) {
     // eslint-disable-next-line consistent-this -- Conditional creation of this
     const self = this instanceof Retry
@@ -46,7 +47,7 @@ export const Retry = function (config) {
     }
     return self;
 };
-Object.tag(Retry);
+Object_tag(Retry);
 // eslint-disable-next-line id-length -- Name must be descriptive
 const __INERT_SIGNAL__YOU_ARE_NOT_ALLOWED_TO_USE_IT = new AbortController().signal;
 Retry.prototype.run = async function run(
@@ -124,7 +125,7 @@ Retry.CancelError = function CancelError(cause) {
 };
 Retry.CancelError.prototype = Object.create(Error.prototype);
 Retry.CancelError.prototype.constructor = Retry.CancelError;
-Object.tag(Retry.CancelError);
+Object_tag(Retry.CancelError);
 Retry.TimeoutError = function TimeoutError(cause, type) {
     const message = `Retry cancelled due to ${type === "attempt"
         ? "too many attempts"
@@ -154,5 +155,5 @@ Retry.TimeoutError = function TimeoutError(cause, type) {
 };
 Retry.TimeoutError.prototype = Object.create(Error.prototype);
 Retry.TimeoutError.prototype.constructor = Retry.TimeoutError;
-Object.tag(Retry.TimeoutError);
+Object_tag(Retry.TimeoutError);
 //# sourceMappingURL=Retry.js.map

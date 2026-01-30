@@ -1,3 +1,7 @@
+/* eslint-disable complexity --
+ * Not making helper function for fairly simple functions.
+ */
+import { Object_tag } from "./common/object-tag.js";
 /**
  * Custom implementation of tc39/ecma262 Iterator helper.
  *
@@ -294,5 +298,5 @@ export class Iter {
         })());
     }
 }
-Object.tag(Iter);
+Object_tag(Iter);
 //# sourceMappingURL=iter.js.map

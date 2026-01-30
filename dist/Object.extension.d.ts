@@ -1,4 +1,3 @@
-export {};
 interface ElseFn {
     /**
      * Returns the provided value if it is defined, otherwise returns
@@ -49,7 +48,7 @@ interface ElseFn {
         undef: () => S;
     }): T | R | S;
 }
-interface AlsoFn {
+interface LetFn {
     /**
      * Applies mapping to value, if it is defined, otherwise returns
      * the value itself.
@@ -83,6 +82,24 @@ interface AlsoFn {
      * @returns `mapping` result if val is not undefined, otherwise `val`.
      */
     <T, R>(val: T | undefined, mapping: (it: Exclude<T, undefined>) => R, passthrough: "undef"): R | Extract<T, undefined>;
+}
+interface AlsoFn {
+    /**
+     * Applies builder to value and then returns the value itself.
+     *
+     * @param val - Value to inspect for being defined.
+     * @param builder - Function that is applied to `val` before return.
+     * @returns Promise to `val` with applied `builder` configuration.
+     */
+    <T>(value: T, builder: (it: T) => Promise<void>): Promise<T>;
+    /**
+     * Applies builder to value and then returns the value itself.
+     *
+     * @param val - Value to inspect for being defined.
+     * @param builder - Function that is applied to `val` before return.
+     * @returns `val` with applied `builder` configuration.
+     */
+    <T>(value: T, builder: (it: T) => void): T;
 }
 declare global {
     interface ObjectConstructor {
@@ -142,6 +159,16 @@ declare global {
          * without mapping - defaults to "nullish".
          * @returns `mapping` result if val is not defined, otherwise `val`.
          */
+        let: LetFn;
+        /**
+         * Applies builder to value and then returns the value itself.
+         *
+         * If builder is asynchronous, then result of function also is.
+         *
+         * @param val - Value to inspect for being defined.
+         * @param builder - Function that is applied to `val` before return.
+         * @returns `val` with applied `builder` configuration.
+         */
         also: AlsoFn;
         /**
          * Tags class with {@link Symbol.toStringTag}.
@@ -152,4 +179,5 @@ declare global {
         tag: (ctor: new (...args: Array<any>) => unknown, name?: string) => void;
     }
 }
+export {};
 //# sourceMappingURL=Object.extension.d.ts.map

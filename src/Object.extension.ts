@@ -5,7 +5,8 @@
 * the actual environment might lack it (e.g. ES2022 targets).
 */
 
-export { }
+import { Object_tag } from "./common/object-tag.js"
+
 
 interface ElseFn {
 
@@ -62,7 +63,7 @@ interface ElseFn {
 	}): T | R | S,
 }
 
-interface AlsoFn {
+interface LetFn {
 
 	/**
 	 * Applies mapping to value, if it is defined, otherwise returns
@@ -111,6 +112,33 @@ interface AlsoFn {
 		mapping: (it: Exclude<T, undefined>) => R,
 		passthrough: "undef"
 	): R | Extract<T, undefined>,
+}
+
+interface AlsoFn {
+
+	/**
+	 * Applies builder to value and then returns the value itself.
+	 *
+	 * @param val - Value to inspect for being defined.
+	 * @param builder - Function that is applied to `val` before return.
+	 * @returns Promise to `val` with applied `builder` configuration.
+	 */
+	<T>(
+		value: T,
+		builder: (it: T) => Promise<void>,
+	): Promise<T>,
+
+	/**
+	 * Applies builder to value and then returns the value itself.
+	 *
+	 * @param val - Value to inspect for being defined.
+	 * @param builder - Function that is applied to `val` before return.
+	 * @returns `val` with applied `builder` configuration.
+	 */
+	<T>(
+		value: T,
+		builder: (it: T) => void,
+	): T,
 }
 
 declare global {
@@ -185,6 +213,17 @@ declare global {
 		 * @param passthrough - Type of non-defined `val` that is allowed to be returned
 		 * without mapping - defaults to "nullish".
 		 * @returns `mapping` result if val is not defined, otherwise `val`.
+		 */
+		let: LetFn,
+
+		/**
+		 * Applies builder to value and then returns the value itself.
+		 *
+		 * If builder is asynchronous, then result of function also is.
+		 *
+		 * @param val - Value to inspect for being defined.
+		 * @param builder - Function that is applied to `val` before return.
+		 * @returns `val` with applied `builder` configuration.
 		 */
 		also: AlsoFn,
 
@@ -277,31 +316,37 @@ Object.else ??= {
 	},
 }.else
 
-Object.also ??= function also<T, R>(
-	val: T | null | undefined,
-	mapping: (it: T | null | undefined) => R,
-	passthrough: "nullish" | "null" | "undef" = "nullish",
-) {
-	const passNull = passthrough === "nullish" || passthrough === "null"
-	const passUndef = passthrough === "nullish" || passthrough === "undef"
+/* eslint-disable-next-line @typescript-eslint/unbound-method --
+ * This function assignment intentionally mirrors native prototype methods,
+ * which are unbound by design (e.g. `[].map`, `[].find`, etc.).
+ * Consumers should call via array instance to preserve `this` context:
+ * e.g. `array.with(...)`, not `const fn = array.with; fn(...)`
+ */
+Object.let ??= {
+	let<T, R>(
+		val: T | null | undefined,
+		mapping: (it: T | null | undefined) => R,
+		passthrough: "nullish" | "null" | "undef" = "nullish",
+	) {
+		const passNull = passthrough === "nullish" || passthrough === "null"
+		const passUndef = passthrough === "nullish" || passthrough === "undef"
 
-	if (val === null && passNull) { return null }
-	if (val === undefined && passUndef) { return undefined }
-	return mapping(val)
-}
+		if (val === null && passNull) { return null }
+		if (val === undefined && passUndef) { return undefined }
+		return mapping(val)
+	},
+}.let as LetFn
 
-Object.tag ??= function tag(
-	ctor: new (...args: Array<any>) => unknown,
-	name?: string,
-) {
-	const tagName = name ?? ctor.name
+Object.also ??= function also<T>(
+	val: T,
+	builder: (it: T) => void | Promise<void>,
+): T | Promise<T> {
+	const built = builder(val)
 
-	Object.defineProperty(
-		ctor.prototype,
-		Symbol.toStringTag,
-		{
-			configurable: true,
-			get: () => tagName,
-		},
-	)
-}
+	if (built instanceof Promise) {
+		return built.then(() => val)
+	}
+	return val
+} as AlsoFn
+
+Object.tag ??= Object_tag

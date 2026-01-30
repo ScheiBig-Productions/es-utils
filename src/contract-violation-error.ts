@@ -4,6 +4,9 @@
 * Although the method may appear always present in type definitions,
 * the actual environment might lack it (e.g. ES2022 targets).
 */
+
+import { Object_tag } from "./common/object-tag.js"
+
 /**
  * Represents a runtime contract violation - typically thrown when a function
  * is called in a way that should never happen under correct program logic.
@@ -88,4 +91,4 @@ export const ContractViolationError: ContractViolationErrorConstructor = functio
 
 ContractViolationError.prototype = Object.create(Error.prototype) as ContractViolationError
 ContractViolationError.prototype.constructor = ContractViolationError
-Object.tag(ContractViolationError)
+Object_tag(ContractViolationError)

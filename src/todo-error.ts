@@ -4,6 +4,9 @@
 * Although the method may appear always present in type definitions,
 * the actual environment might lack it (e.g. ES2022 targets).
 */
+
+import { Object_tag } from "./common/object-tag.js"
+
 /**
  * Represents a runtime code path violation - typically thrown when a function
  * is called because declaration is present, but implementation not.
@@ -80,4 +83,4 @@ export const TodoError: TodoErrorConstructor = function (
 
 TodoError.prototype = Object.create(Error.prototype) as TodoError
 TodoError.prototype.constructor = TodoError
-Object.tag(TodoError)
+Object_tag(TodoError)

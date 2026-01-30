@@ -1,3 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-condition --
+* Conditional assignment for `Array.prototype` props (`??=`) is intentional and context-aware:
+* it acts as a runtime polyfill or extension, only defining the method if it doesn't already exist.
+* Although the method may appear always present in type definitions,
+* the actual environment might lack it (e.g. ES2022 targets).
+*/
+import { Object_tag } from "./common/object-tag.js";
 /**
  * Constructor for {@link TodoError}.
  *
@@ -34,5 +41,5 @@ export const TodoError = function (message, cause) {
 };
 TodoError.prototype = Object.create(Error.prototype);
 TodoError.prototype.constructor = TodoError;
-Object.tag(TodoError);
+Object_tag(TodoError);
 //# sourceMappingURL=todo-error.js.map
