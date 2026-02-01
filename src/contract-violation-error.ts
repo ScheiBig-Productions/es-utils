@@ -5,7 +5,7 @@
 * the actual environment might lack it (e.g. ES2022 targets).
 */
 
-import { Object_tag } from "./common/object-tag.js"
+import { Object_tag } from "./common/object.tag.js"
 
 /**
  * Represents a runtime contract violation - typically thrown when a function

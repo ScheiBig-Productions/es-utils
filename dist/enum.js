@@ -1,4 +1,4 @@
-import { Object_tag } from "./common/object-tag.js";
+import { Object_tag } from "./common/object.tag.js";
 const Symbol_enumValues = Symbol("Enum Values");
 /**
  * Allows for creation of `Enum`, which provides runtime-level enums, without disgusting

@@ -5,6 +5,10 @@ Simple journal of changes made to package.
 
 ---
 
+### [2026-02-01] - `1.16.0`
+
+Add String.noInspect to get raw-inspection behavior
+
 ### [2026-02-01] - `1.15.0`
 
 Introduce inspection sub-module for logger

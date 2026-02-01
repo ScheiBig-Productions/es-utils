@@ -15,7 +15,7 @@
 /* eslint-disable complexity --
  * Bound single-use logic should live inside function.
  */
-import { Object_tag } from "./common/object-tag.js";
+import { Object_tag } from "./common/object.tag.js";
 export const Retry = function (config) {
     // eslint-disable-next-line consistent-this -- Conditional creation of this
     const self = this instanceof Retry

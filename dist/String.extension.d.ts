@@ -1,4 +1,3 @@
-export {};
 declare global {
     interface String {
         /**
@@ -67,6 +66,11 @@ declare global {
          * // → ["abc", "def", "ghi"]
          */
         divide: (chunkCount: number, rem?: boolean) => Array<string>;
+        /**
+         * Returns string with same contents, but on nodejs-compatible runtimes,
+         * changes `util.inspect` behavior, removing quotes.
+         */
+        noInspect: string;
     }
 }
 type DecoratorConfig = {
@@ -93,4 +97,5 @@ declare global {
         decorator(config: DecoratorConfig): ((strings: TemplateStringsArray | string, ...values: Array<unknown>) => string);
     }
 }
+export {};
 //# sourceMappingURL=String.extension.d.ts.map

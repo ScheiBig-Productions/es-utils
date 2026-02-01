@@ -4,7 +4,7 @@
 
 import type { Mutable } from "./types.js"
 
-import { Object_tag } from "./common/object-tag.js"
+import { Object_tag } from "./common/object.tag.js"
 
 /* eslint-disable @typescript-eslint/no-unnecessary-condition --
  * Conditional assignment for `Array.prototype` props (`??=`) is intentional and context-aware:

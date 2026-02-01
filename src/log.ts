@@ -11,41 +11,13 @@
  * Using enum-like naming,
  */
 
+import { type inspectOptions, util_inspect } from "./common/util.inspect.js"
 import "./JSON.extension.js"
 
 const {
 	log: c_log,
 	error: c_err,
 } = console
-
-type inspectOptions = {
-	showHidden?: boolean | undefined,
-	depth?: number | null | undefined,
-	colors?: boolean | undefined,
-	customInspect?: boolean | undefined,
-	showProxy?: boolean | undefined,
-	maxArrayLength?: number | null | undefined,
-	maxStringLength?: number | null | undefined,
-	breakLength?: number | undefined,
-	compact?: boolean | number | undefined,
-	sorted?: boolean | ((a: string, b: string) => number) | undefined,
-	getters?: "get" | "set" | boolean | undefined,
-	numericSeparator?: boolean | undefined,
-}
-
-let util_inspect: ((
-	object: unknown,
-	options?: inspectOptions,
-) => string) | undefined
-
-void (async () => {
-	try {
-		util_inspect = (await import("node:util")).inspect
-	} catch {
-		util_inspect = undefined
-	}
-})()
-
 
 // eslint-disable-next-line complexity -- doing heavy checking to allow this
 const colorDisabled = (() => {

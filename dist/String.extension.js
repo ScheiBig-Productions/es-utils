@@ -4,6 +4,7 @@
 * Although the method may appear always present in type definitions,
 * the actual environment might lack it (e.g. ES2022 targets).
 */
+import { util_inspect } from "./common/util.inspect.js";
 String.prototype.indent ??= function indent(
 // eslint-disable-next-line no-shadow -- no need for backreference with same name
 indent) {
@@ -50,6 +51,21 @@ String.prototype.divide ??= function divide(chunkCount, rem = true) {
     }
     return result;
 };
+if (String.prototype.noInspect === undefined) {
+    Object.defineProperty(String.prototype, "noInspect", {
+        configurable: true,
+        enumerable: false,
+        get() {
+            const customSymbol = util_inspect?.custom;
+            if (customSymbol) {
+                return Object.assign(this, {
+                    [customSymbol]: () => this,
+                });
+            }
+            return this;
+        },
+    });
+}
 /* eslint-disable-next-line @typescript-eslint/unbound-method --
  * Static extension.
  */
@@ -60,5 +76,4 @@ String.decorator ??= function decorator(config) {
         ? strings
         : String.raw(strings, ...values)) + suffix;
 };
-export {};
 //# sourceMappingURL=String.extension.js.map

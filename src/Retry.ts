@@ -18,7 +18,7 @@
 
 import type { Mutable } from "src/types.js"
 
-import { Object_tag } from "./common/object-tag.js"
+import { Object_tag } from "./common/object.tag.js"
 
 /**
  * A reusable retry executor with exponential backoff.

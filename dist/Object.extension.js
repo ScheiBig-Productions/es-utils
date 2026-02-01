@@ -4,7 +4,7 @@
 * Although the method may appear always present in type definitions,
 * the actual environment might lack it (e.g. ES2022 targets).
 */
-import { Object_tag } from "./common/object-tag.js";
+import { Object_tag } from "./common/object.tag.js";
 Object.omit ??= function omit(obj, ...keys) {
     return Object.fromEntries(Object.entries(obj)
         .filter(([key]) => !keys.includes(key)));
