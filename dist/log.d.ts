@@ -1,6 +1,24 @@
+import "./JSON.extension.js";
+type inspectOptions = {
+    showHidden?: boolean | undefined;
+    depth?: number | null | undefined;
+    colors?: boolean | undefined;
+    customInspect?: boolean | undefined;
+    showProxy?: boolean | undefined;
+    maxArrayLength?: number | null | undefined;
+    maxStringLength?: number | null | undefined;
+    breakLength?: number | undefined;
+    compact?: boolean | number | undefined;
+    sorted?: boolean | ((a: string, b: string) => number) | undefined;
+    getters?: "get" | "set" | boolean | undefined;
+    numericSeparator?: boolean | undefined;
+};
 declare const logLevels: readonly ["Failure", "Alert", "Critical", "Error", "Warning", "Notice", "Info", "Debug", "Verbose"];
 type LogLevel = typeof logLevels[number];
 type LoggerFunc = (tag: string | null, message: string, time?: Date) => Date;
+type LoggerInspectFunc = ((tag: string | null, message: Array<unknown>, time?: Date) => Date) | ((tag: string | null, message: Array<unknown>, options?: inspectOptions & {
+    time?: Date;
+}) => Date);
 type LogEntry = {
     /** Level of message. */
     lvl: LogLevel;
@@ -215,6 +233,69 @@ export declare namespace Log {
      * If key is provided for function value, ` : <static> tag(key(val))` is added.
      */
     const tag: <T>(val: T, key?: (o: T) => unknown) => string;
+    /**
+     * Logger sub-utility for logging non-string values.
+     *
+     * Attempts to use `util.inspect` if available,
+     * falling back to `JSON.stringify` and then `String`.
+     *
+     * Due to simplicity for passing context with object, array of messages is used.
+     */
+    function inspect(lvl: LogLevel, tag: string | null, messages: Array<unknown>, time?: Date): Date;
+    function inspect(lvl: LogLevel, tag: string | null, messages: Array<unknown>, options?: inspectOptions & {
+        time?: Date;
+    }): Date;
+    namespace inspect {
+        /**
+         * Default options passed to `util.inspect`.
+         */
+        let defaultOptions: inspectOptions;
+        /**
+         * Writes to log with level:
+         * > Failure (0)   - System is unusable (calling this level will crash application)
+         */
+        const F: LoggerInspectFunc;
+        /**
+         * Writes to log with level:
+         * > Alert (1) - Action must be taken immediately
+         */
+        const A: LoggerInspectFunc;
+        /**
+         * Writes to log with level:
+         * > Critical (2) - Critical conditions
+         */
+        const C: LoggerInspectFunc;
+        /**
+         * Writes to log with level:
+         * > Error (3) - Error conditions
+         */
+        const E: LoggerInspectFunc;
+        /**
+         * Writes to log with level:
+         * > Warning (4) - Warning conditions
+         */
+        const W: LoggerInspectFunc;
+        /**
+         * Writes to log with level:
+         * > Notice (5) - Normal but significant
+         */
+        const N: LoggerInspectFunc;
+        /**
+         * Writes to log with level:
+         * > Info (6) - Information messaging
+         */
+        const I: LoggerInspectFunc;
+        /**
+         * Writes to log with level:
+         * > Debug (7) - Debug-level messages
+         */
+        const D: LoggerInspectFunc;
+        /**
+         * Writes to log with level:
+         * > Verbose (8) - Verbose messaging
+         */
+        const V: LoggerInspectFunc;
+    }
 }
 export {};
 //# sourceMappingURL=log.d.ts.map

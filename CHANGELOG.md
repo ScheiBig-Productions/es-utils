@@ -5,6 +5,10 @@ Simple journal of changes made to package.
 
 ---
 
+### [2026-02-01] - `1.15.0`
+
+Introduce inspection sub-module for logger
+
 ### [2026-01-30] - `1.14.0`
 
 Introduce more scope functions to Object

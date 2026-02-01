@@ -11,10 +11,41 @@
  * Using enum-like naming,
  */
 
+import "./JSON.extension.js"
+
 const {
 	log: c_log,
 	error: c_err,
 } = console
+
+type inspectOptions = {
+	showHidden?: boolean | undefined,
+	depth?: number | null | undefined,
+	colors?: boolean | undefined,
+	customInspect?: boolean | undefined,
+	showProxy?: boolean | undefined,
+	maxArrayLength?: number | null | undefined,
+	maxStringLength?: number | null | undefined,
+	breakLength?: number | undefined,
+	compact?: boolean | number | undefined,
+	sorted?: boolean | ((a: string, b: string) => number) | undefined,
+	getters?: "get" | "set" | boolean | undefined,
+	numericSeparator?: boolean | undefined,
+}
+
+let util_inspect: ((
+	object: unknown,
+	options?: inspectOptions,
+) => string) | undefined
+
+void (async () => {
+	try {
+		util_inspect = (await import("node:util")).inspect
+	} catch {
+		util_inspect = undefined
+	}
+})()
+
 
 // eslint-disable-next-line complexity -- doing heavy checking to allow this
 const colorDisabled = (() => {
@@ -113,6 +144,11 @@ const logShortColors: Record<LogLevel, number> = {
 }
 
 type LoggerFunc = (tag: string | null, message: string, time?: Date) => Date
+type LoggerInspectFunc =
+	| ((tag: string | null, message: Array<unknown>, time?: Date) => Date)
+	| ((tag: string | null, message: Array<unknown>, options?: inspectOptions & {
+		time?: Date,
+	}) => Date)
 
 type LogEntry = {
 
@@ -502,5 +538,183 @@ export namespace Log {
 		}
 		valTag += keyTag && ` : ${keyTag}`
 		return valTag
+	}
+
+	/**
+	 * Logger sub-utility for logging non-string values.
+	 *
+	 * Attempts to use `util.inspect` if available,
+	 * falling back to `JSON.stringify` and then `String`.
+	 *
+	 * Due to simplicity for passing context with object, array of messages is used.
+	 */
+
+	export function inspect(
+		lvl: LogLevel,
+		tag: string | null,
+		messages: Array<unknown>,
+		time?: Date,
+	): Date
+	export function inspect(
+		lvl: LogLevel,
+		tag: string | null,
+		messages: Array<unknown>,
+		options?: inspectOptions & { time?: Date },
+	): Date
+	export function inspect(
+		lvl: LogLevel,
+		tag: string | null,
+		messages: Array<unknown>,
+		timeOrOptions?: Date | (inspectOptions & { time?: Date }),
+	): Date {
+		let time: Date | undefined
+		let options: inspectOptions
+		if (timeOrOptions === undefined) {
+			time = undefined
+			options = inspect.defaultOptions
+		} else if (timeOrOptions instanceof Date) {
+			time = timeOrOptions
+			options = inspect.defaultOptions
+		} else {
+			/* eslint-disable-next-line @typescript-eslint/prefer-destructuring --
+			 * Not worth the hassle here
+			 */
+			time = timeOrOptions.time
+			options = {
+				...inspect.defaultOptions,
+				...timeOrOptions,
+			}
+		}
+		const message = messages.map(
+			(msg) => util_inspect?.(msg, options)
+				?? JSON.maybeStringify(msg),
+		)
+			.join("\n")
+
+		return Log(lvl, tag, message, time)
+	}
+
+	export namespace inspect {
+
+		/**
+		 * Default options passed to `util.inspect`.
+		 */
+		/* eslint-disable-next-line prefer-const --
+		 * This must be modifiable outside of module
+		 */
+		export let defaultOptions: inspectOptions = {
+			showHidden: true,
+			depth: 4,
+			compact: false,
+			colors: !colorDisabled,
+		}
+
+		/**
+		 * Writes to log with level:
+		 * > Failure (0)   - System is unusable (calling this level will crash application)
+		 */
+		export const F: LoggerInspectFunc = function Log_inspect_Failure(
+			tag: string | null,
+			messages: Array<unknown>,
+			timeOrOptions?: Date | (inspectOptions & { time?: Date }),
+		) {
+			return inspect("Failure", tag, messages, timeOrOptions as object)
+		}
+
+		/**
+		 * Writes to log with level:
+		 * > Alert (1) - Action must be taken immediately
+		 */
+		export const A: LoggerInspectFunc = function Log_inspect_Alert(
+			tag: string | null,
+			messages: Array<unknown>,
+			timeOrOptions?: Date | (inspectOptions & { time?: Date }),
+		) {
+			return inspect("Alert", tag, messages, timeOrOptions as object)
+		}
+
+		/**
+		 * Writes to log with level:
+		 * > Critical (2) - Critical conditions
+		 */
+		export const C: LoggerInspectFunc = function Log_inspect_Critical(
+			tag: string | null,
+			messages: Array<unknown>,
+			timeOrOptions?: Date | (inspectOptions & { time?: Date }),
+		) {
+			return inspect("Critical", tag, messages, timeOrOptions as object)
+		}
+
+		/**
+		 * Writes to log with level:
+		 * > Error (3) - Error conditions
+		 */
+		export const E: LoggerInspectFunc = function Log_inspect_Error(
+			tag: string | null,
+			messages: Array<unknown>,
+			timeOrOptions?: Date | (inspectOptions & { time?: Date }),
+		) {
+			return inspect("Error", tag, messages, timeOrOptions as object)
+		}
+
+		/**
+		 * Writes to log with level:
+		 * > Warning (4) - Warning conditions
+		 */
+		export const W: LoggerInspectFunc = function Log_inspect_Warning(
+			tag: string | null,
+			messages: Array<unknown>,
+			timeOrOptions?: Date | (inspectOptions & { time?: Date }),
+		) {
+			return inspect("Warning", tag, messages, timeOrOptions as object)
+		}
+
+		/**
+		 * Writes to log with level:
+		 * > Notice (5) - Normal but significant
+		 */
+		export const N: LoggerInspectFunc = function Log_inspect_Notice(
+			tag: string | null,
+			messages: Array<unknown>,
+			timeOrOptions?: Date | (inspectOptions & { time?: Date }),
+		) {
+			return inspect("Notice", tag, messages, timeOrOptions as object)
+		}
+
+		/**
+		 * Writes to log with level:
+		 * > Info (6) - Information messaging
+		 */
+		export const I: LoggerInspectFunc = function Log_inspect_Info(
+			tag: string | null,
+			messages: Array<unknown>,
+			timeOrOptions?: Date | (inspectOptions & { time?: Date }),
+		) {
+			return inspect("Info", tag, messages, timeOrOptions as object)
+		}
+
+		/**
+		 * Writes to log with level:
+		 * > Debug (7) - Debug-level messages
+		 */
+		export const D: LoggerInspectFunc = function Log_inspect_Debug(
+			tag: string | null,
+			messages: Array<unknown>,
+			timeOrOptions?: Date | (inspectOptions & { time?: Date }),
+		) {
+			return inspect("Debug", tag, messages, timeOrOptions as object)
+		}
+
+		/**
+		 * Writes to log with level:
+		 * > Verbose (8) - Verbose messaging
+		 */
+		export const V: LoggerInspectFunc = function Log_inspect_Verbose(
+			tag: string | null,
+			messages: Array<unknown>,
+			timeOrOptions?: Date | (inspectOptions & { time?: Date }),
+		) {
+			return inspect("Verbose", tag, messages, timeOrOptions as object)
+		}
 	}
 }

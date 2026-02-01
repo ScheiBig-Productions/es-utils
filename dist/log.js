@@ -10,7 +10,17 @@
 /* eslint-disable @typescript-eslint/naming-convention --
  * Using enum-like naming,
  */
+import "./JSON.extension.js";
 const { log: c_log, error: c_err, } = console;
+let util_inspect;
+void (async () => {
+    try {
+        util_inspect = (await import("node:util")).inspect;
+    }
+    catch {
+        util_inspect = undefined;
+    }
+})();
 // eslint-disable-next-line complexity -- doing heavy checking to allow this
 const colorDisabled = (() => {
     const global = globalThis;
@@ -421,5 +431,109 @@ const __colorize__ = colorize;
         valTag += keyTag && ` : ${keyTag}`;
         return valTag;
     };
+    function inspect(lvl, tag, messages, timeOrOptions) {
+        let time;
+        let options;
+        if (timeOrOptions === undefined) {
+            time = undefined;
+            options = inspect.defaultOptions;
+        }
+        else if (timeOrOptions instanceof Date) {
+            time = timeOrOptions;
+            options = inspect.defaultOptions;
+        }
+        else {
+            /* eslint-disable-next-line @typescript-eslint/prefer-destructuring --
+             * Not worth the hassle here
+             */
+            time = timeOrOptions.time;
+            options = {
+                ...inspect.defaultOptions,
+                ...timeOrOptions,
+            };
+        }
+        const message = messages.map((msg) => util_inspect?.(msg, options)
+            ?? JSON.maybeStringify(msg))
+            .join("\n");
+        return Log(lvl, tag, message, time);
+    }
+    Log.inspect = inspect;
+    (function (inspect) {
+        /**
+         * Default options passed to `util.inspect`.
+         */
+        /* eslint-disable-next-line prefer-const --
+         * This must be modifiable outside of module
+         */
+        inspect.defaultOptions = {
+            showHidden: true,
+            depth: 4,
+            compact: false,
+            colors: !colorDisabled,
+        };
+        /**
+         * Writes to log with level:
+         * > Failure (0)   - System is unusable (calling this level will crash application)
+         */
+        inspect.F = function Log_inspect_Failure(tag, messages, timeOrOptions) {
+            return inspect("Failure", tag, messages, timeOrOptions);
+        };
+        /**
+         * Writes to log with level:
+         * > Alert (1) - Action must be taken immediately
+         */
+        inspect.A = function Log_inspect_Alert(tag, messages, timeOrOptions) {
+            return inspect("Alert", tag, messages, timeOrOptions);
+        };
+        /**
+         * Writes to log with level:
+         * > Critical (2) - Critical conditions
+         */
+        inspect.C = function Log_inspect_Critical(tag, messages, timeOrOptions) {
+            return inspect("Critical", tag, messages, timeOrOptions);
+        };
+        /**
+         * Writes to log with level:
+         * > Error (3) - Error conditions
+         */
+        inspect.E = function Log_inspect_Error(tag, messages, timeOrOptions) {
+            return inspect("Error", tag, messages, timeOrOptions);
+        };
+        /**
+         * Writes to log with level:
+         * > Warning (4) - Warning conditions
+         */
+        inspect.W = function Log_inspect_Warning(tag, messages, timeOrOptions) {
+            return inspect("Warning", tag, messages, timeOrOptions);
+        };
+        /**
+         * Writes to log with level:
+         * > Notice (5) - Normal but significant
+         */
+        inspect.N = function Log_inspect_Notice(tag, messages, timeOrOptions) {
+            return inspect("Notice", tag, messages, timeOrOptions);
+        };
+        /**
+         * Writes to log with level:
+         * > Info (6) - Information messaging
+         */
+        inspect.I = function Log_inspect_Info(tag, messages, timeOrOptions) {
+            return inspect("Info", tag, messages, timeOrOptions);
+        };
+        /**
+         * Writes to log with level:
+         * > Debug (7) - Debug-level messages
+         */
+        inspect.D = function Log_inspect_Debug(tag, messages, timeOrOptions) {
+            return inspect("Debug", tag, messages, timeOrOptions);
+        };
+        /**
+         * Writes to log with level:
+         * > Verbose (8) - Verbose messaging
+         */
+        inspect.V = function Log_inspect_Verbose(tag, messages, timeOrOptions) {
+            return inspect("Verbose", tag, messages, timeOrOptions);
+        };
+    })(inspect = Log.inspect || (Log.inspect = {}));
 })(Log || (Log = {}));
 //# sourceMappingURL=log.js.map
