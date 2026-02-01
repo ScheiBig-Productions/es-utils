@@ -1,4 +1,4 @@
-import { Object_tag } from "./common/object-tag.js";
+import { Object_tag } from "./common/object.tag.js";
 /**
  * A utility class for constructing and manipulating URL query parameters
  * with support for rich input types and serialization.

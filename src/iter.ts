@@ -2,7 +2,7 @@
  * Not making helper function for fairly simple functions.
  */
 
-import { Object_tag } from "./common/object-tag.js"
+import { Object_tag } from "./common/object.tag.js"
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion --
  * Known as defined at this point.

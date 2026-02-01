@@ -8,4 +8,4 @@ export const Object_tag = function tag(ctor, name) {
         get: () => tagName,
     });
 };
-//# sourceMappingURL=object-tag.js.map
+//# sourceMappingURL=object.tag.js.map

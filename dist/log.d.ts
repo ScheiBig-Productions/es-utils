@@ -1,18 +1,5 @@
+import { type inspectOptions } from "./common/util.inspect.js";
 import "./JSON.extension.js";
-type inspectOptions = {
-    showHidden?: boolean | undefined;
-    depth?: number | null | undefined;
-    colors?: boolean | undefined;
-    customInspect?: boolean | undefined;
-    showProxy?: boolean | undefined;
-    maxArrayLength?: number | null | undefined;
-    maxStringLength?: number | null | undefined;
-    breakLength?: number | undefined;
-    compact?: boolean | number | undefined;
-    sorted?: boolean | ((a: string, b: string) => number) | undefined;
-    getters?: "get" | "set" | boolean | undefined;
-    numericSeparator?: boolean | undefined;
-};
 declare const logLevels: readonly ["Failure", "Alert", "Critical", "Error", "Warning", "Notice", "Info", "Debug", "Verbose"];
 type LogLevel = typeof logLevels[number];
 type LoggerFunc = (tag: string | null, message: string, time?: Date) => Date;

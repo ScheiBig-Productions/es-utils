@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any --
  * Following practices set in lib.es.d.ts
  */
-import { Object_tag } from "./common/object-tag.js";
+import { Object_tag } from "./common/object.tag.js";
 Map.groupBy ??= function groupBy(items, keySelector) {
     const result = new Map();
     for (let i = 0; i < items.length; i++) {

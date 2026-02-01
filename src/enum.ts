@@ -1,4 +1,4 @@
-import { Object_tag } from "./common/object-tag.js"
+import { Object_tag } from "./common/object.tag.js"
 
 type Entries = ReadonlyArray<string | readonly [k: string, v: string]>
 

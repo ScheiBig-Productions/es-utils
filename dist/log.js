@@ -10,17 +10,9 @@
 /* eslint-disable @typescript-eslint/naming-convention --
  * Using enum-like naming,
  */
+import { util_inspect } from "./common/util.inspect.js";
 import "./JSON.extension.js";
 const { log: c_log, error: c_err, } = console;
-let util_inspect;
-void (async () => {
-    try {
-        util_inspect = (await import("node:util")).inspect;
-    }
-    catch {
-        util_inspect = undefined;
-    }
-})();
 // eslint-disable-next-line complexity -- doing heavy checking to allow this
 const colorDisabled = (() => {
     const global = globalThis;

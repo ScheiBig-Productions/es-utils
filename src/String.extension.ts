@@ -5,7 +5,8 @@
 * the actual environment might lack it (e.g. ES2022 targets).
 */
 
-export { }
+import { util_inspect } from "./common/util.inspect.js"
+
 
 declare global {
 	interface String {
@@ -85,6 +86,12 @@ declare global {
 		 * // → ["abc", "def", "ghi"]
 		 */
 		divide: (chunkCount: number, rem?: boolean) => Array<string>,
+
+		/**
+		 * Returns string with same contents, but on nodejs-compatible runtimes,
+		 * changes `util.inspect` behavior, removing quotes and coloring.
+		 */
+		noInspect: string,
 	}
 }
 
@@ -152,6 +159,22 @@ String.prototype.divide ??= function divide(this: string, chunkCount: number, re
 	}
 
 	return result
+}
+
+if (String.prototype.noInspect === undefined) {
+	Object.defineProperty(String.prototype, "noInspect", {
+		configurable: true,
+		enumerable: false,
+		get(this: string) {
+			const customSymbol = util_inspect?.custom
+			if (customSymbol) {
+				return Object.assign(this, {
+					[customSymbol]: () => this,
+				})
+			}
+			return this
+		},
+	})
 }
 
 type DecoratorConfig = { prefix: string }
