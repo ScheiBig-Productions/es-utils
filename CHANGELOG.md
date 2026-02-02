@@ -5,6 +5,10 @@ Simple journal of changes made to package.
 
 ---
 
+### [2026-02-02] - `1.17.0`
+
+Introduce paused mode for Log
+
 ### [2026-02-01] - `1.16.0`
 
 Add String.noInspect to get raw-inspection behavior

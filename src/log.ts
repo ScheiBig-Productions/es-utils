@@ -10,14 +10,13 @@
 /* eslint-disable @typescript-eslint/naming-convention --
  * Using enum-like naming,
  */
-
+/* eslint-disable @typescript-eslint/no-unnecessary-qualifier --
+ * Use before declaration requires qualification.
+ */
 import { type inspectOptions, util_inspect } from "./common/util.inspect.js"
 import "./JSON.extension.js"
 
-const {
-	log: c_log,
-	error: c_err,
-} = console
+const stdWriter = console
 
 // eslint-disable-next-line complexity -- doing heavy checking to allow this
 const colorDisabled = (() => {
@@ -165,6 +164,8 @@ const emit = function emit(entry: LogEntry) {
 	}
 }
 
+const pauseBacklog = new Array<[type: "log" | "error", msg: string]>()
+
 /**
  * Logging callable, that should be used as central way of printing feedback from application.
  *
@@ -219,10 +220,17 @@ export function Log(lvl: LogLevel, tag: string | null, message: string, time?: D
 	header += colorize(lvl, "]")
 
 	if (logLevel[lvl] <= logLevel[Log.verbosity]) {
+		const msg = `${header}: ${message}`
+		let type: "log" | "error"
 		if (logLevel[lvl] > logLevel.Warning) {
-			c_log(`${header}: ${message}`)
+			type = "log"
 		} else {
-			c_err(`${header}: ${message}`)
+			type = "error"
+		}
+		if (Log.isConsolePaused()) {
+			pauseBacklog.push([ type, msg ])
+		} else {
+			stdWriter[type](msg)
 		}
 	}
 
@@ -269,6 +277,91 @@ export namespace Log {
 	 * This must be modifiable outside of module
 	 */
 	export let verbosity: LogLevel = "Verbose"
+
+	let paused = false
+
+	/**
+	 * Whether Log is currently paused for {@link console}.
+	 */
+	export const isConsolePaused = (): boolean => paused
+
+	/**
+	 * Pauses logging to {@link console}.
+	 *
+	 * While log is paused, new messages are pushed to queue,
+	 * and replayed after resuming (by default).
+	 *
+	 * Paused log does not print to console, however it still emits to listeners.
+	 */
+	export const pauseConsole = function (): void {
+		const timestamp = new Date()
+		const localDT = new Date(timestamp.getTime() - (timestamp.getTimezoneOffset() * 1000))
+		let dt = localDT.toJSON()
+		dt = dt.replace("T", " ")
+			.replace("Z", "")
+			.replace(/\.\d\d\d/u, "")
+
+		const yellow = Log.colorize.bind(null, 93)
+		let header = yellow(`\x1b[1m[${dt} |-| `)
+		header += Log.colorize("Verbose", "\x1b[1mes-utils/Log/pauseConsole")
+		header += yellow("\x1b[1m]")
+
+		stdWriter.log(
+			header
+			+ yellow(": Pausing logging to console"),
+		)
+
+		paused = true
+	}
+
+	/**
+	 * Resumes logging to {@link console}.
+	 *
+	 * @param replay - Whether to replay all messages queued during pause (`true` by default).
+	 * @returns Number of messages queued during pause.
+	 */
+	export const resumeConsole = function (replay: boolean = true): number {
+		const queuedMsgCount = pauseBacklog.length
+		const timestamp = new Date()
+		const localDT = new Date(timestamp.getTime() - (timestamp.getTimezoneOffset() * 1000))
+		let dt = localDT.toJSON()
+		dt = dt.replace("T", " ")
+			.replace("Z", "")
+			.replace(/\.\d\d\d/u, "")
+
+		const yellow = Log.colorize.bind(null, 93)
+		let header = yellow(`\x1b[1m[${dt} |-| `)
+		header += Log.colorize("Verbose", "\x1b[1mes-utils/Log/resumeConsole")
+		header += yellow("\x1b[1m]")
+		if (replay) {
+			stdWriter.log(
+				header
+				+ yellow(
+					`: Resuming logging to console - replaying ${queuedMsgCount} messaged...`,
+				),
+			)
+			for (; ;) {
+				const first = pauseBacklog.shift()
+				if (!first) { break }
+				stdWriter[first[0]](first[1])
+			}
+			stdWriter.log(
+				header
+				+ yellow(": Resuming logging to console - finished replaying"),
+			)
+		} else {
+			stdWriter.log(
+				header
+				+ yellow(
+					`: Resuming logging to console - skipping ${queuedMsgCount} messages`,
+				),
+			)
+			pauseBacklog.length = 0
+		}
+
+		paused = false
+		return queuedMsgCount
+	}
 
 	/**
 	 * Writes to log with level:

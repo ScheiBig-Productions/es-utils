@@ -74,6 +74,26 @@ export declare namespace Log {
      */
     let verbosity: LogLevel;
     /**
+     * Whether Log is currently paused for {@link console}.
+     */
+    const isConsolePaused: () => boolean;
+    /**
+     * Pauses logging to {@link console}.
+     *
+     * While log is paused, new messages are pushed to queue,
+     * and replayed after resuming (by default).
+     *
+     * Paused log does not print to console, however it still emits to listeners.
+     */
+    const pauseConsole: () => void;
+    /**
+     * Resumes logging to {@link console}.
+     *
+     * @param replay - Whether to replay all messages queued during pause (`true` by default).
+     * @returns Number of messages queued during pause.
+     */
+    const resumeConsole: (replay?: boolean) => number;
+    /**
      * Writes to log with level:
      * > Failure (0)   - System is unusable (calling this level will crash application)
      *
