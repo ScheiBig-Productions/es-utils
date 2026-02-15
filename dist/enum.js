@@ -29,7 +29,6 @@ const Symbol_enumValues = Symbol("Enum Values");
  */
 // eslint-disable-next-line no-shadow -- Shadow necessary due to object merging
 export const Enum = Object.assign(function Enum(...rawValues) {
-    // eslint-disable-next-line consistent-this -- Conditional creation of this
     const self = this instanceof Enum
         ? this
         : Object.create(Enum.prototype);

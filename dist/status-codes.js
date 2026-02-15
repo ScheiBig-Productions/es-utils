@@ -40,6 +40,21 @@ export var SC;
          * in optimistic way or keeps full state.
          */
         Success.noContent = 204;
+        /**
+         * Response indicating that the client should reset its view or form.
+         *
+         * Often used after a successful action where the client’s local state
+         * (like form fields or cached UI state) should be cleared.
+         * No body is returned.
+         */
+        Success.resetContent = 205;
+        /**
+         * Response indicating that only part of the requested resource is returned.
+         *
+         * Typically used with Range requests (e.g., streaming, chunked downloads).
+         * Body contains the partial content.
+         */
+        Success.partialContent = 206;
     })(Success = SC.Success || (SC.Success = {}));
     /**
      * Codes used to redirect request to different address.
@@ -133,6 +148,19 @@ export var SC;
          */
         Error.notFound = 404;
         /**
+         * Response indicating that the HTTP method used is not allowed for this endpoint.
+         *
+         * Should include an [Allow] header listing permitted methods.
+         * Often used when client uses GET instead of POST, etc.
+         */
+        Error.methodNotAllowed = 405;
+        /**
+         * Response indicating that the server timed out waiting for the request.
+         *
+         * Commonly used when the client is too slow to send the body or headers.
+         */
+        Error.requestTimeout = 408;
+        /**
          * Response indicating conflict in requested resources and state of the server.
          *
          * This response might for example apply to request for given amount of resource
@@ -150,6 +178,40 @@ export var SC;
          */
         Error.gone = 410;
         /**
+         * Response indicating that the request requires a Content-Length header.
+         *
+         * Often used when the server cannot process streaming or chunked requests
+         * for this particular endpoint.
+         */
+        Error.lengthRequired = 411;
+        /**
+         * Response indicating that one or more preconditions were not met.
+         *
+         * Typically used with conditional headers (If-Match, If-Unmodified-Since),
+         * or in APIs to enforce optimistic locking.
+         */
+        Error.preconditionFailed = 412;
+        /**
+         * Response indicating that the request payload is too large.
+         *
+         * Often used when file uploads exceed limits or when the server imposes
+         * strict size constraints on request bodies.
+         */
+        Error.payloadTooLarge = 413;
+        /**
+         * Response indicating that the media type of the request is unsupported.
+         *
+         * Used when the server cannot process the provided Content-Type.
+         * Common for JSON-only or multipart-only endpoints.
+         */
+        Error.unsupportedMediaType = 415;
+        /**
+         * Response indicating that the requested range cannot be satisfied.
+         *
+         * Often used when a Range header specifies bytes outside the resource size.
+         */
+        Error.rangeNotSatisfiable = 416;
+        /**
          * Response indicating that expectations were not met.
          *
          * Semantically, this is used when server cannot met expectation requested in
@@ -159,12 +221,26 @@ export var SC;
          */
         Error.expectationFailed = 417;
         /**
+         * Response indicating that the request was misdirected.
+         *
+         * Typically used in multi‑tenant or proxy setups when the server
+         * cannot serve the resource for the requested authority.
+         */
+        Error.misdirectedRequest = 421;
+        /**
          * Response indicating that provided content is of valid type/format, but is
          * semantically invalid.
          *
          * This can be for example used for valid jwt, that is wrong type.
          */
         Error.unprocessableContent = 422;
+        /**
+         * Response indicating that the server is unwilling to process the request
+         * because it might be replayed.
+         *
+         * Often used in APIs requiring idempotency keys for safety.
+         */
+        Error.tooEarly = 425;
         /**
          * Response indicating that the request was rejected due to exceeding
          * rate or quantity limits.
@@ -195,12 +271,18 @@ export var SC;
          * response from upstream.
          */
         Exception.badGateway = 502;
+        /**
+         * Response indicating that the server is temporarily unable to handle the request.
+         *
+         * Often used for maintenance windows, overload protection, or dependency outages.
+         * May include a [Retry-After] header.
+         */
+        Exception.serviceUnavailable = 503;
     })(Exception = SC.Exception || (SC.Exception = {}));
     /**
      * Wrapper over textual message, that is to be passed to Response.
      */
     SC.Message = function Message(msg, code) {
-        // eslint-disable-next-line consistent-this -- Conditional creation of this
         const self = (this instanceof SC.Message
             ? this
             : Object.create(SC.Message.prototype));
@@ -231,7 +313,6 @@ export var SC;
      * Wrapper over redirect happening as Response.
      */
     SC.Location = function Location(to, code = Redirect.found) {
-        // eslint-disable-next-line consistent-this -- Conditional creation of this
         const self = (this instanceof SC.Location
             ? this
             : Object.create(SC.Location.prototype));

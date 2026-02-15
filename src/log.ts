@@ -18,7 +18,6 @@ import "./JSON.extension.js"
 
 const stdWriter = console
 
-// eslint-disable-next-line complexity -- doing heavy checking to allow this
 const colorDisabled = (() => {
 	const global = globalThis
 
@@ -43,7 +42,7 @@ const colorDisabled = (() => {
 	return true
 })()
 
-// eslint-disable-next-line complexity -- doing heavy checking to allow this
+
 const exit = (() => {
 	const global = globalThis
 
@@ -562,7 +561,6 @@ export namespace Log {
 	 *
 	 * If key is provided for function value, ` : <static> tag(key(val))` is added.
 	 */
-	// eslint-disable-next-line complexity -- This is already as simple, as possible
 	export const tag = function Log_tag<T>(
 		val: T,
 		key?: (o: T) => unknown,

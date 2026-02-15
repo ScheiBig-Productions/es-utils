@@ -6,7 +6,6 @@
 */
 import { ContractViolationError } from "./contract-violation-error.js";
 import { TodoError } from "./todo-error.js";
-// eslint-disable-next-line complexity -- doing heavy checking to allow this
 const isDev = (() => {
     const global = globalThis;
     if ("Deno" in global

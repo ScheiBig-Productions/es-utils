@@ -12,9 +12,7 @@
 /* eslint-disable func-names --
  * Relying on name propagation from const, as shadowing would be extremely annoying here.
  */
-/* eslint-disable complexity --
- * Bound single-use logic should live inside function.
- */
+
 
 import type { Mutable } from "src/types.js"
 
@@ -160,7 +158,7 @@ export const Retry = function (
 	this: Retry | undefined,
 	config: Retry.Config,
 ) {
-	// eslint-disable-next-line consistent-this -- Conditional creation of this
+
 	const self: Mutable<Retry> = this instanceof Retry
 		? this
 		: Object.create(Retry.prototype) as Retry
@@ -260,7 +258,7 @@ Retry.CancelError = function CancelError<E = unknown>(
 	cause: E,
 ) {
 	const message = "Retry cancelled due to critical error"
-	// eslint-disable-next-line consistent-this -- Conditional creation of this
+
 	const self = this instanceof Retry.CancelError
 		? this
 		: Object.create(Retry.CancelError.prototype) as Retry.CancelError<E>
@@ -297,7 +295,7 @@ Retry.TimeoutError = function TimeoutError(
 		? "too many attempts"
 		: "too long of a timeout"
 	}`
-	// eslint-disable-next-line consistent-this -- Conditional creation of this
+
 	const self = this instanceof Retry.TimeoutError
 		? this
 		: Object.create(Retry.TimeoutError.prototype) as Retry.TimeoutError

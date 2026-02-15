@@ -1,6 +1,3 @@
-/* eslint-disable complexity --
- * Not making helper function for fairly simple functions.
- */
 import { Object_tag } from "./common/object.tag.js";
 /**
  * Custom implementation of tc39/ecma262 Iterator helper.
@@ -57,9 +54,9 @@ export class Iter {
      * @returns A new Iter of mapped values.
      */
     map(mapper) {
-        const self = this;
+        const __self__ = this;
         return new Iter((function* mapImpl() {
-            for (const item of self) {
+            for (const item of __self__) {
                 yield mapper(item);
             }
         })());
@@ -70,9 +67,9 @@ export class Iter {
      * @returns A new Iter of filtered values.
      */
     filter(predicate) {
-        const self = this;
+        const __self__ = this;
         return new Iter((function* filterImpl() {
-            for (const item of self) {
+            for (const item of __self__) {
                 if (predicate(item)) {
                     yield item;
                 }
@@ -85,10 +82,10 @@ export class Iter {
      * @returns A new Iter with up to `n` items.
      */
     take(n) {
-        const self = this;
+        const __self__ = this;
         return new Iter((function* takeImpl() {
             let count = 0;
-            for (const item of self) {
+            for (const item of __self__) {
                 if (count++ >= n) {
                     break;
                 }
@@ -102,10 +99,10 @@ export class Iter {
      * @returns A new Iter without the first `n` items.
      */
     drop(n) {
-        const self = this;
+        const __self__ = this;
         return new Iter((function* dropImpl() {
             let count = 0;
-            for (const item of self) {
+            for (const item of __self__) {
                 if (count++ < n) {
                     continue;
                 }
@@ -119,9 +116,9 @@ export class Iter {
      * @returns A new Iter of flattened values.
      */
     flatMap(mapper) {
-        const self = this;
+        const __self__ = this;
         return new Iter((function* flatMapImpl() {
-            for (const item of self) {
+            for (const item of __self__) {
                 yield* mapper(item);
             }
         })());
@@ -276,10 +273,10 @@ export class Iter {
      * @returns A new Iter of tuples [index, value].
      */
     indexed() {
-        const self = this;
+        const __self__ = this;
         return new Iter((function* indexedImpl() {
             let i = 0;
-            for (const item of self) {
+            for (const item of __self__) {
                 yield [i++, item];
             }
         })());
@@ -290,10 +287,10 @@ export class Iter {
      * @returns A new Iter with repeated values.
      */
     repeat(times) {
-        const self = this;
+        const __self__ = this;
         return new Iter((function* repeatImpl() {
             for (let i = 0; i < times; i++) {
-                yield* self;
+                yield* __self__;
             }
         })());
     }

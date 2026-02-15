@@ -51,7 +51,7 @@ export default config(
 	{
 		basePath: dirname,
 		files: [
-			"**/{src,test,examples,scripts,dtslint}/**/*.{ts,tsx,mjs,js,jsx}",
+			"**/{src,lib,test,examples,scripts,dtslint}/**/*.{ts,tsx,mjs,js,jsx}",
 			"eslint.config.mjs",
 		],
 
@@ -194,12 +194,12 @@ export default config(
 			"class-methods-use-this": [ "warn", {
 				ignoreOverrideMethods: false,
 			}],
-			complexity: [ "warn", 10 ], // will require tweaking
+			complexity: [ "warn", 20 ], // will require tweaking
 			"consistent-return": [ "error", {
 				treatUndefinedAsUnspecified: false,
 			}],
 			"consistent-this": [ "error",
-				"self",
+				"__self__",
 			],
 			curly: [ "error", "all" ],
 			"default-case": [ "error", {
@@ -230,7 +230,7 @@ export default config(
 			"max-depth": [ "warn", 6 ],
 			"max-lines": [ "warn", 1000 ],
 			"max-lines-per-function": [ "warn", {
-				max: 50,
+				max: 100,
 				skipBlankLines: true,
 				skipComments: true,
 			}],
@@ -514,7 +514,7 @@ export default config(
 			"@typescript-eslint/ban-ts-comment": [ "error", {
 				minimumDescriptionLength: 3,
 				"ts-check": false,
-				"ts-expect-error": { descriptionFormat: "^: TS\\d+ -- .*" },
+				"ts-expect-error": { descriptionFormat: "^: (TS|ts)\\(?\\d+\\)? -- .*" },
 				"ts-ignore": { descriptionFormat: "^ -- .*" },
 				"ts-nocheck": { descriptionFormat: "^ -- .*" },
 			}],
@@ -829,7 +829,7 @@ export default config(
 			"@typescript-eslint/no-shadow": [ "off" ], // base rule actually works in typescript
 			"@typescript-eslint/no-this-alias": [ "error", {
 				allowDestructuring: true,
-				allowedNames: [ "self" ],
+				allowedNames: [ "__self__" ],
 			}],
 			"@typescript-eslint/no-type-alias": [ "off" ], // not really useful
 			/* type */"@typescript-eslint/no-unnecessary-boolean-literal-compare": [ "error" ],
@@ -1007,7 +1007,6 @@ export default config(
 				ImportDeclaration: 1,
 				flatTernaryExpressions: true,
 				offsetTernaryExpressions: true,
-				offsetTernaryExpressionsOffsetCallExpressions: true,
 				ignoreComments: false,
 				tabLength: 4,
 			}], // per-token options might need some revision after using for a while
@@ -1045,7 +1044,6 @@ export default config(
 			"@stylistic/jsx-pascal-case": [ "error", {
 				allowNamespace: true,
 			}],
-			"@stylistic/jsx-props-no-multi-spaces": [ "error" ],
 			"@stylistic/jsx-quotes": [ "error", "prefer-double" ],
 			"@stylistic/jsx-self-closing-comp": [ "error", {
 				component: true,
@@ -1082,7 +1080,7 @@ export default config(
 				afterBlockComment: false,
 				beforeBlockComment: true,
 				afterLineComment: false,
-				beforeLineComment: true,
+				beforeLineComment: false, // FP when commenting code inside method chains etc.
 				allowBlockStart: true,
 				allowBlockEnd: true,
 				allowObjectStart: false,
@@ -1104,7 +1102,7 @@ export default config(
 			}],
 			"@stylistic/lines-between-class-members": [ "error", {
 				enforce: [{
-					blankLine: "always",
+					blankLine: "never",
 					prev: "field",
 					next: "field",
 				}, {
@@ -1122,7 +1120,7 @@ export default config(
 				ignoreTemplateLiterals: false,
 			}],
 			"@stylistic/max-statements-per-line": [ "error", {
-				max: 2, // 1 should be ideal, however forcing blocks in control statements breaks this
+				max: 3, // 3 to allow `try { return JSON.stringify(x) } catch { return String(x) }`
 			}],
 			"@stylistic/member-delimiter-style": [ "error", {
 				multiline: {
@@ -1225,10 +1223,7 @@ export default config(
 				before: false,
 				after: true,
 				overrides: {
-					arrow: {
-						before: true,
-						after: true,
-					},
+					arrow: "ignore"
 				},
 			}],
 			"@stylistic/type-generic-spacing": [ "error" ],
@@ -1241,4 +1236,3 @@ export default config(
 		},
 	},
 )
-

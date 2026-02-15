@@ -261,7 +261,7 @@ declare global {
 		 */
 		toShuffled: (
 			this: Array<T>,
-			seed?: string
+			seed?: string,
 		) => Array<T>,
 
 		/**
@@ -324,7 +324,7 @@ declare global {
 		padEnd: (
 			this: Array<T>,
 			maxLength: number,
-			fillValue: T
+			fillValue: T,
 		) => Array<T>,
 
 		/**

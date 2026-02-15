@@ -110,7 +110,6 @@ export const Enum = Object.assign(function Enum<const T extends Entries>(
 	this: Enum<T> | undefined,
 	...rawValues: T
 ): Enum<T> {
-	// eslint-disable-next-line consistent-this -- Conditional creation of this
 	const self = this instanceof Enum
 		? this
 		: Object.create(Enum.prototype as object) as Enum<T>

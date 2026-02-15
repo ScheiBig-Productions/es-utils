@@ -5,6 +5,10 @@ Simple journal of changes made to package.
 
 ---
 
+### [2026-02-15] - `1.18.0`
+
+Add more status codes, upgrade and fix linting
+
 ### [2026-02-02] - `1.17.0`
 
 Introduce paused mode for Log

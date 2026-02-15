@@ -12,12 +12,8 @@
 /* eslint-disable func-names --
  * Relying on name propagation from const, as shadowing would be extremely annoying here.
  */
-/* eslint-disable complexity --
- * Bound single-use logic should live inside function.
- */
 import { Object_tag } from "./common/object.tag.js";
 export const Retry = function (config) {
-    // eslint-disable-next-line consistent-this -- Conditional creation of this
     const self = this instanceof Retry
         ? this
         : Object.create(Retry.prototype);
@@ -101,7 +97,6 @@ onEachError) {
 };
 Retry.CancelError = function CancelError(cause) {
     const message = "Retry cancelled due to critical error";
-    // eslint-disable-next-line consistent-this -- Conditional creation of this
     const self = this instanceof Retry.CancelError
         ? this
         : Object.create(Retry.CancelError.prototype);
@@ -130,7 +125,6 @@ Retry.TimeoutError = function TimeoutError(cause, type) {
     const message = `Retry cancelled due to ${type === "attempt"
         ? "too many attempts"
         : "too long of a timeout"}`;
-    // eslint-disable-next-line consistent-this -- Conditional creation of this
     const self = this instanceof Retry.TimeoutError
         ? this
         : Object.create(Retry.TimeoutError.prototype);

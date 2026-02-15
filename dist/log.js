@@ -16,7 +16,6 @@
 import { util_inspect } from "./common/util.inspect.js";
 import "./JSON.extension.js";
 const stdWriter = console;
-// eslint-disable-next-line complexity -- doing heavy checking to allow this
 const colorDisabled = (() => {
     const global = globalThis;
     if ("Deno" in global
@@ -36,7 +35,6 @@ const colorDisabled = (() => {
     }
     return true;
 })();
-// eslint-disable-next-line complexity -- doing heavy checking to allow this
 const exit = (() => {
     const global = globalThis;
     if ("Deno" in global
@@ -463,7 +461,6 @@ const __colorize__ = colorize;
      *
      * If key is provided for function value, ` : <static> tag(key(val))` is added.
      */
-    // eslint-disable-next-line complexity -- This is already as simple, as possible
     Log.tag = function Log_tag(val, key) {
         let valTag;
         let keyTag = "";

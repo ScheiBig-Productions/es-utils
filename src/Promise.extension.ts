@@ -51,7 +51,7 @@ declare global {
 		 * @returns A PromiseFactory with promise-like API chaining methods.
 		 */
 		factory: <TRes, TArgs extends ReadonlyArray<unknown>> (
-			producer: (...args: TArgs) => Promise<TRes>
+			producer: (...args: TArgs) => Promise<TRes>,
 		) => PromiseFactory<TRes, TArgs>,
 
 		/**

@@ -1,6 +1,6 @@
 {
   "name": "es-utils",
-  "version": "1.17.0",
+  "version": "1.18.0",
   "description": "Various utilities for working in the ECMAScript/TypeScript codebase with less friction",
   "main": "dist/index.js",
   "type": "module",
@@ -8,7 +8,9 @@
     "test": "node --test",
     "build": "tsc",
     "type-check": "tsc --noEmit --strict",
-    "release": "node release.mjs"
+    "release": "node release.mjs",
+    "lint": "eslint \"**/{src,test,examples,scripts,dtslint}/**/*.{ts,mjs}\"",
+    "lint-fix": "npm run lint -- --fix"
   },
   "repository": {
     "type": "git",

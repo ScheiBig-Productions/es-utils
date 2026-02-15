@@ -67,7 +67,7 @@ declare global {
 	}
 }
 
-// eslint-disable-next-line complexity -- doing heavy checking to allow this
+
 const isDev = (() => {
 	const global = globalThis
 

@@ -14,7 +14,6 @@ import { Object_tag } from "./common/object.tag.js";
  * Relying on name propagation from const, as shadowing would be extremely annoying here.
  */
 export const TodoError = function (message, cause) {
-    // eslint-disable-next-line consistent-this -- Conditional creation of this
     const self = this instanceof TodoError
         ? this
         : Object.create(TodoError.prototype);

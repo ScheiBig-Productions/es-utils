@@ -19,7 +19,7 @@ declare global {
 		 */
 		groupBy: <T, K>(
 			items: ArrayLike<T>,
-			keySelector: (item: T, index: number) => K
+			keySelector: (item: T, index: number) => K,
 		) => Map<K, Array<T>>,
 	}
 }

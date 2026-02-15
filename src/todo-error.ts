@@ -54,7 +54,6 @@ export const TodoError: TodoErrorConstructor = function (
 	message: string,
 	cause?: unknown,
 ): TodoError {
-	// eslint-disable-next-line consistent-this -- Conditional creation of this
 	const self = this instanceof TodoError
 		? this
 		: Object.create(TodoError.prototype) as TodoError

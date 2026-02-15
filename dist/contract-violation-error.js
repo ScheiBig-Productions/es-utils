@@ -14,7 +14,6 @@ import { Object_tag } from "./common/object.tag.js";
  * Relying on name propagation from const, as shadowing would be extremely annoying here.
  */
 export const ContractViolationError = function (cause) {
-    // eslint-disable-next-line consistent-this -- Conditional creation of this
     const self = this instanceof ContractViolationError
         ? this
         : Object.create(ContractViolationError.prototype);

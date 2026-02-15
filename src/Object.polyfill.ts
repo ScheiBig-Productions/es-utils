@@ -19,7 +19,7 @@ declare global {
 		 */
 		groupBy: <T, K extends PropertyKey>(
 			items: ArrayLike<T>,
-			keySelector: (item: T, index: number) => K
+			keySelector: (item: T, index: number) => K,
 		) => Partial<Record<K, Array<T>>>,
 	}
 }

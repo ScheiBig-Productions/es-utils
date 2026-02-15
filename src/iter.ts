@@ -1,6 +1,4 @@
-/* eslint-disable complexity --
- * Not making helper function for fairly simple functions.
- */
+
 
 import { Object_tag } from "./common/object.tag.js"
 
@@ -106,9 +104,9 @@ export class Iter<T> implements Iterable<T> {
 	 * @returns A new Iter of mapped values.
 	 */
 	map<U>(mapper: (value: T) => U): Iter<U> {
-		const self = this
+		const __self__ = this
 		return new Iter<U>((function* mapImpl() {
-			for (const item of self) {
+			for (const item of __self__) {
 				yield mapper(item)
 			}
 		})())
@@ -120,9 +118,9 @@ export class Iter<T> implements Iterable<T> {
 	 * @returns A new Iter of filtered values.
 	 */
 	filter(predicate: (value: T) => boolean): Iter<T> {
-		const self = this
+		const __self__ = this
 		return new Iter<T>((function* filterImpl() {
-			for (const item of self) {
+			for (const item of __self__) {
 				if (predicate(item)) { yield item }
 			}
 		})())
@@ -134,10 +132,10 @@ export class Iter<T> implements Iterable<T> {
 	 * @returns A new Iter with up to `n` items.
 	 */
 	take(n: number): Iter<T> {
-		const self = this
+		const __self__ = this
 		return new Iter<T>((function* takeImpl() {
 			let count = 0
-			for (const item of self) {
+			for (const item of __self__) {
 				if (count++ >= n) { break }
 				yield item
 			}
@@ -150,10 +148,10 @@ export class Iter<T> implements Iterable<T> {
 	 * @returns A new Iter without the first `n` items.
 	 */
 	drop(n: number): Iter<T> {
-		const self = this
+		const __self__ = this
 		return new Iter<T>((function* dropImpl() {
 			let count = 0
-			for (const item of self) {
+			for (const item of __self__) {
 				if (count++ < n) { continue }
 				yield item
 			}
@@ -166,9 +164,9 @@ export class Iter<T> implements Iterable<T> {
 	 * @returns A new Iter of flattened values.
 	 */
 	flatMap<U>(mapper: (value: T) => Iterable<U>): Iter<U> {
-		const self = this
+		const __self__ = this
 		return new Iter<U>((function* flatMapImpl() {
-			for (const item of self) {
+			for (const item of __self__) {
 				yield* mapper(item)
 			}
 		})())
@@ -440,10 +438,10 @@ export class Iter<T> implements Iterable<T> {
 	 * @returns A new Iter of tuples [index, value].
 	 */
 	indexed(): Iter<[number, T]> {
-		const self = this
+		const __self__ = this
 		return new Iter<[number, T]>((function* indexedImpl() {
 			let i = 0
-			for (const item of self) {
+			for (const item of __self__) {
 				yield [ i++, item ]
 			}
 		})())
@@ -456,10 +454,10 @@ export class Iter<T> implements Iterable<T> {
 	 * @returns A new Iter with repeated values.
 	 */
 	repeat(times: number): Iter<T> {
-		const self = this
+		const __self__ = this
 		return new Iter<T>((function* repeatImpl() {
 			for (let i = 0; i < times; i++) {
-				yield* self
+				yield* __self__
 			}
 		})())
 	}
