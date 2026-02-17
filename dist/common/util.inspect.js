@@ -1,6 +1,7 @@
-/* eslint-disable-next-line @typescript-eslint/naming-convention --
+/* eslint-disable @typescript-eslint/naming-convention --
  * Following original usage for convenience
  */
+/** @internal */
 export let util_inspect;
 void (async () => {
     try {

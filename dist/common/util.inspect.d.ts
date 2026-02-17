@@ -1,6 +1,8 @@
+/** @internal */
 export declare let util_inspect: (((object: unknown, options?: inspectOptions) => string) & {
     custom: symbol;
 }) | undefined;
+/** @internal */
 export type inspectOptions = {
     showHidden?: boolean | undefined;
     depth?: number | null | undefined;
