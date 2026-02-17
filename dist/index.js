@@ -1,3 +1,8 @@
+/**
+ * Entry point of package - imports all side-effect extensions (installs them on target objects)
+ * and reexports all public APIs.
+ * @module
+ */
 import "./Array.extension.js";
 import "./Error.extension.js";
 import "./fetch.extension.js";

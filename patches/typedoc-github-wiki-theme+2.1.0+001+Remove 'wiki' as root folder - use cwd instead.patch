@@ -1,0 +1,13 @@
+diff --git a/node_modules/typedoc-github-wiki-theme/dist/index.js b/node_modules/typedoc-github-wiki-theme/dist/index.js
+index a11b64b..261128e 100644
+--- a/node_modules/typedoc-github-wiki-theme/dist/index.js
++++ b/node_modules/typedoc-github-wiki-theme/dist/index.js
+@@ -28,7 +28,7 @@ export function load(app) {
+     })());
+     app.renderer.on(MarkdownPageEvent.END, (page) => {
+         page.contents = page.contents?.replace(/\[([^\]]+)\]\((?!https?:|\/|\.)([^)]+)\)/g, (match, text, url) => {
+-            return `[${text}](${encodeURI('../wiki/' + url.replace('.md', ''))})`;
++            return `[${text}](${encodeURI('./' + url.replace('.md', ''))})`;
+         });
+     });
+     app.renderer.postRenderAsyncJobs.push(async (output) => {

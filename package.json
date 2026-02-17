@@ -1,6 +1,6 @@
 {
   "name": "es-utils",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Various utilities for working in the ECMAScript/TypeScript codebase with less friction",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -8,11 +8,12 @@
   "scripts": {
     "test": "node --test",
     "build": "tsc",
-    "wiki": "typedoc --excludeInternal",
+    "wiki": "rm -f ../es-utils.wiki/*.md && typedoc --excludeInternal && cp ./wiki/*.md ../es-utils.wiki/",
     "type-check": "tsc --noEmit --strict",
     "release": "node release.mjs",
     "lint": "eslint \"**/{src,test,examples,scripts,dtslint}/**/*.{ts,mjs}\"",
-    "lint-fix": "npm run lint -- --fix"
+    "lint-fix": "npm run lint -- --fix",
+    "postinstall": "patch-package"
   },
   "repository": {
     "type": "git",
@@ -44,6 +45,7 @@
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "eslint-plugin-sort-destructure-keys": "^2.0.0",
+    "patch-package": "^8.0.1",
     "tsx": "^4.20.3",
     "typedoc": "^0.28.17",
     "typedoc-github-wiki-theme": "^2.1.0",

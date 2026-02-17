@@ -1,3 +1,8 @@
+/**
+ * Provides extensions to build-in `Array` objects - both static (installed on `ArrayConstructor`),
+ * as well as instance (installed on `Array.prototype`).
+ * @module
+ */
 import type { IndexProxy, IntlCollatorProps } from "./Array.extension.declarations.js";
 /**
  * Namespace groups all members, that will be installed on `Array.prototype` (array instances).

@@ -1,3 +1,13 @@
+/**
+ * Provides declarations that merge into global declarations of `Array`/`ArrayConstructor`,
+ * which add types for installed extensions.
+ * @module
+ */
+/**
+ * Provides options passed to `Intl.Collator` in functions that use rich string comparison.
+ *
+ * @see {@link Intl.Collator}
+ */
 export type IntlCollatorProps = {
     locale?: string;
 } & Intl.CollatorOptions;
@@ -173,6 +183,9 @@ interface GroupByFn {
      */
     <T, K extends keyof T | ((string | number) & {})>(this: Array<T>, keySelector: (item: T, index: number) => K, returnType: "Map"): Map<K, Array<T>>;
 }
+/**
+ * This type abstracts indexing proxy `Array.prototype.$` to resolved outer type.
+ */
 export type IndexProxy<T> = Record<number, T>;
 declare global {
     interface Array<T> {

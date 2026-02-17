@@ -4,7 +4,7 @@
 	"entryPoints": [
 		"./src/*"
 	],
-	"out": "../es-utils.wiki/",
+	"out": "./wiki/",
 	"plugin": [
 		"typedoc-plugin-markdown",
 		"typedoc-github-wiki-theme"

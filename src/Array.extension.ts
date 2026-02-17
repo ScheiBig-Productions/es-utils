@@ -1,3 +1,8 @@
+/**
+ * Provides extensions to build-in `Array` objects - both static (installed on `ArrayConstructor`),
+ * as well as instance (installed on `Array.prototype`).
+ * @module
+ */
 /* eslint-disable @typescript-eslint/naming-convention --
  * Simulating paths of utilities
  */
