@@ -1,4 +1,5 @@
 import { Object_tag } from "./common/object.tag.js"
+import { ContractViolationError } from "./contract-violation-error.js"
 
 /**
  * A utility class for constructing and manipulating URL query parameters
@@ -43,12 +44,12 @@ export class QueryParams extends URLSearchParams {
 			return i.toJSON()
 		}
 		if (Array.isArray(i)) {
-			return Error.never("Unsupported [QueryParams] value type: Nested array".pack())
+			throw ContractViolationError("Unsupported [QueryParams] value type: Nested array")
 		}
-		return Error.never(`
-		Unsupported [QueryParams] value type:
-		[${typeof i} ${i?.constructor.name ?? "undefined"}]
-	`.pack())
+		throw ContractViolationError(
+			`Unsupported [QueryParams] value type:
+			[${typeof i} ${i?.constructor.name ?? "undefined"}]`.pack(),
+		)
 	}
 
 	/**

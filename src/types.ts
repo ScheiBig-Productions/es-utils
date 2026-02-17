@@ -7,3 +7,5 @@ export type MethodKeys<T> = {
 }[keyof T]
 
 export type Maybe<T> = T | null | undefined
+
+export type Awaitable<T> = T | Promise<T>
