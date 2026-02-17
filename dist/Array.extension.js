@@ -65,7 +65,7 @@ Array.prototype.ascBy ??= function ascBy(selector, config) {
         return [];
     }
     const col = new Intl.Collator(config?.locale, config);
-    return this.toSorted((a, b) => {
+    const ordering = (a, b) => {
         const f = selector(a);
         const s = selector(b);
         if (typeof f === "string" && typeof s === "string") {
@@ -75,14 +75,20 @@ Array.prototype.ascBy ??= function ascBy(selector, config) {
             return Math.sign(f.valueOf() - s.valueOf());
         }
         return f < s ? -1 : f > s ? 1 : 0;
-    });
+    };
+    if ("toSorted" in this && typeof this.toSorted === "function") {
+        return this.toSorted(ordering);
+    }
+    const newThis = Array.from(this);
+    newThis.sort(ordering);
+    return newThis;
 };
 Array.prototype.descBy ??= function descBy(selector, config) {
     if (this.length === 0) {
         return [];
     }
     const col = new Intl.Collator(config?.locale, config);
-    return this.toSorted((a, b) => {
+    const ordering = (a, b) => {
         const f = selector(a);
         const s = selector(b);
         if (typeof f === "string" && typeof s === "string") {
@@ -92,7 +98,13 @@ Array.prototype.descBy ??= function descBy(selector, config) {
             return -Math.sign(f.valueOf() - s.valueOf());
         }
         return f < s ? 1 : f > s ? -1 : 0;
-    });
+    };
+    if ("toSorted" in this && typeof this.toSorted === "function") {
+        return this.toSorted(ordering);
+    }
+    const newThis = Array.from(this);
+    newThis.sort(ordering);
+    return newThis;
 };
 Array.prototype.splitBy ??= function splitBy(limit, weight) {
     const removed = [];
@@ -135,12 +147,39 @@ Array.prototype.shuffle ??= function shuffle(seed) {
     }
     return this;
 };
+const Map_groupBy = "groupBy" in Map && typeof Map.groupBy === "function"
+    ? Map.groupBy
+    : function groupBy(items, keySelector) {
+        const result = new Map();
+        for (let i = 0; i < items.length; i++) {
+            const key = keySelector(items[i], i);
+            if (!result.has(key)) {
+                result.set(key, []);
+            }
+            result.get(key)
+                ?.push(items[i]);
+        }
+        return result;
+    };
+const Object_groupBy = "groupBy" in Map && typeof Map.groupBy === "function"
+    ? Map.groupBy
+    : function groupBy(items, keySelector) {
+        /* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment --
+         * No other away to please type-checker
+         */
+        const result = Object.create(null);
+        for (let i = 0; i < items.length; i++) {
+            const key = keySelector(items[i], i);
+            (result[key] ??= []).push(items[i]);
+        }
+        return result;
+    };
 Array.prototype.groupBy ??= function groupBy(keySelector, returnType = "Object") {
     if (returnType === "Object") {
-        return Object.groupBy(this, keySelector);
+        return Object_groupBy(this, keySelector);
     }
     if (returnType === "Map") {
-        return Map.groupBy(this, keySelector);
+        return Map_groupBy(this, keySelector);
     }
     throw TypeError(`Unknown grouping provider: ${String(returnType)}.`);
 };

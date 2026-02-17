@@ -6,20 +6,23 @@
  */
 
 import type { PromiseFactory } from "./promise-factory.js"
-import type { Temporal } from "@js-temporal/polyfill"
+
+type TemporalishDuration = {
+	total: (unit: "milliseconds" | (string & {})) => number,
+}
 
 interface AfterFn {
 
 	/**
 	 * Returns new Promise, that fulfills after given delay.
 	 */
-	(delay: number | Temporal.Duration): Promise<void>,
+	(delay: number | TemporalishDuration): Promise<void>,
 
 	/**
 	 * Returns new Promise, that fulfills after given delay.
 	 */
 	(args: {
-		delay: number | Temporal.Duration,
+		delay: number | TemporalishDuration,
 		signal?: AbortSignal,
 	}): Promise<void>,
 
@@ -27,7 +30,7 @@ interface AfterFn {
 	 * Returns new Promise, that fulfills after given delay to specified value.
 	 */
 	<T>(args: {
-		delay: number | Temporal.Duration,
+		delay: number | TemporalishDuration,
 		signal?: AbortSignal,
 		value: T,
 	}): Promise<T>,
@@ -112,10 +115,10 @@ let nodeSetTimeout: () => Promise<PromiseSetTimeout> | PromiseSetTimeout = async
 }
 
 Promise.after ??= async function after<T = void>(args: {
-	delay: number | Temporal.Duration,
+	delay: number | TemporalishDuration,
 	signal?: AbortSignal,
 	value: T,
-} | number | Temporal.Duration): Promise<T> {
+} | number | TemporalishDuration): Promise<T> {
 	const { delay, signal, value } = typeof args === "number" || !("delay" in args)
 		? { delay: args }
 		: args

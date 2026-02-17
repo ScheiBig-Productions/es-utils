@@ -150,4 +150,4 @@ Retry.TimeoutError = function TimeoutError(cause, type) {
 Retry.TimeoutError.prototype = Object.create(Error.prototype);
 Retry.TimeoutError.prototype.constructor = Retry.TimeoutError;
 Object_tag(Retry.TimeoutError);
-//# sourceMappingURL=Retry.js.map
+//# sourceMappingURL=retry.js.map

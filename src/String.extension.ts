@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/naming-convention --
+ * Simulating paths of utilities
+ */
 /* eslint-disable @typescript-eslint/no-unnecessary-condition --
-* Conditional assignment for `Array.prototype` props (`??=`) is intentional and context-aware:
-* it acts as a runtime polyfill or extension, only defining the method if it doesn't already exist.
-* Although the method may appear always present in type definitions,
-* the actual environment might lack it (e.g. ES2022 targets).
-*/
+ * Conditional assignment for `Array.prototype` props (`??=`) is intentional and context-aware:
+ * it acts as a runtime polyfill or extension, only defining the method if it doesn't already exist.
+ * Although the method may appear always present in type definitions,
+ * the actual environment might lack it (e.g. ES2022 targets).
+ */
 
 import { util_inspect } from "./common/util.inspect.js"
 
@@ -103,6 +106,28 @@ String.prototype.indent ??= function indent(
 	return this.replace(/^/ugm, indent)
 }
 
+type Array_findLastIndexFn = <T>(
+	that: Array<T>,
+	predicate: (value: T, index: number, array: Array<T>) => unknown,
+) => number
+
+const __findLastIndex = "findLastIndex" in Array.prototype
+	&& typeof Array.prototype.findLastIndex === "function"
+	? Array.prototype.findLastIndex
+	: null
+
+const Array_findLastIndex = __findLastIndex
+	? ((that, predicate) => __findLastIndex.call(that, predicate)) as Array_findLastIndexFn
+	: function findLastIndex<T>(
+		that: Array<T>,
+		predicate: (value: T, index: number, array: Array<T>) => unknown,
+	) {
+		for (let i = that.length - 1; i >= 0; i--) {
+			if (predicate(that[i], i, that)) { return i }
+		}
+		return -1
+	}
+
 String.prototype.trimIndent ??= function trimIndent(
 	this: string,
 	tabWith: number = 4,
@@ -115,7 +140,7 @@ String.prototype.trimIndent ??= function trimIndent(
 		.minBy((l) => l.length) ?? ""
 
 	const firstNonBlank = lines.findIndex((l) => l.trim())
-	const lastNonBlank = lines.findLastIndex((l) => l.trim())
+	const lastNonBlank = Array_findLastIndex(lines, (l) => l.trim())
 
 	return lines.slice(firstNonBlank, lastNonBlank + 1)
 		.map((l) => l.replace(

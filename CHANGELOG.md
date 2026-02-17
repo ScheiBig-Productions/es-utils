@@ -5,6 +5,10 @@ Simple journal of changes made to package.
 
 ---
 
+### [2026-02-17] - `2.0.0`
+
+Remove all external deps and public polyfills
+
 ### [2026-02-17] - `1.19.0`
 
 Add Result type, remove accidental requirement for Error.never

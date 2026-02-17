@@ -1,4 +1,6 @@
-
+/* eslint-disable @typescript-eslint/naming-convention --
+ * Simulating paths of utilities
+ */
 /* eslint-disable @typescript-eslint/no-unnecessary-condition --
 * Conditional assignment for `Array.prototype` props (`??=`) is intentional and context-aware:
 * it acts as a runtime polyfill or extension, only defining the method if it doesn't already exist.
@@ -469,7 +471,7 @@ Array.prototype.ascBy ??= function ascBy<T>(
 
 	const col = new Intl.Collator(config?.locale, config)
 
-	return this.toSorted((a, b) => {
+	const ordering = (a: T, b: T) => {
 		const f = selector(a)
 		const s = selector(b)
 
@@ -482,7 +484,14 @@ Array.prototype.ascBy ??= function ascBy<T>(
 		}
 
 		return f < s ? -1 : f > s ? 1 : 0
-	})
+	}
+
+	if ("toSorted" in this && typeof this.toSorted === "function") {
+		return this.toSorted(ordering)
+	}
+	const newThis = Array.from(this)
+	newThis.sort(ordering)
+	return newThis
 }
 
 Array.prototype.descBy ??= function descBy<T>(
@@ -494,7 +503,7 @@ Array.prototype.descBy ??= function descBy<T>(
 
 	const col = new Intl.Collator(config?.locale, config)
 
-	return this.toSorted((a, b) => {
+	const ordering = (a: T, b: T) => {
 		const f = selector(a)
 		const s = selector(b)
 
@@ -507,7 +516,14 @@ Array.prototype.descBy ??= function descBy<T>(
 		}
 
 		return f < s ? 1 : f > s ? -1 : 0
-	})
+	}
+
+	if ("toSorted" in this && typeof this.toSorted === "function") {
+		return this.toSorted(ordering)
+	}
+	const newThis = Array.from(this)
+	newThis.sort(ordering)
+	return newThis
 }
 
 Array.prototype.splitBy ??= function splitBy<T>(
@@ -570,13 +586,59 @@ Array.prototype.shuffle ??= function shuffle<T>(
 	return this
 }
 
+type Map_groupBy = <T, K>(
+	items: ArrayLike<T>,
+	keySelector: (item: T, index: number) => K,
+) => Map<K, Array<T>>
+
+const Map_groupBy = "groupBy" in Map && typeof Map.groupBy === "function"
+	? Map.groupBy as Map_groupBy
+	: function groupBy<T, K>(
+		items: ArrayLike<T>,
+		keySelector: (item: T, index: number) => K,
+	): Map<K, Array<T>> {
+		const result = new Map<K, Array<T>>()
+		for (let i = 0; i < items.length; i++) {
+			const key = keySelector(items[i], i)
+			if (!result.has(key)) {
+				result.set(key, [])
+			}
+			result.get(key)
+				?.push(items[i])
+		}
+		return result
+	}
+
+type Object_groupBy = <T, K extends PropertyKey>(
+	items: ArrayLike<T>,
+	keySelector: (item: T, index: number) => K,
+) => Partial<Record<K, Array<T>>>
+
+const Object_groupBy = "groupBy" in Map && typeof Map.groupBy === "function"
+	? Map.groupBy as Object_groupBy
+	: function groupBy<T, K extends PropertyKey>(
+		items: ArrayLike<T>,
+		keySelector: (item: T, index: number) => K,
+	): Partial<Record<K, Array<T>>> {
+	/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment --
+	 * No other away to please type-checker
+	 */
+		const result: Partial<Record<K, Array<T>>> = Object.create(null)
+		for (let i = 0; i < items.length; i++) {
+			const key = keySelector(items[i], i)
+			; (result[key] ??= []).push(items[i])
+		}
+		return result
+	}
+
+
 Array.prototype.groupBy ??= function groupBy<T, K extends keyof T | ((string | number) & {})>(
 	this: Array<T>,
 	keySelector: (item: T, index: number) => K,
 	returnType: "Object" | "Map" = "Object",
 ) {
-	if (returnType === "Object") { return Object.groupBy(this, keySelector) }
-	if (returnType === "Map") { return Map.groupBy(this, keySelector) }
+	if (returnType === "Object") { return Object_groupBy(this, keySelector) }
+	if (returnType === "Map") { return Map_groupBy(this, keySelector) }
 	throw TypeError(`Unknown grouping provider: ${String(returnType)}.`)
 } as GroupByFn
 

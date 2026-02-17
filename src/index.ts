@@ -1,8 +1,3 @@
-import "./Array.polyfill.js"
-import "./Map.polyfill.js"
-import "./Object.polyfill.js"
-import "./Set.polyfill.js"
-
 import "./Array.extension.js"
 import "./Error.extension.js"
 import "./fetch.extension.js"
@@ -25,5 +20,3 @@ export { SC } from "./status-codes.js"
 export type { PromiseFactory } from "./promise-factory.js"
 
 export type { Mutable, MethodKeys, Awaitable } from "./types.js"
-
-export { Temporal, Intl } from "@js-temporal/polyfill"

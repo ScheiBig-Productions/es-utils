@@ -2,18 +2,6 @@
  * Following practices set in lib.es.d.ts
  */
 import { Object_tag } from "./common/object.tag.js";
-Map.groupBy ??= function groupBy(items, keySelector) {
-    const result = new Map();
-    for (let i = 0; i < items.length; i++) {
-        const key = keySelector(items[i], i);
-        if (!result.has(key)) {
-            result.set(key, []);
-        }
-        result.get(key)
-            ?.push(items[i]);
-    }
-    return result;
-};
 Map.Indexed ??= class IndexedMap extends Map {
     $;
     constructor(entries) {

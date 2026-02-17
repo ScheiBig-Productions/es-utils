@@ -72,23 +72,7 @@ declare global {
 	}
 }
 
-Map.groupBy ??= function groupBy<T, K>(
-	items: ArrayLike<T>,
-	keySelector: (item: T, index: number) => K,
-): Map<K, Array<T>> {
-	const result = new Map<K, Array<T>>()
-	for (let i = 0; i < items.length; i++) {
-		const key = keySelector(items[i], i)
-		if (!result.has(key)) {
-			result.set(key, [])
-		}
-		result.get(key)
-			?.push(items[i])
-	}
-	return result
-}
-
-; (
+(
 	Map as Mutable<MapConstructor>
 ).Indexed ??= class IndexedMap<K extends string | symbol, V> extends Map<K, V> {
 	readonly $: Record<K, V>

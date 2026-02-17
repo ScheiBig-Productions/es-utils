@@ -1,15 +1,32 @@
+/* eslint-disable @typescript-eslint/naming-convention --
+ * Simulating paths of utilities
+ */
 /* eslint-disable @typescript-eslint/no-unnecessary-condition --
-* Conditional assignment for `Array.prototype` props (`??=`) is intentional and context-aware:
-* it acts as a runtime polyfill or extension, only defining the method if it doesn't already exist.
-* Although the method may appear always present in type definitions,
-* the actual environment might lack it (e.g. ES2022 targets).
-*/
+ * Conditional assignment for `Array.prototype` props (`??=`) is intentional and context-aware:
+ * it acts as a runtime polyfill or extension, only defining the method if it doesn't already exist.
+ * Although the method may appear always present in type definitions,
+ * the actual environment might lack it (e.g. ES2022 targets).
+ */
 import { util_inspect } from "./common/util.inspect.js";
 String.prototype.indent ??= function indent(
 // eslint-disable-next-line no-shadow -- no need for backreference with same name
 indent) {
     return this.replace(/^/ugm, indent);
 };
+const __findLastIndex = "findLastIndex" in Array.prototype
+    && typeof Array.prototype.findLastIndex === "function"
+    ? Array.prototype.findLastIndex
+    : null;
+const Array_findLastIndex = __findLastIndex
+    ? ((that, predicate) => __findLastIndex.call(that, predicate))
+    : function findLastIndex(that, predicate) {
+        for (let i = that.length - 1; i >= 0; i--) {
+            if (predicate(that[i], i, that)) {
+                return i;
+            }
+        }
+        return -1;
+    };
 String.prototype.trimIndent ??= function trimIndent(tabWith = 4) {
     const lines = this.split("\n");
     const indent = lines.filter((l) => l.trim())
@@ -17,7 +34,7 @@ String.prototype.trimIndent ??= function trimIndent(tabWith = 4) {
         .map((l) => l.replace(/\t/gu, " ".repeat(tabWith)))
         .minBy((l) => l.length) ?? "";
     const firstNonBlank = lines.findIndex((l) => l.trim());
-    const lastNonBlank = lines.findLastIndex((l) => l.trim());
+    const lastNonBlank = Array_findLastIndex(lines, (l) => l.trim());
     return lines.slice(firstNonBlank, lastNonBlank + 1)
         .map((l) => l.replace(/^(\s*)/gu, (m) => m.replace(/\t/gu, " ".repeat(tabWith))))
         .map((l) => l.trimEnd())

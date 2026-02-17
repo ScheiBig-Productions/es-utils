@@ -1,7 +1,3 @@
-import "./Array.polyfill.js";
-import "./Map.polyfill.js";
-import "./Object.polyfill.js";
-import "./Set.polyfill.js";
 import "./Array.extension.js";
 import "./Error.extension.js";
 import "./fetch.extension.js";
@@ -20,5 +16,4 @@ export { QueryParams } from "./query-params.js";
 export { Result } from "./result.js";
 export { Retry } from "./retry.js";
 export { SC } from "./status-codes.js";
-export { Temporal, Intl } from "@js-temporal/polyfill";
 //# sourceMappingURL=index.js.map
