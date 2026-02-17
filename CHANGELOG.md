@@ -5,6 +5,10 @@ Simple journal of changes made to package.
 
 ---
 
+### [2026-02-17] - `1.19.0`
+
+Add Result type, remove accidental requirement for Error.never
+
 ### [2026-02-15] - `1.18.0`
 
 Add more status codes, upgrade and fix linting

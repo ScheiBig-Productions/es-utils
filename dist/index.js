@@ -17,7 +17,8 @@ export { Iter } from "./iter.js";
 export { Log } from "./log.js";
 export { Mime } from "./mime.js";
 export { QueryParams } from "./query-params.js";
-export { Retry } from "./Retry.js";
+export { Result } from "./result.js";
+export { Retry } from "./retry.js";
 export { SC } from "./status-codes.js";
 export { Temporal, Intl } from "@js-temporal/polyfill";
 //# sourceMappingURL=index.js.map

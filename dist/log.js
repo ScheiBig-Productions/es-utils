@@ -14,6 +14,7 @@
  * Use before declaration requires qualification.
  */
 import { util_inspect } from "./common/util.inspect.js";
+import { ContractViolationError } from "./contract-violation-error.js";
 import "./JSON.extension.js";
 const stdWriter = console;
 const colorDisabled = (() => {
@@ -493,7 +494,7 @@ const __colorize__ = colorize;
                 break;
             }
             default: {
-                return Error.never("There are no other primitive values", val);
+                throw ContractViolationError(`There are no other primitive values: ${String(val)}`);
             }
         }
         valTag += keyTag && ` : ${keyTag}`;
