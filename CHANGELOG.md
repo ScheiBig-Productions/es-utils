@@ -5,6 +5,10 @@ Simple journal of changes made to package.
 
 ---
 
+### [2026-02-17] - `2.1.0`
+
+Introduce docs export, remove docs from readme.md, rework Array.extension.ts to support wiki docs
+
 ### [2026-02-17] - `2.0.0`
 
 Remove all external deps and public polyfills

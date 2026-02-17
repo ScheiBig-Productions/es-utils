@@ -1,6 +1,7 @@
-/* eslint-disable-next-line @typescript-eslint/naming-convention --
+/* eslint-disable @typescript-eslint/naming-convention --
  * Following original usage for convenience
  */
+/** @internal */
 export let util_inspect: (((
 	object: unknown,
 	options?: inspectOptions,
@@ -14,6 +15,7 @@ void (async () => {
 	}
 })()
 
+/** @internal */
 export type inspectOptions = {
 	showHidden?: boolean | undefined,
 	depth?: number | null | undefined,

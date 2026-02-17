@@ -213,7 +213,7 @@ export default config(
 			eqeqeq: [ "error", "smart" ],
 			"func-name-matching": [ "off" ], // this might come handy someway
 			"func-names": [ "warn", "as-needed" ],
-			"func-style": [ "warn", "expression" ],
+			"func-style": [ "off", "expression" ], // due to winning semantics in namespaces
 			"grouped-accessor-pairs": [ "error", "getBeforeSet" ],
 			"guard-for-in": [ "error" ],
 			"id-denylist": [ "off" ], // kinda stupid if you are not working with magic names
@@ -1223,7 +1223,7 @@ export default config(
 				before: false,
 				after: true,
 				overrides: {
-					arrow: "ignore"
+					arrow: "ignore",
 				},
 			}],
 			"@stylistic/type-generic-spacing": [ "error" ],
