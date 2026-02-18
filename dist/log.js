@@ -145,9 +145,6 @@ const pauseBacklog = new Array();
  *
  * @returns `time` if passed, timestamp of log message otherwise
  */
-/* eslint-disable-next-line func-style --
- * Necessary for namespace-merging
- */
 export function Log(lvl, tag, message, time) {
     const timestamp = time ?? new Date();
     const localDT = new Date(timestamp.getTime() - (timestamp.getTimezoneOffset() * 1000));

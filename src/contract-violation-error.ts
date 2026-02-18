@@ -1,3 +1,9 @@
+/**
+ * Provides ES5 callable-class error, that is idiomatic for use in contracts and assertions.
+ *
+ * Per callable-class convention, class can be constructed with or without `new` keyword.
+ * @module
+ */
 /* eslint-disable @typescript-eslint/no-unnecessary-condition --
 * Conditional assignment for `Array.prototype` props (`??=`) is intentional and context-aware:
 * it acts as a runtime polyfill or extension, only defining the method if it doesn't already exist.
@@ -11,15 +17,12 @@ import { Object_tag } from "./common/object.tag.js"
  * Represents a runtime contract violation - typically thrown when a function
  * is called in a way that should never happen under correct program logic.
  *
- * Internally used by `Error.never`
- *
- * This error is designed to be used both with and without the `new` keyword,
- * and mimics native `Error` behavior as closely as possible in ES5-compatible environments.
+ * Internally used by `Error.never` and `Object.require`.
  */
 export interface ContractViolationError extends Error {
 
 	/**
-	 * Cause of contract violation. In `Error.never`, this is populated by `msg`.
+	 * Cause of contract violation.
 	 *
 	 * This is only customizable part of error, as `message` is pre-set by implementation.
 	 * */
@@ -27,32 +30,33 @@ export interface ContractViolationError extends Error {
 }
 
 /**
- * Constructor interface for {@link ContractViolationError}.
+ * Callable-Constructor interface for {@link ContractViolationError}.
  *
- * Supports both `new ContractViolationError(...)` and `ContractViolationError(...)` usage.
+ * Per callable-class convention, class can be constructed with or without `new` keyword.
  */
 export interface ContractViolationErrorConstructor {
 
 	/**
 	 * Creates new `ContractViolationError` with provided cause and preset message.
 	 *
-	 * @param cause - Cause of contract violation. In `Error.never`, this is populated by `msg`.
+	 * @param cause - Cause of contract violation.
 	 */
 	new (cause?: string | Error): ContractViolationError,
 
 	/**
 	 * Creates new `ContractViolationError` with provided cause and preset message.
 	 *
-	 * @param cause - Cause of contract violation. In `Error.never`, this is populated by `msg`.
+	 * @param cause - Cause of contract violation.
 	 */
 	(cause?: string | Error): ContractViolationError,
+
 	prototype: ContractViolationError,
 }
 
 /**
- * Constructor for {@link ContractViolationError}.
+ * Callable-Constructor for {@link ContractViolationError}.
  *
- * Supports both `new ContractViolationError(...)` and `ContractViolationError(...)` usage.
+ * Per callable-class convention, class can be constructed with or without `new` keyword.
  */
 /* eslint-disable-next-line func-names --
  * Relying on name propagation from const, as shadowing would be extremely annoying here.
@@ -66,7 +70,7 @@ export const ContractViolationError: ContractViolationErrorConstructor = functio
 		? this
 		: Object.create(ContractViolationError.prototype) as ContractViolationError
 
-	const message = "This function should never be successfully called!"
+	const message = "Violation of assertion or contract"
 	self.name = "ContractViolationError"
 	self.message = message
 	if (cause) {

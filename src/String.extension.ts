@@ -106,7 +106,7 @@ String.prototype.indent ??= function indent(
 	return this.replace(/^/ugm, indent)
 }
 
-type Array_findLastIndexFn = <T>(
+type __findLastIndexFn = <T>(
 	that: Array<T>,
 	predicate: (value: T, index: number, array: Array<T>) => unknown,
 ) => number
@@ -117,7 +117,7 @@ const __findLastIndex = "findLastIndex" in Array.prototype
 	: null
 
 const Array_findLastIndex = __findLastIndex
-	? ((that, predicate) => __findLastIndex.call(that, predicate)) as Array_findLastIndexFn
+	? ((that, predicate) => __findLastIndex.call(that, predicate) as number) as __findLastIndexFn
 	: function findLastIndex<T>(
 		that: Array<T>,
 		predicate: (value: T, index: number, array: Array<T>) => unknown,

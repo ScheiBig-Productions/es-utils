@@ -11,7 +11,7 @@ declare global {
          * @param msg - Optional message or error instance.
          * It is strongly recommended that message is provided for logging purpose.
          * @param context - Additional debug info.
-         * @throws {ContractViolationError}
+         * @throws {@link ContractViolationError} - Always
          * @see {@link ContractViolationError}
          */
         never: (msg?: string | Error, ...context: Array<any>) => never;

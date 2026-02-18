@@ -5,6 +5,7 @@
 * the actual environment might lack it (e.g. ES2022 targets).
 */
 import { Object_tag } from "./common/object.tag.js";
+import { ContractViolationError } from "./contract-violation-error.js";
 Object.omit ??= function omit(obj, ...keys) {
     return Object.fromEntries(Object.entries(obj)
         .filter(([key]) => !keys.includes(key)));
@@ -37,7 +38,7 @@ Object.else ??= {
         }
         // Guard against invalid fallback object
         if (typeof fallback !== "object" || fallback === null) {
-            throw TypeError("Invalid overload: missing fallbacks.");
+            throw ContractViolationError("Invalid overload: missing fallbacks.");
         }
         const ifNull = "null" in fallback ? fallback.null : () => null;
         const ifUndef = "undef" in fallback ? fallback.undef : () => undefined;

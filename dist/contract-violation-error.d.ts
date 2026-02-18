@@ -1,44 +1,47 @@
 /**
+ * Provides ES5 callable-class error, that is idiomatic for use in contracts and assertions.
+ *
+ * Per callable-class convention, class can be constructed with or without `new` keyword.
+ * @module
+ */
+/**
  * Represents a runtime contract violation - typically thrown when a function
  * is called in a way that should never happen under correct program logic.
  *
- * Internally used by `Error.never`
- *
- * This error is designed to be used both with and without the `new` keyword,
- * and mimics native `Error` behavior as closely as possible in ES5-compatible environments.
+ * Internally used by `Error.never` and `Object.require`.
  */
 export interface ContractViolationError extends Error {
     /**
-     * Cause of contract violation. In `Error.never`, this is populated by `msg`.
+     * Cause of contract violation.
      *
      * This is only customizable part of error, as `message` is pre-set by implementation.
      * */
     cause?: string | Error;
 }
 /**
- * Constructor interface for {@link ContractViolationError}.
+ * Callable-Constructor interface for {@link ContractViolationError}.
  *
- * Supports both `new ContractViolationError(...)` and `ContractViolationError(...)` usage.
+ * Per callable-class convention, class can be constructed with or without `new` keyword.
  */
 export interface ContractViolationErrorConstructor {
     /**
      * Creates new `ContractViolationError` with provided cause and preset message.
      *
-     * @param cause - Cause of contract violation. In `Error.never`, this is populated by `msg`.
+     * @param cause - Cause of contract violation.
      */
     new (cause?: string | Error): ContractViolationError;
     /**
      * Creates new `ContractViolationError` with provided cause and preset message.
      *
-     * @param cause - Cause of contract violation. In `Error.never`, this is populated by `msg`.
+     * @param cause - Cause of contract violation.
      */
     (cause?: string | Error): ContractViolationError;
     prototype: ContractViolationError;
 }
 /**
- * Constructor for {@link ContractViolationError}.
+ * Callable-Constructor for {@link ContractViolationError}.
  *
- * Supports both `new ContractViolationError(...)` and `ContractViolationError(...)` usage.
+ * Per callable-class convention, class can be constructed with or without `new` keyword.
  */
 export declare const ContractViolationError: ContractViolationErrorConstructor;
 //# sourceMappingURL=contract-violation-error.d.ts.map

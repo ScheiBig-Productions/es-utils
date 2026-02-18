@@ -199,7 +199,7 @@ export declare namespace Array_prototype {
      *
      * @template T Type of this array
      * @this `this` array that should be padded
-     * @param maxLength Desired final length of the array.
+     * @param targetLength Desired final length of the array.
      * @param fillValue Value used to pad the array.
      * @returns A new array with padding applied.
      */

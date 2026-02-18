@@ -6,6 +6,7 @@
 */
 
 import { Object_tag } from "./common/object.tag.js"
+import { ContractViolationError } from "./contract-violation-error.js"
 
 
 interface ElseFn {
@@ -191,7 +192,7 @@ declare global {
 		 *
 		 * @param value - Value to verify.
 		 * @returns The same value if not null or undefined.
-		 * @throws TypeError if value is nullish.
+		 * @throws {@link ContractViolationError} if value is nullish.
 		 */
 		require: <T>(value: T | null | undefined) => T,
 
@@ -303,7 +304,7 @@ Object.else ??= {
 
 		// Guard against invalid fallback object
 		if (typeof fallback !== "object" || fallback === null) {
-			throw TypeError("Invalid overload: missing fallbacks.")
+			throw ContractViolationError("Invalid overload: missing fallbacks.")
 		}
 
 		const ifNull = "null" in fallback ? fallback.null : () => null

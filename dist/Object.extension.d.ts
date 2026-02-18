@@ -138,7 +138,7 @@ declare global {
          *
          * @param value - Value to verify.
          * @returns The same value if not null or undefined.
-         * @throws TypeError if value is nullish.
+         * @throws {@link ContractViolationError} if value is nullish.
          */
         require: <T>(value: T | null | undefined) => T;
         /**

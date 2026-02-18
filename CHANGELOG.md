@@ -5,6 +5,10 @@ Simple journal of changes made to package.
 
 ---
 
+### [2026-02-18] - `2.1.2`
+
+Fixes resulting from prepare script, fix docs for ContractViolationError and Enum
+
 ### [2026-02-17] - `2.1.1`
 
 patch docs theme, provide rest of Array.extension module docs as well as root module docs

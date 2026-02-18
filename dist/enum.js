@@ -1,27 +1,36 @@
+/**
+ * Provides utility for creating JS-optimized enums without heavy syntactic sugar
+ * of typescript enums.
+ * @module
+ */
 import { Object_tag } from "./common/object.tag.js";
+/** Inspection symbol that is backing {@link Enum.values} */
 const Symbol_enumValues = Symbol("Enum Values");
 /**
  * Allows for creation of `Enum`, which provides runtime-level enums, without disgusting
  * generated mess done by TypeScripts `enum`s.
  *
- * It facilitates storage of allowed values, which might come in handy in parsing scenarios.
- *
  * Created enums are frozen and cannot be modified in any way.
- * Due to specific quirks of JS, `Enum` instances still have Object prototype,
- * however any property from it can be shadowed safely.
+ * Per convention of pure-representation, enums are constructed on top
+ * of `[Object: null prototype]` broken promise chain, ensuring that beside `constructor`
+ * and inspection symbols, no other additional properties are present,
+ * that are not defined by {@link T}.
+ *
+ * @template T Definition of enum properties, that can be direct (`myEnum.A === "A"`)
+ * or aliased (`myEnum.B === "C"`).
  *
  * @example
  * const Cars = Enum("Audi", "Peugeot", ["Lexus", "Toyota"])
- * //    ^? => { Audi: "Audi", Peugeot: "Peugeot", Lexus: "Toyota" }
+ * //    ^? => Enum { Audi: "Audi", Peugeot: "Peugeot", Lexus: "Toyota" }
  *
- * type Cars = Enum.type<typeof Cars>
+ * type TCars = Enum.type<typeof Cars>
  * //   ^? => "Audi" | "Peugeot" | "Toyota"
  *
  * const supportedCars = Enum.values(Cars)
  * //    ^? => ("Audi" | "Peugeot" | "Toyota")[]
  *
-*
- * const foo = (car: Cars) => { / some logic / }
+ *
+ * const foo = (car: TCars) => { / some logic / }
  * // This is valid
  * foo(Cars.Audi)
  * // And this too
@@ -44,5 +53,7 @@ export const Enum = Object.assign(function Enum(...rawValues) {
 }, {
     values: function Enum_values(enumObj) { return enumObj[Symbol_enumValues]; },
 });
+Enum.prototype = Object.create(null);
+Enum.prototype.constructor = Enum;
 Object_tag(Enum);
 //# sourceMappingURL=enum.js.map
